@@ -5,14 +5,19 @@ import com.project.bankassetor.exception.BalanceNotEnoughException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.model.entity.Account;
 import com.project.bankassetor.model.entity.BankAccount;
+import com.project.bankassetor.model.entity.TransactionHistory;
 import com.project.bankassetor.model.entity.User;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
+import com.project.bankassetor.repository.BankAccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,11 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 class BankServiceTest {
 
+    @Autowired
     private BankService bankService;
+
+    @Autowired
+    private BankAccountRepository bankAccountRepository;
 
     @BeforeEach
     public void setUp() {
-        bankService = new BankService();
 
         // 10개의 계좌와 유저 데이터를 초기화
         for (int i = 1; i <= 10; i++) {
@@ -37,16 +45,16 @@ class BankServiceTest {
             String userName = "User" + i;
             User user = new User(userId, userName);
 
-            BankAccount bankAccount = new BankAccount(i, account, user);
-            bankService.addAccount(bankAccount);
+            BankAccount bankAccount = new BankAccount(accountId, account, user);
+            bankAccountRepository.save(bankAccount);
         }
     }
 
     @Test
     @DisplayName("10개의 계좌 초기화 테스트")
     public void test_Total_Accounts() {
-        bankService.printAccounts();
-        assertEquals(10, bankService.getTotalAccounts());
+        bankAccountRepository.printAccounts();
+        assertEquals(10, bankAccountRepository.getTotalBankAccounts());
     }
 
     @Test
@@ -66,7 +74,7 @@ class BankServiceTest {
 
         bankService.withdraw(accountRequest);
 
-        bankService.printAccounts();
+        bankAccountRepository.printAccounts();
         assertEquals(2000, bankService.checkBalance(accountNumber));  // 기존 잔액 3000 - 1000
     }
 
@@ -117,7 +125,7 @@ class BankServiceTest {
         bankService.deposit(accountRequest);
 
         // then
-        bankService.printAccounts();
+        bankAccountRepository.printAccounts();
         assertEquals(4000, bankService.checkBalance(accountNumber));  // 기존 잔액 3000 + 1000
     }
 
@@ -148,10 +156,10 @@ class BankServiceTest {
 
         bankService.transfer(transferRequest);
 
-        bankService.printAccounts();
+        bankAccountRepository.printAccounts();
         assertEquals(500, bankService.checkBalance(withdrawalNumber));  // 기존 잔액 1000 - 500
         assertEquals(2500, bankService.checkBalance(transferNumber));  // 기존 잔액 2000 + 500
-        assertEquals("User2", bankService.findAccountByNumber(transferNumber).getUser().getName()); // 이체 받은 사람 이름
+        assertEquals("User2", bankAccountRepository.findBankAccountByAccountNumber(transferNumber).getUser().getName()); // 이체 받은 사람 이름
     }
 
     @Test

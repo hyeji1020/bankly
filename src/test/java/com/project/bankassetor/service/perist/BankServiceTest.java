@@ -3,6 +3,7 @@ package com.project.bankassetor.service.perist;
 import com.project.bankassetor.exception.AccountNotFoundException;
 import com.project.bankassetor.exception.BalanceNotEnoughException;
 import com.project.bankassetor.exception.ErrorCode;
+import com.project.bankassetor.exception.HistoryNotFoundException;
 import com.project.bankassetor.model.entity.Account;
 import com.project.bankassetor.model.entity.BankAccount;
 import com.project.bankassetor.model.entity.TransactionHistory;
@@ -33,6 +34,8 @@ class BankServiceTest {
 
     @BeforeEach
     public void setUp() {
+
+        bankAccountRepository.deleteAll();
 
         // 10개의 계좌와 유저 데이터를 초기화
         for (int i = 1; i <= 10; i++) {
@@ -199,8 +202,8 @@ class BankServiceTest {
     }
 
     @Test
-    @DisplayName("거래 내역 확인 테스트")
-    public void test_Trasaction_History_Get_Success() {
+    @DisplayName("거래 내역 확인 성공 테스트")
+    public void test_Transaction_History_Get_Success() {
         // given
         long accountNumber = 100002;
         int amount = 1000;
@@ -219,5 +222,22 @@ class BankServiceTest {
         assertEquals(2, result.size());
     }
 
+    @Test
+    @DisplayName("거래 내역 확인 시 내역 없을 때 예외 발생")
+    public void test_Transaction_History_Not_Found() {
+        // given
+        long accountNumber = 100002;
+        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountNumber(accountNumber);
+        long accountId = bankAccount.getAccount().getId();
+
+        // when & then
+        HistoryNotFoundException exception = assertThrows(HistoryNotFoundException.class, () -> {
+            bankService.findBalanceHistory(accountId);
+        });
+
+        // then
+        assertEquals(ErrorCode.HISTORY_NOT_FOUND.getDefaultMessage(), exception.getMessage());
+        assertEquals(HttpStatus.NOT_FOUND, exception.getErrorCode().getStatus());
+    }
 
 }

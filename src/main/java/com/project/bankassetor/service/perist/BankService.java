@@ -3,6 +3,7 @@ package com.project.bankassetor.service.perist;
 import com.project.bankassetor.exception.AccountNotFoundException;
 import com.project.bankassetor.exception.BalanceNotEnoughException;
 import com.project.bankassetor.exception.ErrorCode;
+import com.project.bankassetor.exception.HistoryNotFoundException;
 import com.project.bankassetor.model.entity.Account;
 import com.project.bankassetor.model.entity.BankAccount;
 import com.project.bankassetor.model.entity.TransactionHistory;
@@ -161,8 +162,14 @@ public class BankService {
             throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
 
-        return transactionHistoryRepository.findHistoriesByAccountId(accountId);
+        List<TransactionHistory> findHistory = transactionHistoryRepository.findHistoriesByAccountId(accountId);
 
+        if(findHistory.size() == 0){
+            log.warn("계좌번호 아이디: {}에 해당하는 거래 내역을 찾을 수 없습니다.", accountId);
+            throw new HistoryNotFoundException(ErrorCode.HISTORY_NOT_FOUND);
+        }
+
+        return findHistory;
     }
 
 }

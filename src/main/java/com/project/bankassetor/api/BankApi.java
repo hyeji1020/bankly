@@ -4,14 +4,12 @@ import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.response.AccountResponse;
 import com.project.bankassetor.model.response.AccountTransferResponse;
+import com.project.bankassetor.model.response.BalanceHistoryResponse;
 import com.project.bankassetor.model.response.ResultResponse;
 import com.project.bankassetor.service.front.BankFrontService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,6 +36,13 @@ public class BankApi {
     @PutMapping("/transfer")
     public ResultResponse<AccountTransferResponse> transfer(@Valid @RequestBody AccountTransferRequest transferRequest) {
         AccountTransferResponse response = bankFrontService.transfer(transferRequest);
+        return new ResultResponse<>(response);
+    }
+
+    // 거래 내역 확인
+    @GetMapping("/{accountId}/balance-history")
+    public ResultResponse<BalanceHistoryResponse> findBalanceHistory(@PathVariable Long accountId) {
+        BalanceHistoryResponse response = bankFrontService.findBalanceHistory(accountId);
         return new ResultResponse<>(response);
     }
 

@@ -5,13 +5,17 @@ import com.project.bankassetor.exception.BalanceNotEnoughException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.model.entity.Account;
 import com.project.bankassetor.model.entity.BankAccount;
+import com.project.bankassetor.model.entity.TransactionHistory;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -19,6 +23,12 @@ import java.util.Map;
 public class BankService {
 
     private final Map<Long, BankAccount> accountMap = new HashMap<>();
+    private final Map<Long, TransactionHistory> historyMap = new HashMap<>();
+
+    // 계좌번호 아이디로 거래 내역 찾기
+    public TransactionHistory findHistoryByAccountId(Long accountId) {
+        return historyMap.get(accountId);
+    }
 
     // 계좌 추가
     public BankAccount addAccount(BankAccount bankAccount) {
@@ -28,6 +38,11 @@ public class BankService {
     // 계좌 찾기
     public BankAccount findAccountByNumber(long accountNumber) {
         return accountMap.get(accountNumber);
+    }
+
+    // 계좌 아이디로 계좌 찾기
+    public BankAccount findAccountById(long accountId) {
+        return accountMap.get(accountId);
     }
 
     // 전체 계좌 개수 반환
@@ -77,10 +92,21 @@ public class BankService {
         // 기존 BankAccount 객체에서 Account 필드만 변경하여 새 객체 생성
         BankAccount updatedBankAccount = new BankAccount(bankAccount.getId(), updatedAccount, bankAccount.getUser());
 
+        // BalanceHistory 생성
+        TransactionHistory toHistory = TransactionHistory.builder()
+                .bankAccount(bankAccount)
+                .transactionTime(LocalDateTime.now())
+                .transactionAmount(accountRequest.getAmount())
+                .balanceBefore(bankAccount.getAccount().getBalance())
+                .balanceAfter(updatedAccount.getBalance())
+                .build();
+
         // 해시맵에 반영
         accountMap.put(accountRequest.getAccountNumber(), updatedBankAccount);
-
         log.info("입금 후 계좌정보:{}", updatedAccount.toString());
+
+        historyMap.put(toHistory.getId(), toHistory);
+        log.info("거래내역 정보:{}", toHistory.toString());
 
         return updatedAccount;
     }
@@ -110,10 +136,21 @@ public class BankService {
             // 기존 BankAccount 객체에서 Account 필드만 변경하여 새 객체 생성
             BankAccount updatedBankAccount = new BankAccount(bankAccount.getId(), updatedAccount, bankAccount.getUser());
 
+            // BalanceHistory 생성
+            TransactionHistory toHistory = TransactionHistory.builder()
+                    .bankAccount(bankAccount)
+                    .transactionTime(LocalDateTime.now())
+                    .transactionAmount(accountRequest.getAmount())
+                    .balanceBefore(bankAccount.getAccount().getBalance())
+                    .balanceAfter(updatedAccount.getBalance())
+                    .build();
+
             // 해시맵에 반영
             accountMap.put(accountRequest.getAccountNumber(), updatedBankAccount);
-
             log.info("출금 후 계좌정보:{}", updatedAccount.toString());
+
+            historyMap.put(toHistory.getId(), toHistory);
+            log.info("거래내역 정보:{}", toHistory.toString());
 
         return updatedAccount;
         }
@@ -147,6 +184,22 @@ public class BankService {
         deposit(depositRequest);
 
         return transferAccount;
+    }
+
+    // 거래 내역 확인
+    public TransactionHistory findBalanceHistory(Long accountId) {
+
+        // 1. 조회 하려는 계좌 확인
+        BankAccount bankAccount = findAccountById(accountId);
+
+        if(bankAccount == null) {
+            log.warn("계좌번호 아이디: {}에 해당하는 계좌를 찾을 수 없습니다.", accountId);
+            throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+        }
+
+        // 2. 거래 내역 확인
+        return findHistoryByAccountId(accountId);
+
     }
 
 }

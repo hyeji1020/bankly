@@ -60,4 +60,8 @@ public class BankAccountRepository {
         }
     }
 
+    // 데이터 초기화
+    public void deleteAll() {
+        accountMap.clear();
+    }
 }

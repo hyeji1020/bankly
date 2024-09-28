@@ -198,4 +198,26 @@ class BankServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, exception.getErrorCode().getStatus());
     }
 
+    @Test
+    @DisplayName("거래 내역 확인 테스트")
+    public void test_Trasaction_History_Get_Success() {
+        // given
+        long accountNumber = 100002;
+        int amount = 1000;
+        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountNumber(accountNumber);
+        long accountId = bankAccount.getAccount().getId();
+        AccountRequest accountRequest = new AccountRequest(accountNumber, amount);
+
+        // 거래 내역 만들기(2개)
+        bankService.deposit(accountRequest);
+        bankService.withdraw(accountRequest);
+
+        // when
+        List<TransactionHistory> result = bankService.findBalanceHistory(accountId);
+
+        // then
+        assertEquals(2, result.size());
+    }
+
+
 }

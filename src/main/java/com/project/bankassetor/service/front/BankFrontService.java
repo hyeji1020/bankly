@@ -12,6 +12,8 @@ import com.project.bankassetor.service.perist.BankService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class BankFrontService {
@@ -54,9 +56,9 @@ public class BankFrontService {
     }
 
     // 거래 내역 확인
-    public BalanceHistoryResponse findBalanceHistory(Long accountId) {
+    public List<BalanceHistoryResponse> findBalanceHistory(Long accountId) {
 
-        final TransactionHistory balanceHistory = bankService.findBalanceHistory(accountId);
+        final List<TransactionHistory> balanceHistory = bankService.findBalanceHistory(accountId);
 
         return BalanceHistoryResponse.of(balanceHistory);
     }

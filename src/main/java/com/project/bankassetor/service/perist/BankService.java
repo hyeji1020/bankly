@@ -152,18 +152,16 @@ public class BankService {
     }
 
     // 거래 내역 확인
-    public TransactionHistory findBalanceHistory(Long accountId) {
+    public List<TransactionHistory> findBalanceHistory(Long accountId) {
 
-        // 1. 조회 하려는 계좌 확인
-        BankAccount bankAccount = findAccountById(accountId);
+        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountId(accountId);
 
         if(bankAccount == null) {
             log.warn("계좌번호 아이디: {}에 해당하는 계좌를 찾을 수 없습니다.", accountId);
             throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
 
-        // 2. 거래 내역 확인
-        return findHistoryByAccountId(accountId);
+        return transactionHistoryRepository.findHistoriesByAccountId(accountId);
 
     }
 

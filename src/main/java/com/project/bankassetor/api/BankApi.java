@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/bank")
@@ -41,8 +43,8 @@ public class BankApi {
 
     // 거래 내역 확인
     @GetMapping("/{accountId}/balance-history")
-    public ResultResponse<BalanceHistoryResponse> findBalanceHistory(@PathVariable Long accountId) {
-        BalanceHistoryResponse response = bankFrontService.findBalanceHistory(accountId);
+    public ResultResponse<List<BalanceHistoryResponse>> findBalanceHistory(@PathVariable Long accountId) {
+        List<BalanceHistoryResponse> response = bankFrontService.findBalanceHistory(accountId);
         return new ResultResponse<>(response);
     }
 

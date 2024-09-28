@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Builder
@@ -18,13 +20,15 @@ public class BalanceHistoryResponse {
     int balanceBefore;  // 거래 전 잔액
     int balanceAfter;  // 거래 후 잔액
 
-    public static BalanceHistoryResponse of(TransactionHistory transactionHistory) {
-        return BalanceHistoryResponse.builder()
-                .transactionTime(transactionHistory.getTransactionTime())
-                .transactionAmount(transactionHistory.getTransactionAmount())
-                .balanceBefore(transactionHistory.getBalanceBefore())
-                .balanceAfter(transactionHistory.getBalanceAfter())
-                .build();
+    public static List<BalanceHistoryResponse> of(List<TransactionHistory> transactionHistories) {
+        return transactionHistories.stream()
+                .map(transactionHistory -> BalanceHistoryResponse.builder()
+                        .transactionTime(transactionHistory.getTransactionTime())
+                        .transactionAmount(transactionHistory.getTransactionAmount())
+                        .balanceBefore(transactionHistory.getBalanceBefore())
+                        .balanceAfter(transactionHistory.getBalanceAfter())
+                        .build())
+                .collect(Collectors.toList());
     }
 
 }

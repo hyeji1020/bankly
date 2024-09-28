@@ -8,62 +8,27 @@ import com.project.bankassetor.model.entity.BankAccount;
 import com.project.bankassetor.model.entity.TransactionHistory;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
+import com.project.bankassetor.repository.BankAccountRepository;
+import com.project.bankassetor.repository.TransactionHistoryRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class BankService {
 
-    private final Map<Long, BankAccount> accountMap = new HashMap<>();
-    private final Map<Long, TransactionHistory> historyMap = new HashMap<>();
-
-    // 계좌번호 아이디로 거래 내역 찾기
-    public TransactionHistory findHistoryByAccountId(Long accountId) {
-        return historyMap.get(accountId);
-    }
-
-    // 계좌 추가
-    public BankAccount addAccount(BankAccount bankAccount) {
-        return accountMap.put(bankAccount.getAccount().getAccountNumber(), bankAccount);
-    }
-
-    // 계좌 찾기
-    public BankAccount findAccountByNumber(long accountNumber) {
-        return accountMap.get(accountNumber);
-    }
-
-    // 계좌 아이디로 계좌 찾기
-    public BankAccount findAccountById(long accountId) {
-        return accountMap.get(accountId);
-    }
-
-    // 전체 계좌 개수 반환
-    public int getTotalAccounts() {
-        return accountMap.size();
-    }
-
-    // 저장된 계좌 정보 출력
-    public void printAccounts() {
-        for (Map.Entry<Long, BankAccount> entry : accountMap.entrySet()) {
-            BankAccount bankAccount = entry.getValue();
-            log.info("계좌번호: {}, 사용자: {}, 잔액: {}",
-                    bankAccount.getAccount().getAccountNumber(),
-                    bankAccount.getUser().getName(),
-                    bankAccount.getAccount().getBalance());
-        }
-    }
+    private final BankAccountRepository bankAccountRepository;
+    private final TransactionHistoryRepository transactionHistoryRepository;
 
     // 특정 계좌의 잔액 확인
     public int checkBalance(long accountNumber) {
-        BankAccount bankAccount = findAccountByNumber(accountNumber);
+        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountNumber(accountNumber);
 
         if(bankAccount == null){
             log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountNumber);
@@ -77,7 +42,7 @@ public class BankService {
     public Account deposit(AccountRequest accountRequest) {
 
         // 요청 계좌 번호 유무 확인 위해 조회
-        BankAccount bankAccount = findAccountByNumber(accountRequest.getAccountNumber());
+        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountNumber(accountRequest.getAccountNumber());
 
         if(bankAccount == null) {
             log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
@@ -102,10 +67,10 @@ public class BankService {
                 .build();
 
         // 해시맵에 반영
-        accountMap.put(accountRequest.getAccountNumber(), updatedBankAccount);
+        bankAccountRepository.update(bankAccount.getId(), updatedBankAccount);
         log.info("입금 후 계좌정보:{}", updatedAccount.toString());
 
-        historyMap.put(toHistory.getId(), toHistory);
+        transactionHistoryRepository.save(toHistory);
         log.info("거래내역 정보:{}", toHistory.toString());
 
         return updatedAccount;
@@ -115,7 +80,7 @@ public class BankService {
     public Account withdraw(AccountRequest accountRequest) {
 
         // 요청 계좌 번호 유무 확인 위해 조회
-        BankAccount bankAccount = findAccountByNumber(accountRequest.getAccountNumber());
+        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountNumber(accountRequest.getAccountNumber());
 
         if(bankAccount == null){
             log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
@@ -146,10 +111,10 @@ public class BankService {
                     .build();
 
             // 해시맵에 반영
-            accountMap.put(accountRequest.getAccountNumber(), updatedBankAccount);
+            bankAccountRepository.save(updatedBankAccount);
             log.info("출금 후 계좌정보:{}", updatedAccount.toString());
 
-            historyMap.put(toHistory.getId(), toHistory);
+            transactionHistoryRepository.save(toHistory);
             log.info("거래내역 정보:{}", toHistory.toString());
 
         return updatedAccount;
@@ -160,8 +125,8 @@ public class BankService {
     @Transactional
     public BankAccount transfer(AccountTransferRequest transferRequest) {
 
-        BankAccount withdrawalAccount = findAccountByNumber(transferRequest.getWithdrawalNumber());
-        BankAccount transferAccount = findAccountByNumber(transferRequest.getTransferNumber());
+        BankAccount withdrawalAccount = bankAccountRepository.findBankAccountByAccountNumber(transferRequest.getWithdrawalNumber());
+        BankAccount transferAccount = bankAccountRepository.findBankAccountByAccountNumber(transferRequest.getTransferNumber());
 
         // 1. 출금 계좌 확인
         if (withdrawalAccount == null) {

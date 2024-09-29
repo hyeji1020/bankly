@@ -7,7 +7,7 @@ import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.response.AccountResponse;
 import com.project.bankassetor.model.response.AccountTransferResponse;
-import com.project.bankassetor.model.response.BalanceHistoryResponse;
+import com.project.bankassetor.model.response.TransactionHistoryResponse;
 import com.project.bankassetor.service.perist.BankService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -56,10 +56,10 @@ public class BankFrontService {
     }
 
     // 거래 내역 확인
-    public List<BalanceHistoryResponse> findBalanceHistory(Long accountId) {
+    public List<TransactionHistoryResponse> findBalanceHistory(Long accountId) {
 
         final List<TransactionHistory> balanceHistory = bankService.findBalanceHistory(accountId);
 
-        return BalanceHistoryResponse.of(balanceHistory);
+        return TransactionHistoryResponse.of(balanceHistory);
     }
 }

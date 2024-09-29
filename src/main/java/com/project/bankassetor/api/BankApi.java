@@ -4,7 +4,7 @@ import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.response.AccountResponse;
 import com.project.bankassetor.model.response.AccountTransferResponse;
-import com.project.bankassetor.model.response.BalanceHistoryResponse;
+import com.project.bankassetor.model.response.TransactionHistoryResponse;
 import com.project.bankassetor.model.response.ResultResponse;
 import com.project.bankassetor.service.front.BankFrontService;
 import jakarta.validation.Valid;
@@ -43,8 +43,8 @@ public class BankApi {
 
     // 거래 내역 확인
     @GetMapping("/{accountId}/balance-history")
-    public ResultResponse<List<BalanceHistoryResponse>> findBalanceHistory(@PathVariable Long accountId) {
-        List<BalanceHistoryResponse> response = bankFrontService.findBalanceHistory(accountId);
+    public ResultResponse<List<TransactionHistoryResponse>> findBalanceHistory(@PathVariable Long accountId) {
+        List<TransactionHistoryResponse> response = bankFrontService.findBalanceHistory(accountId);
         return new ResultResponse<>(response);
     }
 

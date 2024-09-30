@@ -14,7 +14,6 @@ public interface TransactionHistoryRepository extends JpaRepository<TransactionH
     @Query(value = "SELECT th.* FROM transaction_history th " +
             "JOIN bank_account ba ON th.bank_account_id = ba.id " +
             "WHERE ba.account_id = :accountId", nativeQuery = true)
-    Optional<List<TransactionHistory>> findHistoriesByAccountId (Long accountId);
+    List<TransactionHistory> findHistoriesByAccountId (Long accountId);
 
-    // @Query(value = "SELECT * FROM transaction_history WHERE account_id = :accountId", nativeQuery = true)
 }

@@ -1,10 +1,12 @@
 package com.project.bankassetor.model.entity;
 
+import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
+@Table(name = "access_log")
 public class AccessLog {
     private Long seq;
     private String memberId;

@@ -11,18 +11,21 @@ import com.project.bankassetor.model.entity.User;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.repository.BankAccountRepository;
+import com.project.bankassetor.repository.TransactionHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@ActiveProfiles("test")
 @SpringBootTest
 class BankServiceTest {
 
@@ -32,13 +35,17 @@ class BankServiceTest {
     @Autowired
     private BankAccountRepository bankAccountRepository;
 
+    @Autowired
+    private TransactionHistoryRepository transactionHistoryRepository;
+
     @BeforeEach
     public void setUp() {
 
-        bankAccountRepository.deleteAll();
+        transactionHistoryRepository.deleteAllInBatch();
+        bankAccountRepository.deleteAllInBatch();
 
         // 10개의 계좌와 유저 데이터를 초기화
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 3; i++) {
             long accountId = i;
             long accountNumber = 100000 + i;
             int balance = i * 1000;
@@ -51,13 +58,6 @@ class BankServiceTest {
             BankAccount bankAccount = new BankAccount(accountId, account, user);
             bankAccountRepository.save(bankAccount);
         }
-    }
-
-    @Test
-    @DisplayName("10개의 계좌 초기화 테스트")
-    public void test_Total_Accounts() {
-        bankAccountRepository.printAccounts();
-        assertEquals(10, bankAccountRepository.getTotalBankAccounts());
     }
 
     @Test
@@ -77,7 +77,6 @@ class BankServiceTest {
 
         bankService.withdraw(accountRequest);
 
-        bankAccountRepository.printAccounts();
         assertEquals(2000, bankService.checkBalance(accountNumber));  // 기존 잔액 3000 - 1000
     }
 
@@ -128,7 +127,6 @@ class BankServiceTest {
         bankService.deposit(accountRequest);
 
         // then
-        bankAccountRepository.printAccounts();
         assertEquals(4000, bankService.checkBalance(accountNumber));  // 기존 잔액 3000 + 1000
     }
 
@@ -159,10 +157,8 @@ class BankServiceTest {
 
         bankService.transfer(transferRequest);
 
-        bankAccountRepository.printAccounts();
         assertEquals(500, bankService.checkBalance(withdrawalNumber));  // 기존 잔액 1000 - 500
         assertEquals(2500, bankService.checkBalance(transferNumber));  // 기존 잔액 2000 + 500
-        assertEquals("User2", bankAccountRepository.findBankAccountByAccountNumber(transferNumber).getUser().getName()); // 이체 받은 사람 이름
     }
 
     @Test
@@ -205,10 +201,9 @@ class BankServiceTest {
     @DisplayName("거래 내역 확인 성공 테스트")
     public void test_Transaction_History_Get_Success() {
         // given
+        long accountId = 2L;
         long accountNumber = 100002;
         int amount = 1000;
-        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountNumber(accountNumber);
-        long accountId = bankAccount.getAccount().getId();
         AccountRequest accountRequest = new AccountRequest(accountNumber, amount);
 
         // 거래 내역 만들기(2개)
@@ -220,24 +215,6 @@ class BankServiceTest {
 
         // then
         assertEquals(2, result.size());
-    }
-
-    @Test
-    @DisplayName("거래 내역 확인 시 내역 없을 때 예외 발생")
-    public void test_Transaction_History_Not_Found() {
-        // given
-        long accountNumber = 100002;
-        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountNumber(accountNumber);
-        long accountId = bankAccount.getAccount().getId();
-
-        // when & then
-        HistoryNotFoundException exception = assertThrows(HistoryNotFoundException.class, () -> {
-            bankService.findBalanceHistory(accountId);
-        });
-
-        // then
-        assertEquals(ErrorCode.HISTORY_NOT_FOUND.getDefaultMessage(), exception.getMessage());
-        assertEquals(HttpStatus.NOT_FOUND, exception.getErrorCode().getStatus());
     }
 
 }

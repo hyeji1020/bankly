@@ -27,28 +27,30 @@ public class BankService {
     private final BankAccountRepository bankAccountRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
 
+
     // 특정 계좌의 잔액 확인
     public int checkBalance(long accountNumber) {
-        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountNumber(accountNumber);
 
-        if(bankAccount == null){
-            log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountNumber);
-            throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-        }
+        // 요청 계좌 번호 확인
+        BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> {
+                    log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountNumber);
+                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
 
         return bankAccount.getAccount().getBalance();
     }
 
     // 입금
+    @Transactional
     public Account deposit(AccountRequest accountRequest) {
 
-        // 요청 계좌 번호 유무 확인 위해 조회
-        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountNumber(accountRequest.getAccountNumber());
-
-        if(bankAccount == null) {
-            log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
-            throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-        }
+        // 요청 계좌 번호 확인
+        BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountRequest.getAccountNumber())
+                .orElseThrow(() -> {
+                    log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
+                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
 
         // 기존 Account 객체의 balance 업데이트
         Account updatedAccount = bankAccount.getAccount().toBuilder()
@@ -67,8 +69,8 @@ public class BankService {
                 .balanceAfter(updatedAccount.getBalance())
                 .build();
 
-        // 해시맵에 반영
-        bankAccountRepository.update(bankAccount.getId(), updatedBankAccount);
+        // 변경사항 저장
+        bankAccountRepository.save(updatedBankAccount);
         log.info("입금 후 계좌정보:{}", updatedAccount.toString());
 
         transactionHistoryRepository.save(toHistory);
@@ -78,68 +80,67 @@ public class BankService {
     }
 
     // 출금
+    @Transactional
     public Account withdraw(AccountRequest accountRequest) {
 
         // 요청 계좌 번호 유무 확인 위해 조회
-        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountNumber(accountRequest.getAccountNumber());
+        BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountRequest.getAccountNumber())
+                .orElseThrow(() -> {
+                    log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
+                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
 
-        if(bankAccount == null){
-            log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
-            throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-        }else {
-            // 출금 가능한 계좌 잔액 조회
-            if(bankAccount.getAccount().getBalance() < accountRequest.getAmount()){
-                log.warn("계좌번호: {}에 잔액이 부족합니다.", accountRequest.getAccountNumber());
-                throw new BalanceNotEnoughException(ErrorCode.BALANCE_NOT_ENOUGH);
+        // 출금 가능한 계좌 잔액 조회
+        if(bankAccount.getAccount().getBalance() < accountRequest.getAmount()){
+            log.warn("계좌번호: {}에 잔액이 부족합니다.", accountRequest.getAccountNumber());
+            throw new BalanceNotEnoughException(ErrorCode.BALANCE_NOT_ENOUGH);
+        }
 
-            }
+        // 기존 Account 객체의 balance 업데이트
+        Account updatedAccount = bankAccount.getAccount().toBuilder()
+                .balance(bankAccount.getAccount().getBalance() - accountRequest.getAmount())
+                .build();
 
-            // 기존 Account 객체의 balance 업데이트
-            Account updatedAccount = bankAccount.getAccount().toBuilder()
-                    .balance(bankAccount.getAccount().getBalance() - accountRequest.getAmount())
-                    .build();
+        // 기존 BankAccount 객체에서 Account 필드만 변경하여 새 객체 생성
+        BankAccount updatedBankAccount = new BankAccount(bankAccount.getId(), updatedAccount, bankAccount.getUser());
 
-            // 기존 BankAccount 객체에서 Account 필드만 변경하여 새 객체 생성
-            BankAccount updatedBankAccount = new BankAccount(bankAccount.getId(), updatedAccount, bankAccount.getUser());
+        // BalanceHistory 생성
+        TransactionHistory toHistory = TransactionHistory.builder()
+                .bankAccount(bankAccount)
+                .transactionTime(LocalDateTime.now())
+                .transactionAmount(accountRequest.getAmount())
+                .balanceBefore(bankAccount.getAccount().getBalance())
+                .balanceAfter(updatedAccount.getBalance())
+                .build();
 
-            // BalanceHistory 생성
-            TransactionHistory toHistory = TransactionHistory.builder()
-                    .bankAccount(bankAccount)
-                    .transactionTime(LocalDateTime.now())
-                    .transactionAmount(accountRequest.getAmount())
-                    .balanceBefore(bankAccount.getAccount().getBalance())
-                    .balanceAfter(updatedAccount.getBalance())
-                    .build();
+        // 변경사항 저장
+        bankAccountRepository.save(updatedBankAccount);
+        log.info("출금 후 계좌정보:{}", updatedAccount.toString());
 
-            // 해시맵에 반영
-            bankAccountRepository.save(updatedBankAccount);
-            log.info("출금 후 계좌정보:{}", updatedAccount.toString());
-
-            transactionHistoryRepository.save(toHistory);
-            log.info("거래내역 정보:{}", toHistory.toString());
+        transactionHistoryRepository.save(toHistory);
+        log.info("거래내역 정보:{}", toHistory.toString());
 
         return updatedAccount;
-        }
+
     }
 
     //계좌 이체
     @Transactional
     public BankAccount transfer(AccountTransferRequest transferRequest) {
 
-        BankAccount withdrawalAccount = bankAccountRepository.findBankAccountByAccountNumber(transferRequest.getWithdrawalNumber());
-        BankAccount transferAccount = bankAccountRepository.findBankAccountByAccountNumber(transferRequest.getTransferNumber());
-
         // 1. 출금 계좌 확인
-        if (withdrawalAccount == null) {
-            log.warn("계좌번호: {}에 해당하는 출금 계좌를 찾을 수 없습니다.", transferRequest.getWithdrawalNumber());
-            throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-        }
+        BankAccount withdrawalAccount = bankAccountRepository.findByAccountNumber(transferRequest.getWithdrawalNumber())
+                .orElseThrow(() -> {
+                    log.warn("계좌번호: {}에 해당하는 출금 계좌를 찾을 수 없습니다.", transferRequest.getWithdrawalNumber());
+                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
 
         // 2. 입금 계좌 확인
-        if (transferAccount == null) {
-            log.warn("계좌번호: {}에 해당하는 입금 계좌를 찾을 수 없습니다.", transferRequest.getTransferNumber());
-            throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-        }
+        BankAccount transferAccount = bankAccountRepository.findByAccountNumber(transferRequest.getTransferNumber())
+                .orElseThrow(() -> {
+                    log.warn("계좌번호: {}에 해당하는 입금 계좌를 찾을 수 없습니다.", transferRequest.getTransferNumber());
+                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
 
         // 3. 내 계좌에서 출금
         AccountRequest withdrawRequest = new AccountRequest(transferRequest.getWithdrawalNumber(), transferRequest.getAmount());
@@ -155,19 +156,17 @@ public class BankService {
     // 거래 내역 확인
     public List<TransactionHistory> findBalanceHistory(Long accountId) {
 
-        BankAccount bankAccount = bankAccountRepository.findBankAccountByAccountId(accountId);
+        BankAccount bankAccount = bankAccountRepository.findByAccountId(accountId)
+                .orElseThrow(() -> {
+                    log.warn("계좌번호 아이디: {}에 해당하는 계좌를 찾을 수 없습니다.", accountId);
+                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
 
-        if(bankAccount == null) {
-            log.warn("계좌번호 아이디: {}에 해당하는 계좌를 찾을 수 없습니다.", accountId);
-            throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-        }
-
-        List<TransactionHistory> findHistory = transactionHistoryRepository.findHistoriesByAccountId(accountId);
-
-        if(findHistory.size() == 0){
-            log.warn("계좌번호 아이디: {}에 해당하는 거래 내역을 찾을 수 없습니다.", accountId);
-            throw new HistoryNotFoundException(ErrorCode.HISTORY_NOT_FOUND);
-        }
+        List<TransactionHistory> findHistory = transactionHistoryRepository.findHistoriesByAccountId(accountId)
+                .orElseThrow(() -> {
+                    log.warn("계좌번호 아이디: {}에 해당하는 거래 내역이 비어 있습니다.", accountId);
+                    throw new HistoryNotFoundException(ErrorCode.HISTORY_NOT_FOUND);
+                });
 
         return findHistory;
     }

@@ -1,30 +1,20 @@
 package com.project.bankassetor.repository;
 
 import com.project.bankassetor.model.entity.TransactionHistory;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Repository
-public class TransactionHistoryRepository {
+public interface TransactionHistoryRepository extends JpaRepository<TransactionHistory, Long> {
 
-    private Map<Long, TransactionHistory> historyMap = new HashMap<>();
+    @Query(value = "SELECT th.* FROM transaction_history th " +
+            "JOIN bank_account ba ON th.bank_account_id = ba.id " +
+            "WHERE ba.account_id = :accountId", nativeQuery = true)
+    Optional<List<TransactionHistory>> findHistoriesByAccountId (Long accountId);
 
-    private long currentId = 0;
-
-    public TransactionHistory save(TransactionHistory transactionHistory) {
-        currentId++;
-        historyMap.put(currentId, transactionHistory);
-        return transactionHistory;
-    }
-
-    public List<TransactionHistory> findHistoriesByAccountId (Long accountId) {
-        return historyMap.values().stream()
-                .filter(transactionHistory
-                        -> transactionHistory.getBankAccount().getAccount().getId() == accountId)
-                .collect(Collectors.toList());
-    }
+    // @Query(value = "SELECT * FROM transaction_history WHERE account_id = :accountId", nativeQuery = true)
 }

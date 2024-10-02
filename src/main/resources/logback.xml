@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="10 seconds">
+
+    <!-- 콘솔에 로그 출력하는 appender -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{YYYY-MM-dd HH:mm:ss z, Asia/Seoul}] [%-5level] [%thread] %logger{36}:%L - %msg -- %X{log.remoteAddr}%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 서버 로그를 기록하고, 일별로 로그를 압축하여 저장하는 appender -->
+    <appender name="dailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>./logs/server.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>./logs/archive/server_%d{yyyyMMdd}.log.gz</FileNamePattern>
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>[${HOSTNAME}] [%d{YYYY-MM-dd HH:mm:ss z, Asia/Seoul}] [%-5level] [%thread] %logger{36}:%L - %msg -- %X{log.remoteAddr}%n</Pattern>
+        </encoder>
+    </appender>
+
+    <!-- 액세스 로그를 기록하고, 일별로 로그를 압축하여 저장하는 appender -->
+    <appender name="accessLogDailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>./logs/access.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>./logs/archive/access_%d{yyyyMMdd}.log.gz</FileNamePattern>
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>[${HOSTNAME}] [%d{YYYY-MM-dd HH:mm:ss z, Asia/Seoul}] [%-5level] [%thread] %logger{36}:%L - %msg -- %X{log.remoteAddr}%n</Pattern>
+        </encoder>
+    </appender>
+
+    <!-- 패키지 로그 설정 -->
+    <logger name="com.project.bankassetor" additivity="false" level="INFO">
+        <appender-ref ref="console" />
+        <appender-ref ref="dailyRollingFileAppender"/>
+    </logger>
+
+    <!-- AccessLogFilter 클래스의 액세스 로그 설정 -->
+    <logger name="com.project.bankassetor.filter.AccessLogFilter" additivity="false" level="INFO">
+        <appender-ref ref="console" />
+        <appender-ref ref="accessLogDailyRollingFileAppender"/>
+    </logger>
+
+    <!-- 루트 로거 설정 (전체 애플리케이션에 적용) -->
+    <root level="INFO">
+        <appender-ref ref="console" />
+    </root>
+
+</configuration>

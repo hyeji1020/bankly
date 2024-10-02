@@ -162,11 +162,7 @@ public class BankService {
                     throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
 
-        List<TransactionHistory> findHistory = transactionHistoryRepository.findHistoriesByAccountId(accountId)
-                .orElseThrow(() -> {
-                    log.warn("계좌번호 아이디: {}에 해당하는 거래 내역이 비어 있습니다.", accountId);
-                    throw new HistoryNotFoundException(ErrorCode.HISTORY_NOT_FOUND);
-                });
+        List<TransactionHistory> findHistory = transactionHistoryRepository.findHistoriesByAccountId(accountId);
 
         return findHistory;
     }

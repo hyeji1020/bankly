@@ -8,7 +8,8 @@ import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.response.AccountResponse;
 import com.project.bankassetor.model.response.AccountTransferResponse;
 import com.project.bankassetor.model.response.TransactionHistoryResponse;
-import com.project.bankassetor.service.perist.BankService;
+import com.project.bankassetor.service.perist.BankAccountService;
+import com.project.bankassetor.service.perist.TransactionHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +19,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BankFrontService {
 
-    private final BankService bankService;
+    private final BankAccountService bankAccountService;
+    private final TransactionHistoryService historyService;
 
 
     // 입금
     public AccountResponse deposit(AccountRequest accountRequest) {
 
-        final Account account = bankService.deposit(accountRequest);
+        final Account account = bankAccountService.deposit(accountRequest);
 
         // 응답 DTO 반환
         return AccountResponse.of(account);
@@ -34,7 +36,7 @@ public class BankFrontService {
     // 출금
     public AccountResponse withdraw(AccountRequest accountRequest) {
 
-        final Account account = bankService.withdraw(accountRequest);
+        final Account account = bankAccountService.withdraw(accountRequest);
 
         // 응답 DTO 반환
         return AccountResponse.of(account);
@@ -44,7 +46,7 @@ public class BankFrontService {
     // 계좌 이체
     public AccountTransferResponse transfer(AccountTransferRequest transferRequest) {
 
-        final BankAccount transferAccount = bankService.transfer(transferRequest);
+        final BankAccount transferAccount = bankAccountService.transfer(transferRequest);
 
         // 응답 DTO 반환
         return new AccountTransferResponse(
@@ -58,7 +60,7 @@ public class BankFrontService {
     // 거래 내역 확인
     public List<TransactionHistoryResponse> findBalanceHistory(Long accountId) {
 
-        final List<TransactionHistory> balanceHistory = bankService.findBalanceHistory(accountId);
+        final List<TransactionHistory> balanceHistory = historyService.findBalanceHistory(accountId);
 
         return TransactionHistoryResponse.of(balanceHistory);
     }

@@ -3,6 +3,7 @@ package com.project.bankassetor.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Table(name = "account")
 @Entity
 @Getter
 @ToString

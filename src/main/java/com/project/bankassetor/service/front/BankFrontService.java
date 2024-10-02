@@ -8,6 +8,7 @@ import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.response.AccountResponse;
 import com.project.bankassetor.model.response.AccountTransferResponse;
 import com.project.bankassetor.model.response.TransactionHistoryResponse;
+import com.project.bankassetor.service.perist.AccountService;
 import com.project.bankassetor.service.perist.BankAccountService;
 import com.project.bankassetor.service.perist.TransactionHistoryService;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +22,12 @@ public class BankFrontService {
 
     private final BankAccountService bankAccountService;
     private final TransactionHistoryService historyService;
-
+    private final AccountService accountService;
 
     // 입금
     public AccountResponse deposit(AccountRequest accountRequest) {
 
-        final Account account = bankAccountService.deposit(accountRequest);
+        final Account account = accountService.deposit(accountRequest);
 
         // 응답 DTO 반환
         return AccountResponse.of(account);
@@ -36,7 +37,7 @@ public class BankFrontService {
     // 출금
     public AccountResponse withdraw(AccountRequest accountRequest) {
 
-        final Account account = bankAccountService.withdraw(accountRequest);
+        final Account account = accountService.withdraw(accountRequest);
 
         // 응답 DTO 반환
         return AccountResponse.of(account);
@@ -46,7 +47,7 @@ public class BankFrontService {
     // 계좌 이체
     public AccountTransferResponse transfer(AccountTransferRequest transferRequest) {
 
-        final BankAccount transferAccount = bankAccountService.transfer(transferRequest);
+        final BankAccount transferAccount = accountService.transfer(transferRequest);
 
         // 응답 DTO 반환
         return new AccountTransferResponse(

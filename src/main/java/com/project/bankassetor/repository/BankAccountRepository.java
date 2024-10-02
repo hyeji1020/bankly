@@ -15,7 +15,7 @@ public interface BankAccountRepository extends JpaRepository<BankAccount, Long> 
     @Query(value = "SELECT ba.* FROM bank_account ba " +
             "JOIN account a ON ba.account_id = a.id " +
             "WHERE a.account_number = :accountNumber", nativeQuery = true)
-    Optional<BankAccount> findByAccountNumber(@Param("accountNumber") long accountNumber);
+   BankAccount findByAccountNumber(@Param("accountNumber") long accountNumber);
 
     // 계좌 ID로 계좌 찾기
     @Query(value = "SELECT * FROM bank_account WHERE account_id = :accountId", nativeQuery = true)

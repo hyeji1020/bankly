@@ -28,8 +28,7 @@ public class TransactionHistoryService {
                 .bankAccount(bankAccount)
                 .transactionTime(LocalDateTime.now())
                 .transactionAmount(amount)
-                .balanceBefore(bankAccount.getAccount().getBalance())
-                .balanceAfter(balance)
+                .balance(balance)
                 .build();
 
         log.info("거래내역 정보:{}", toHistory.toString());

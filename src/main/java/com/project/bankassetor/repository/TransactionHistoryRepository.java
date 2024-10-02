@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TransactionHistoryRepository extends JpaRepository<TransactionHistory, Long> {
@@ -15,5 +14,5 @@ public interface TransactionHistoryRepository extends JpaRepository<TransactionH
             "JOIN bank_account ba ON th.bank_account_id = ba.id " +
             "WHERE ba.account_id = :accountId", nativeQuery = true)
     List<TransactionHistory> findHistoriesByAccountId (Long accountId);
-
+  
 }

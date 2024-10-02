@@ -16,7 +16,6 @@ public class TransactionHistoryResponse {
 
     LocalDateTime transactionTime;  // 거래 시간
     int transactionAmount;  // 거래 금액
-    int balanceBefore;  // 거래 전 잔액
     int balanceAfter;  // 거래 후 잔액
 
     public static List<TransactionHistoryResponse> of(List<TransactionHistory> transactionHistories) {
@@ -24,8 +23,7 @@ public class TransactionHistoryResponse {
                 .map(transactionHistory -> TransactionHistoryResponse.builder()
                         .transactionTime(transactionHistory.getTransactionTime())
                         .transactionAmount(transactionHistory.getTransactionAmount())
-                        .balanceBefore(transactionHistory.getBalanceBefore())
-                        .balanceAfter(transactionHistory.getBalanceAfter())
+                        .balanceAfter(transactionHistory.getBalance())
                         .build())
                 .collect(Collectors.toList());
     }

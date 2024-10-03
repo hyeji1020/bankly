@@ -5,6 +5,7 @@ import com.project.bankassetor.exception.BalanceNotEnoughException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.model.entity.Account;
 import com.project.bankassetor.model.entity.BankAccount;
+import com.project.bankassetor.model.entity.TransactionHistory;
 import com.project.bankassetor.model.entity.User;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
@@ -48,7 +49,6 @@ class AccountServiceTest {
 
         transactionHistoryRepository.deleteAllInBatch();
         bankAccountRepository.deleteAllInBatch();
-        accountRepository.deleteAllInBatch();
 
         // 10개의 계좌와 유저 데이터를 초기화
         for (int i = 1; i <= 3; i++) {
@@ -214,24 +214,24 @@ class AccountServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, exception.getErrorCode().getStatus());
     }
 
-//    @Test
-//    @DisplayName("거래 내역 확인 성공 테스트")
-//    public void test_Transaction_History_Get_Success() {
-//        // given
-//        long accountId = 2L;
-//        long accountNumber = 100002;
-//        int amount = 1000;
-//        AccountRequest accountRequest = new AccountRequest(accountNumber, amount);
-//
-//        // 거래 내역 만들기(2개)
-//        accountService.deposit(accountRequest);
-//        accountService.withdraw(accountRequest);
-//
-//        // when
-//        List<TransactionHistory> result = historyService.findBalanceHistory(accountId);
-//
-//        // then
-//        assertEquals(2, result.size());
-//    }
+    @Test
+    @DisplayName("거래 내역 확인 성공 테스트")
+    public void test_Transaction_History_Get_Success() {
+        // given
+        long accountId = 2L;
+        long accountNumber = 100002;
+        int amount = 1000;
+        AccountRequest accountRequest = new AccountRequest(accountNumber, amount);
+
+        // 거래 내역 만들기(2개)
+        accountService.deposit(accountRequest);
+        accountService.withdraw(accountRequest);
+
+        // when
+        List<TransactionHistory> result = historyService.findBalanceHistory(accountId);
+
+        // then
+        assertEquals(2, result.size());
+    }
 
 }

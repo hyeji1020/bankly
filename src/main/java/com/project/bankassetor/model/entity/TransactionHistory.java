@@ -28,11 +28,9 @@ public class TransactionHistory {
     @Column(name = "transaction_amount")
     private int transactionAmount;  // 거래 금액
 
-    @Column(name = "balance_before")
-    private int balanceBefore;  // 거래 전 잔액
-
-    @Column(name = "balance_after")
-    private int balanceAfter;  // 거래 후 잔액
+    @Column(name = "balance")
+    private int balance;    // 거래 후 잔액
+    
     // private String transactionType; // 거래 유형
     // private String transactionPlace; // 사용처
 

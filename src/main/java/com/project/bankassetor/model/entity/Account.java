@@ -3,6 +3,7 @@ package com.project.bankassetor.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Table(name = "account")
 @Entity
 @Getter
 @ToString
@@ -16,7 +17,7 @@ public class Account {
     @Column(name = "id", nullable = false)
     private long id;
 
-    @Column(name = "accountNumber", nullable = false)
+    @Column(name = "account_number", nullable = false)
     private long accountNumber;
 
     @Column(name = "balance")

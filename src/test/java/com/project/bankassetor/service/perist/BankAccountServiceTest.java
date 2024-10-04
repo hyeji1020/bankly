@@ -3,13 +3,13 @@ package com.project.bankassetor.service.perist;
 import com.project.bankassetor.exception.AccountNotFoundException;
 import com.project.bankassetor.exception.BalanceNotEnoughException;
 import com.project.bankassetor.exception.ErrorCode;
-import com.project.bankassetor.exception.HistoryNotFoundException;
 import com.project.bankassetor.model.entity.Account;
 import com.project.bankassetor.model.entity.BankAccount;
 import com.project.bankassetor.model.entity.TransactionHistory;
 import com.project.bankassetor.model.entity.User;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
+import com.project.bankassetor.repository.AccountRepository;
 import com.project.bankassetor.repository.BankAccountRepository;
 import com.project.bankassetor.repository.TransactionHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,10 +27,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles("test")
 @SpringBootTest
-class BankServiceTest {
+class AccountServiceTest {
 
     @Autowired
-    private BankService bankService;
+    private AccountService accountService;
+
+    @Autowired
+    private TransactionHistoryService historyService;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     @Autowired
     private BankAccountRepository bankAccountRepository;
@@ -55,9 +61,20 @@ class BankServiceTest {
             String userName = "User" + i;
             User user = new User(userId, userName);
 
+            System.out.println(account);
             BankAccount bankAccount = new BankAccount(accountId, account, user);
+            System.out.println(bankAccount.getAccount());
             bankAccountRepository.save(bankAccount);
         }
+
+    }
+
+    @Test
+    @DisplayName("모든 계좌 목록 가져오기")
+    public void test_Get_Accounts() {
+        List<Account> list = accountService.getAccounts();
+        System.out.println(list.getFirst().getAccountNumber());
+        assertEquals(3, list.size());
     }
 
     @Test
@@ -65,7 +82,7 @@ class BankServiceTest {
     public void test_Check_Balance() {
         long accountNumber = 100001;
         int expectedBalance = 1000;
-        assertEquals(expectedBalance, bankService.checkBalance(accountNumber));
+        assertEquals(expectedBalance, accountService.checkBalance(accountNumber));
     }
 
     @Test
@@ -75,9 +92,9 @@ class BankServiceTest {
         int amount = 1000;
         AccountRequest accountRequest = new AccountRequest(accountNumber, amount);
 
-        bankService.withdraw(accountRequest);
+        accountService.withdraw(accountRequest);
 
-        assertEquals(2000, bankService.checkBalance(accountNumber));  // 기존 잔액 3000 - 1000
+        assertEquals(2000, accountService.checkBalance(accountNumber));  // 기존 잔액 3000 - 1000
     }
 
     @Test
@@ -90,7 +107,7 @@ class BankServiceTest {
 
         // when & then
         AccountNotFoundException exception = assertThrows(AccountNotFoundException.class, () -> {
-            bankService.withdraw(accountRequest);
+            accountService.withdraw(accountRequest);
         });
 
         assertEquals(ErrorCode.ACCOUNT_NOT_FOUND.getDefaultMessage(), exception.getMessage());
@@ -108,7 +125,7 @@ class BankServiceTest {
 
         // when & then
         BalanceNotEnoughException exception = assertThrows(BalanceNotEnoughException.class, () -> {
-            bankService.withdraw(accountRequest);
+            accountService.withdraw(accountRequest);
         });
 
         assertEquals(ErrorCode.BALANCE_NOT_ENOUGH.getDefaultMessage(), exception.getMessage());
@@ -124,10 +141,10 @@ class BankServiceTest {
         AccountRequest accountRequest = new AccountRequest(accountNumber, amount);
 
         // when
-        bankService.deposit(accountRequest);
+        accountService.deposit(accountRequest);
 
         // then
-        assertEquals(4000, bankService.checkBalance(accountNumber));  // 기존 잔액 3000 + 1000
+        assertEquals(4000, accountService.checkBalance(accountNumber));  // 기존 잔액 3000 + 1000
     }
 
     @Test
@@ -140,7 +157,7 @@ class BankServiceTest {
 
         // when & then
         AccountNotFoundException exception = assertThrows(AccountNotFoundException.class, () -> {
-            bankService.deposit(accountRequest);
+            accountService.deposit(accountRequest);
         });
 
         assertEquals(ErrorCode.ACCOUNT_NOT_FOUND.getDefaultMessage(), exception.getMessage());
@@ -155,10 +172,10 @@ class BankServiceTest {
         int amount = 500;   // 이체 금액
         AccountTransferRequest transferRequest = new AccountTransferRequest(withdrawalNumber, transferNumber, amount);
 
-        bankService.transfer(transferRequest);
+        accountService.transfer(transferRequest);
 
-        assertEquals(500, bankService.checkBalance(withdrawalNumber));  // 기존 잔액 1000 - 500
-        assertEquals(2500, bankService.checkBalance(transferNumber));  // 기존 잔액 2000 + 500
+        assertEquals(500, accountService.checkBalance(withdrawalNumber));  // 기존 잔액 1000 - 500
+        assertEquals(2500, accountService.checkBalance(transferNumber));  // 기존 잔액 2000 + 500
     }
 
     @Test
@@ -172,7 +189,7 @@ class BankServiceTest {
 
         // when & then
         AccountNotFoundException exception = assertThrows(AccountNotFoundException.class, () -> {
-            bankService.transfer(accountTransferRequest);
+            accountService.transfer(accountTransferRequest);
         });
 
         assertEquals(ErrorCode.ACCOUNT_NOT_FOUND.getDefaultMessage(), exception.getMessage());
@@ -190,7 +207,7 @@ class BankServiceTest {
 
         // when & then
         AccountNotFoundException exception = assertThrows(AccountNotFoundException.class, () -> {
-            bankService.transfer(accountTransferRequest);
+            accountService.transfer(accountTransferRequest);
         });
 
         assertEquals(ErrorCode.ACCOUNT_NOT_FOUND.getDefaultMessage(), exception.getMessage());
@@ -207,11 +224,11 @@ class BankServiceTest {
         AccountRequest accountRequest = new AccountRequest(accountNumber, amount);
 
         // 거래 내역 만들기(2개)
-        bankService.deposit(accountRequest);
-        bankService.withdraw(accountRequest);
+        accountService.deposit(accountRequest);
+        accountService.withdraw(accountRequest);
 
         // when
-        List<TransactionHistory> result = bankService.findBalanceHistory(accountId);
+        List<TransactionHistory> result = historyService.findBalanceHistory(accountId);
 
         // then
         assertEquals(2, result.size());

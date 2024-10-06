@@ -2,8 +2,11 @@ package com.project.bankassetor.filter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.project.bankassetor.filter.response.LocationResponse;
+import com.project.bankassetor.model.entity.AccessLog;
 import com.project.bankassetor.utils.Utils;
 import jakarta.servlet.http.HttpServletRequest;
+import nl.basjes.parse.useragent.UserAgent;
+import nl.basjes.parse.useragent.UserAgentAnalyzer;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -14,6 +17,35 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AccessLogUtil {
+
+    // User-Agent 파서 초기화
+    private static final UserAgentAnalyzer userAgentAnalyzer = UserAgentAnalyzer
+            .newBuilder()
+            .hideMatcherLoadStats() // 로딩 중 통계 정보 숨기기
+            .withCache(50_000)      // 캐시 크기 설정
+            .withField(UserAgent.AGENT_NAME)
+            .withField(UserAgent.OPERATING_SYSTEM_NAME)
+            .withField(UserAgent.OPERATING_SYSTEM_CLASS)
+            .withField(UserAgent.DEVICE_CLASS)
+            .build();
+
+    /**
+     * User-Agent 문자열로부터 정보를 파싱하여 AccessLog의 필드를 설정합니다.
+     *
+     * @param userAgentString User-Agent 문자열
+     * @param accessLog       AccessLog 객체
+     */
+    public static void getUserAgent(String userAgentString, AccessLog accessLog) {
+        UserAgent userAgent = userAgentAnalyzer.parse(userAgentString);
+
+        // User-Agent로부터 파싱한 정보 설정
+        accessLog.setAgentName(userAgent.getValue(UserAgent.AGENT_NAME));
+        accessLog.setOsName(userAgent.getValue(UserAgent.OPERATING_SYSTEM_NAME));
+        accessLog.setDeviceClass(userAgent.getValue(UserAgent.DEVICE_CLASS));
+        accessLog.setAgentClass(userAgent.getValue(UserAgent.OPERATING_SYSTEM_CLASS));
+        accessLog.setOsVersion(userAgent.getValue(UserAgent.OPERATING_SYSTEM_VERSION));
+        accessLog.setDeviceName(userAgent.getValue(UserAgent.DEVICE_NAME));
+    }
 
     /**
      * 클라이언트의 IP 주소를 가져오는 메서드

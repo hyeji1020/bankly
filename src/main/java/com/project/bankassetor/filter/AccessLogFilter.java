@@ -35,9 +35,8 @@ public class AccessLogFilter implements Filter {
         // User-Agent 파싱하여 관련 필드 설정
         String userAgent = httpRequest.getHeader("User-Agent");
         accessLog.setUserAgent(userAgent);
-        AccessLogUtil.getLocationInfoByIp(userAgent);
+        AccessLogUtil.getUserAgent(userAgent, accessLog);
 
-        // accessLog.setUserAgent(httpRequest.getHeader("User-Agent"));
         accessLog.setUri(httpRequest.getRequestURI());
         accessLog.setMethod(httpRequest.getMethod());
         accessLog.setRequestAt(LocalDateTime.now());

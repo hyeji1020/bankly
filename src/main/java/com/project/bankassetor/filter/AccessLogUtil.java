@@ -48,6 +48,15 @@ public class AccessLogUtil {
     }
 
     /**
+     * 에러 ID를 생성하여 반환하는 메서드
+     *
+     * @return UUID 기반의 에러 ID 문자열
+     */
+    public static String generateErrorId() {
+        return UUID.randomUUID().toString();
+    }
+
+    /**
      * 클라이언트의 IP 주소를 가져오는 메서드
      *
      * @param request HttpServletRequest 객체
@@ -144,15 +153,6 @@ public class AccessLogUtil {
 
         // 예외 발생 시 기본값으로 LocationResponse 반환
         return new LocationResponse("Unknown", "Unknown");
-    }
-
-    /**
-     * 에러 ID를 생성하여 반환하는 메서드
-     *
-     * @return UUID 기반의 에러 ID 문자열
-     */
-    public static String generateErrorId() {
-        return UUID.randomUUID().toString();
     }
 }
 

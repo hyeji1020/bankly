@@ -1,5 +1,6 @@
 package com.project.bankassetor.exception;
 
+import com.project.bankassetor.filter.AccessLogUtil;
 import com.project.bankassetor.model.response.RestError;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -13,31 +14,48 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BankException.class)
     public RestError handleBankException(BankException ex) {
+        // ErrorCode 객체 가져오기
         ErrorCode errorCode = ex.getErrorCode();
-        return new RestError(errorCode.getCode(), errorCode.getDefaultMessage());  // 에러 발생 시 RestError 반환
+
+        // Error ID 생성
+        String errorId = AccessLogUtil.generateErrorId();
+
+        // 에러 로그에 Error ID와 ErrorCode 정보 포함하여 기록
+        log.error("Error ID: {}, Code: {}, Message: {}", errorId, errorCode.getCode(), errorCode.getDefaultMessage());
+
+        return new RestError(errorCode.getCode(), errorCode.getDefaultMessage(), errorId);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public RestError handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorId = AccessLogUtil.generateErrorId();
         StringBuilder sb = new StringBuilder();
         ex.getBindingResult().getAllErrors().forEach(x -> sb.append(x).append("\n"));
-        return new RestError(ErrorCode.BAD_REQUEST.getCode(), sb.toString().trim());
+
+        // 에러 로그에 Error ID 포함
+        log.error("Error ID: {}, Validation Error: {}", errorId, sb.toString());
+        return new RestError(ErrorCode.BAD_REQUEST.getCode(), sb.toString().trim(), errorId);
     }
 
     @ExceptionHandler(value = Exception.class)
     public RestError unhandledException(Exception e, HttpServletRequest request) {
-        log.error("error occur {}", e.getMessage(), e);
-        return new RestError(ErrorCode.GENERAL_ERROR.getCode(), e.getMessage());
+        String errorId = AccessLogUtil.generateErrorId();
+        log.error("Error ID: {}, Unhandled Error: {}", errorId, e.getMessage(), e);
+        return new RestError(ErrorCode.GENERAL_ERROR.getCode(), e.getMessage(), errorId);
     }
 
     @ExceptionHandler(value = BalanceNotEnoughException.class)
     public RestError handleBalanceNotEnoughException(BalanceNotEnoughException e) {
-        return new RestError(ErrorCode.BALANCE_NOT_ENOUGH.getCode(), e.getMessage());
+        String errorId = AccessLogUtil.generateErrorId();
+        log.error("Error ID: {}, Balance Not Enough Error: {}", errorId, e.getMessage(), e);
+        return new RestError(ErrorCode.BALANCE_NOT_ENOUGH.getCode(), e.getMessage(), errorId);
     }
 
     @ExceptionHandler(value = AccountNotFoundException.class)
     public RestError handleAccountNotFoundException(AccountNotFoundException e) {
-        return new RestError(ErrorCode.ACCOUNT_NOT_FOUND.getCode(), e.getMessage());
+        String errorId = AccessLogUtil.generateErrorId();
+        log.error("Error ID: {}, Account Not Found Error: {}", errorId, e.getMessage(), e);
+        return new RestError(ErrorCode.ACCOUNT_NOT_FOUND.getCode(), e.getMessage(), errorId);
     }
 
 }

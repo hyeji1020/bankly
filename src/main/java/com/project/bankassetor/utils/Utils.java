@@ -207,4 +207,22 @@ public class Utils {
         }
         return result;
     }
+
+    /**
+     * JSON 문자열을 TypeReference 기반의 제네릭 객체로 변환
+     * @param json JSON 문자열
+     * @param typeReference 변환할 TypeReference 타입
+     * @param <T> 반환 타입
+     * @return 변환된 객체
+     */
+    public static <T> T toObject(String json, TypeReference<T> typeReference) {
+        ObjectMapper objectMapper = getObjectMapper();
+        T obj = null;
+        try {
+            obj = objectMapper.readValue(json, typeReference);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return obj;
+    }
 }

@@ -1,0 +1,126 @@
+package com.project.bankassetor.filter;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.project.bankassetor.filter.response.LocationResponse;
+import com.project.bankassetor.utils.Utils;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.Map;
+import java.util.UUID;
+
+public class AccessLogUtil {
+
+    /**
+     * 클라이언트의 IP 주소를 가져오는 메서드
+     *
+     * @param request HttpServletRequest 객체
+     * @return 클라이언트 IP 주소
+     */
+    public static String getClientIp(HttpServletRequest request) {
+        String[] headers = {"X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_X_FORWARDED_FOR", "X-Real-IP"};
+        String ip = null;
+
+        // 1. IP 주소 확인 (여러 헤더에서 확인)
+        for (String header : headers) {
+            ip = request.getHeader(header);
+            if (ip != null && !ip.isEmpty() && !"unknown".equalsIgnoreCase(ip)) {
+                ip = ip.split(",")[0].trim();  // 여러 IP가 있을 경우 첫 번째 IP 사용
+                break;
+            }
+        }
+
+        // 2. 헤더에 없을 경우 기본 IP 가져오기
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+
+        // 3. IPv4 형식으로 변환
+        return convertToIPv4Format(ip);
+    }
+
+    /**
+     * IP 주소가 IPv6 형식일 경우 IPv4 형식으로 변환하는 메서드
+     *
+     * @param ip IP 주소
+     * @return IPv4 형식의 IP 주소
+     */
+    private static String convertToIPv4Format(String ip) {
+
+        // 1. IPv6의 로컬호스트 주소를 IPv4의 로컬호스트 주소로 변환
+        if ("0:0:0:0:0:0:0:1".equals(ip) || "::1".equals(ip)) {
+            return "127.0.0.1";
+        }
+
+        // 2. IPv4 맵핑된 IPv6 주소를 IPv4 주소로 변환
+        if (ip.startsWith("::ffff:")) {
+            return ip.substring(7);  // "::ffff:" 이후의 IPv4 주소 반환
+        }
+
+        try {
+            // InetAddress를 사용하여 IPv6 주소를 IPv4 형식으로 변환
+            InetAddress inetAddress = InetAddress.getByName(ip);
+            if (inetAddress instanceof java.net.Inet6Address) {
+                // IPv6 주소를 IPv4 형식으로 변환하여 반환
+                byte[] ipv4Bytes = inetAddress.getAddress();
+                return String.format("%d.%d.%d.%d", ipv4Bytes[12] & 0xff, ipv4Bytes[13] & 0xff, ipv4Bytes[14] & 0xff, ipv4Bytes[15] & 0xff);
+            }
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return ip;
+    }
+
+    /**
+     * IP 주소를 기반으로 국가 및 도시 정보를 가져오는 메서드
+     *
+     * @param ip IP 주소
+     * @return 국가 및 도시 정보를 포함하는 LocationResponse 객체
+     */
+    public static LocationResponse getLocationInfoByIp(String ip) {
+        String apiUrl = "http://ip-api.com/json/" + ip;
+
+        try {
+            // 1. URL 객체 생성 및 연결 설정
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+
+            // 2. HTTP 응답 코드 확인
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) { // 응답 코드가 200(성공)일 경우
+                // 3. 응답 데이터 읽어오기
+                String responseJson = new String(connection.getInputStream().readAllBytes());
+
+                // 4. JSON 문자열을 Map으로 변환
+                Map<String, Object> responseMap = Utils.toObject(responseJson, new TypeReference<Map<String, Object>>() {
+                });
+
+                // 5. country와 city 정보를 Map에서 추출하여 LocationResponse 객체로 변환
+                String country = responseMap.getOrDefault("country", "Unknown").toString();
+                String city = responseMap.getOrDefault("city", "Unknown").toString();
+
+                return new LocationResponse(country, city); // LocationResponse 객체 반환
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 예외 발생 시 기본값으로 LocationResponse 반환
+        return new LocationResponse("Unknown", "Unknown");
+    }
+
+    /**
+     * 에러 ID를 생성하여 반환하는 메서드
+     *
+     * @return UUID 기반의 에러 ID 문자열
+     */
+    public static String generateErrorId() {
+        return UUID.randomUUID().toString();
+    }
+}
+

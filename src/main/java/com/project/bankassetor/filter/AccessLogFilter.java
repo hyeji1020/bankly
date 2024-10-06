@@ -1,9 +1,11 @@
 package com.project.bankassetor.filter;
 
+import com.project.bankassetor.filter.response.LocationResponse;
 import com.project.bankassetor.model.entity.AccessLog;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +16,9 @@ import static com.project.bankassetor.utils.Utils.toJson;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AccessLogFilter implements Filter {
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
@@ -23,14 +27,27 @@ public class AccessLogFilter implements Filter {
 
         AccessLog accessLog = new AccessLog();
         accessLog.setHost(httpRequest.getRemoteHost());
-        accessLog.setClientIp(httpRequest.getRemoteAddr());
-        accessLog.setUserAgent(httpRequest.getHeader("User-Agent"));
+
+        // 클라이언트 IP 설정
+        String clientIp = AccessLogUtil.getClientIp(httpRequest);
+        accessLog.setClientIp(clientIp);
+
+        // User-Agent 파싱하여 관련 필드 설정
+        String userAgent = httpRequest.getHeader("User-Agent");
+        accessLog.setUserAgent(userAgent);
+        AccessLogUtil.getLocationInfoByIp(userAgent);
+
+        // accessLog.setUserAgent(httpRequest.getHeader("User-Agent"));
         accessLog.setUri(httpRequest.getRequestURI());
         accessLog.setMethod(httpRequest.getMethod());
         accessLog.setRequestAt(LocalDateTime.now());
         accessLog.setReferer(httpRequest.getHeader("Referer"));
 
-        // 실행 전
+        // 위치 정보 (IP 기반) 설정
+        LocationResponse location = AccessLogUtil.getLocationInfoByIp(clientIp);
+        accessLog.setCountry(location.getCountry());
+        accessLog.setCity(location.getCity());
+
         /**
          * 사용자 request 처리 과정
          * 1. AccessLogFilter 실행
@@ -38,10 +55,8 @@ public class AccessLogFilter implements Filter {
          * 3. 컨트롤러에서 응답 (JSON, HTML 등 반환)
          */
 
-        // 다음 필터 실행 (필터 체인에서 다음 필터 또는 서블릿 호출)
         chain.doFilter(request, response);
 
-        // 실행 후
         /**
          * 사용자 response 처리 과정
          * 1. AccessLogFilter에서 후처리
@@ -56,5 +71,7 @@ public class AccessLogFilter implements Filter {
         accessLog.setStatus(String.valueOf(httpServletResponse.getStatus()));
 
         log.info("AccessLog ==> {}", toJson(accessLog));
+
     }
 }
+

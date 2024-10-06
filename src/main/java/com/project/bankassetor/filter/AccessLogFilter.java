@@ -8,9 +8,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import static com.project.bankassetor.utils.Utils.toJson;
 
@@ -22,55 +26,121 @@ public class AccessLogFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        long startTime = System.currentTimeMillis(); // 시작시간
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        // HttpServletRequest와 HttpServletResponse를 감싸는 Wrapper로 변환
+        ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);
+        ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper((HttpServletResponse) response);
 
+        // AccessLog 객체 생성 및 기본 정보 설정
+        AccessLog accessLog = createAccessLog(requestWrapper);
+
+        try {
+            // 요청 데이터 설정
+            setRequestData(requestWrapper, accessLog);
+
+            // 다음 필터 또는 서블릿 호출
+            chain.doFilter(requestWrapper, responseWrapper);
+        } finally {
+            // 응답 데이터 설정 및 로그 기록
+            setResponseData(responseWrapper, accessLog);
+            finalizeAccessLog(responseWrapper, accessLog);
+        }
+    }
+
+    /**
+     * AccessLog 객체 생성 및 기본 정보 설정
+     */
+    private AccessLog createAccessLog(ContentCachingRequestWrapper requestWrapper) {
         AccessLog accessLog = new AccessLog();
-        accessLog.setHost(httpRequest.getRemoteHost());
+        accessLog.setHost(requestWrapper.getRemoteHost());
 
         // 클라이언트 IP 설정
-        String clientIp = AccessLogUtil.getClientIp(httpRequest);
+        String clientIp = AccessLogUtil.getClientIp(requestWrapper);
         accessLog.setClientIp(clientIp);
 
         // User-Agent 파싱하여 관련 필드 설정
-        String userAgent = httpRequest.getHeader("User-Agent");
+        String userAgent = requestWrapper.getHeader("User-Agent");
         accessLog.setUserAgent(userAgent);
         AccessLogUtil.getUserAgent(userAgent, accessLog);
 
-        accessLog.setUri(httpRequest.getRequestURI());
-        accessLog.setMethod(httpRequest.getMethod());
+        accessLog.setUri(requestWrapper.getRequestURI());
+        accessLog.setMethod(requestWrapper.getMethod());
         accessLog.setRequestAt(LocalDateTime.now());
-        accessLog.setReferer(httpRequest.getHeader("Referer"));
+        accessLog.setReferer(requestWrapper.getHeader("Referer"));
 
         // 위치 정보 (IP 기반) 설정
         LocationResponse location = AccessLogUtil.getLocationInfoByIp(clientIp);
         accessLog.setCountry(location.getCountry());
         accessLog.setCity(location.getCity());
 
-        /**
-         * 사용자 request 처리 과정
-         * 1. AccessLogFilter 실행
-         * 2. 필터 실행 (chain.doFilter(request, response))
-         * 3. 컨트롤러에서 응답 (JSON, HTML 등 반환)
-         */
+        return accessLog;
+    }
 
-        chain.doFilter(request, response);
+    /**
+     * 요청 데이터를 설정하는 메서드.
+     *
+     * ContentCachingRequestWrapper를 사용하여 요청 본문 또는 쿼리 스트링을 읽고,
+     * AccessLog 객체의 `request` 필드에 JSON 형식으로 저장합니다.
+     *
+     * @param requestWrapper ContentCachingRequestWrapper로 감싸진 HttpServletRequest 객체
+     * @param accessLog      요청 데이터를 저장할 AccessLog 객체
+     */
+    private void setRequestData(ContentCachingRequestWrapper requestWrapper, AccessLog accessLog) {
+        // GET 요청의 경우 쿼리 스트링을 JSON 형식으로 저장
+        if ("GET".equalsIgnoreCase(requestWrapper.getMethod())) {
+            accessLog.setRequest(toJson(requestWrapper.getParameterMap())); // 쿼리 스트링을 JSON으로 변환
+        }
+        // POST 요청의 경우 요청 본문(Body)을 JSON 형식으로 저장
+        else if ("POST".equalsIgnoreCase(requestWrapper.getMethod())) {
 
-        /**
-         * 사용자 response 처리 과정
-         * 1. AccessLogFilter에서 후처리
-         * 2. AccessLog 정보 업데이트
-         * 3. AccessLog 정보를 로그에 기록
-         */
-        long timeGap = System.currentTimeMillis() - startTime;  // 요청 처리에 소요된 시간 계산
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+            byte[] content = requestWrapper.getContentAsByteArray();
+            if (content.length > 0) {
+                String requestBody = new String(content, StandardCharsets.UTF_8);
+                accessLog.setRequest(requestBody); // 요청 본문 설정
+            }
+        }
+    }
 
-        accessLog.setElapsed(timeGap);
+    /**
+     * 응답 데이터를 ContentCachingResponseWrapper로 읽어와서 AccessLog에 저장하는 메서드
+     *
+     * @param responseWrapper ContentCachingResponseWrapper 객체
+     * @param accessLog       AccessLog 엔티티
+     */
+    private void setResponseData(ContentCachingResponseWrapper responseWrapper, AccessLog accessLog) {
+        // 응답 본문(Body)을 캐싱한 후 바이트 배열로 가져옴
+        byte[] content = responseWrapper.getContentAsByteArray();
+
+        // 응답 본문이 존재할 경우에만 처리
+        if (content.length > 0) {
+
+            // 바이트 배열을 문자열로 변환
+            String responseBody = new String(content, StandardCharsets.UTF_8);
+
+            // 응답 본문 설정
+            accessLog.setResponse(responseBody);
+        }
+    }
+
+    /**
+     * 응답 후 AccessLog 설정 및 로그 기록
+     */
+    private void finalizeAccessLog(ContentCachingResponseWrapper responseWrapper, AccessLog accessLog) {
+        // 요청 처리에 소요된 시간 계산 및 AccessLog 설정
+        long elapsedTime = System.currentTimeMillis() - accessLog.getRequestAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        accessLog.setElapsed(elapsedTime);
         accessLog.setResponseAt(LocalDateTime.now());
-        accessLog.setStatus(String.valueOf(httpServletResponse.getStatus()));
+        accessLog.setStatus(String.valueOf(responseWrapper.getStatus()));
 
+        // 로그 출력
         log.info("AccessLog ==> {}", toJson(accessLog));
 
+        // 응답 본문을 클라이언트로 다시 전달
+        try {
+            responseWrapper.copyBodyToResponse();
+        } catch (IOException e) {
+            log.error("Failed to copy response body to HttpServletResponse", e);
+        }
     }
 }
+
 

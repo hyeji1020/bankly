@@ -3,8 +3,10 @@ package com.project.bankassetor.service.front;
 import com.project.bankassetor.model.entity.Account;
 import com.project.bankassetor.model.entity.BankAccount;
 import com.project.bankassetor.model.entity.TransactionHistory;
+import com.project.bankassetor.model.request.AccountCreateRequest;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
+import com.project.bankassetor.model.response.AccountCreateResponse;
 import com.project.bankassetor.model.response.AccountResponse;
 import com.project.bankassetor.model.response.AccountTransferResponse;
 import com.project.bankassetor.model.response.TransactionHistoryResponse;
@@ -51,8 +53,8 @@ public class BankFrontService {
 
         // 응답 DTO 반환
         return new AccountTransferResponse(
-                transferAccount.getUser().getName(),
-                transferAccount.getAccount().getAccountNumber(),
+                transferAccount.getUserId(),
+                transferAccount.getAccountId(),
                 transferRequest.getAmount()
         );
 
@@ -64,5 +66,13 @@ public class BankFrontService {
         final List<TransactionHistory> balanceHistory = historyService.findBalanceHistory(accountId);
 
         return TransactionHistoryResponse.of(balanceHistory);
+    }
+
+    // 계좌 생성
+    public AccountCreateResponse createAccount(Long userId, AccountCreateRequest createRequest) {
+
+        final Account account = accountService.createAccount(userId, createRequest);
+
+        return AccountCreateResponse.of(account);
     }
 }

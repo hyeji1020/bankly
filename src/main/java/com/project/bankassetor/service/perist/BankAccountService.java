@@ -37,4 +37,14 @@ public class BankAccountService {
         return bankAccount;
     }
 
+    // 계좌 생성시 BankAccount에도 저장
+    public BankAccount createBankAccount(Long userId, long accountId) {
+
+        BankAccount bankAccount = BankAccount.builder()
+                .userId(userId)
+                .accountId(accountId)
+                .build();
+
+        return bankAccountRepository.save(bankAccount);
+    }
 }

@@ -1,5 +1,6 @@
 package com.project.bankassetor.model.entity;
 
+import com.project.bankassetor.model.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +20,11 @@ public class Account {
     @Column(name = "account_number", nullable = false)
     private long accountNumber;
 
-    @Column(name = "balance")
+    @Column(name = "balance", nullable = false)
     private int balance;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_type", nullable = false)
+    private AccountType accountType;
 
 }

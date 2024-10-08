@@ -10,9 +10,7 @@ import nl.basjes.parse.useragent.UserAgentAnalyzer;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -80,39 +78,6 @@ public class AccessLogUtil {
             ip = request.getRemoteAddr();
         }
 
-        // 3. IPv4 형식으로 변환
-        return convertToIPv4Format(ip);
-    }
-
-    /**
-     * IP 주소가 IPv6 형식일 경우 IPv4 형식으로 변환하는 메서드
-     *
-     * @param ip IP 주소
-     * @return IPv4 형식의 IP 주소
-     */
-    private static String convertToIPv4Format(String ip) {
-
-        // 1. IPv6의 로컬호스트 주소를 IPv4의 로컬호스트 주소로 변환
-        if ("0:0:0:0:0:0:0:1".equals(ip) || "::1".equals(ip)) {
-            return "127.0.0.1";
-        }
-
-        // 2. IPv4 맵핑된 IPv6 주소를 IPv4 주소로 변환
-        if (ip.startsWith("::ffff:")) {
-            return ip.substring(7);  // "::ffff:" 이후의 IPv4 주소 반환
-        }
-
-        try {
-            // InetAddress를 사용하여 IPv6 주소를 IPv4 형식으로 변환
-            InetAddress inetAddress = InetAddress.getByName(ip);
-            if (inetAddress instanceof java.net.Inet6Address) {
-                // IPv6 주소를 IPv4 형식으로 변환하여 반환
-                byte[] ipv4Bytes = inetAddress.getAddress();
-                return String.format("%d.%d.%d.%d", ipv4Bytes[12] & 0xff, ipv4Bytes[13] & 0xff, ipv4Bytes[14] & 0xff, ipv4Bytes[15] & 0xff);
-            }
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
         return ip;
     }
 

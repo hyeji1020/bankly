@@ -7,7 +7,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
@@ -18,10 +21,17 @@ import java.time.ZoneId;
 
 import static com.project.bankassetor.utils.Utils.toJson;
 
+@Profile("api")
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AccessLogFilter implements Filter {
+
+    private final RestTemplate restTemplate;
+
+    // @Value 어노테이션을 사용하여 yml 파일의 값을 주입
+    @Value("${external.access-log-url}")
+    private String externalApiUrl;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -44,6 +54,9 @@ public class AccessLogFilter implements Filter {
             setResponseData(responseWrapper, accessLog);
             finalizeAccessLog(responseWrapper, accessLog);
         }
+
+            sendAccessLogToExternalServer(accessLog);
+
     }
 
     /**
@@ -146,6 +159,13 @@ public class AccessLogFilter implements Filter {
             log.error("Failed to copy response body to HttpServletResponse", e);
         }
     }
+
+    private void sendAccessLogToExternalServer(AccessLog accessLog) {
+        try {
+            restTemplate.postForEntity(externalApiUrl, accessLog, Void.class);
+            log.info("AccessLog successfully sent to external server.");
+        } catch (Exception e) {
+            log.error("Failed to send AccessLog to external server", e, e.getMessage());
+        }
+    }
 }
-
-

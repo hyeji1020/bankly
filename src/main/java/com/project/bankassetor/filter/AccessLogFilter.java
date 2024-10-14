@@ -62,9 +62,10 @@ public class AccessLogFilter implements Filter {
         accessLog.setUserAgent(userAgent);
         AccessLogUtil.getUserAgent(userAgent, accessLog);
 
-        // Error UUID 설정
-        String errorId = AccessLogUtil.generateErrorId();
-        accessLog.setErrorId(errorId);
+        // requestId UUID 설정
+        String requestId = AccessLogUtil.generateRequestId();
+        accessLog.setRequestId(requestId);
+        requestWrapper.setAttribute("requestId", requestId);
 
         accessLog.setUri(requestWrapper.getRequestURI());
         accessLog.setMethod(requestWrapper.getMethod());

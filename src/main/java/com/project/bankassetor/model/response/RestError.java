@@ -9,14 +9,16 @@ import java.io.Serializable;
 @Setter
 public class RestError<T> implements Serializable {
 
-    private String id;
+    private int status;
+    private String code;
+    private String requestId;
     private String message;
-    private String errorId;
 
-    public RestError(String id, String message, String errorId) {
-        this.id = id;
+    public RestError(int status, String code, String requestId, String message) {
+        this.status = status;
+        this.code = code;
+        this.requestId = requestId;
         this.message = message;
-        this.errorId = errorId;
     }
 
 }

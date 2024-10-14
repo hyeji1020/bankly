@@ -46,11 +46,11 @@ public class AccessLogUtil {
     }
 
     /**
-     * 에러 ID를 생성하여 반환하는 메서드
+     * Request ID를 생성하여 반환하는 메서드
      *
      * @return UUID 기반의 에러 ID 문자열
      */
-    public static String generateErrorId() {
+    public static String generateRequestId() {
         return UUID.randomUUID().toString();
     }
 

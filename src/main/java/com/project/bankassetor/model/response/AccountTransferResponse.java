@@ -11,18 +11,18 @@ import lombok.Getter;
 public class AccountTransferResponse {
 
     // 이체 상대 이름
-    private String name;
+    private long userId;
 
     // 이체 한 계좌 번호
-    private Long transferAccount;
+    private long accountId;
 
     // 이체 금액
     private int amount;
 
     public static AccountTransferResponse of(BankAccount bankAccount, int amount){
         return AccountTransferResponse.builder()
-                .name(bankAccount.getUser().getName())
-                .transferAccount(bankAccount.getAccount().getAccountNumber())
+                .userId(bankAccount.getUserId())
+                .accountId(bankAccount.getAccountId())
                 .amount(amount)
                 .build();
     }

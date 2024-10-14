@@ -1,11 +1,9 @@
 package com.project.bankassetor.api;
 
+import com.project.bankassetor.model.request.AccountCreateRequest;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
-import com.project.bankassetor.model.response.AccountResponse;
-import com.project.bankassetor.model.response.AccountTransferResponse;
-import com.project.bankassetor.model.response.TransactionHistoryResponse;
-import com.project.bankassetor.model.response.ResultResponse;
+import com.project.bankassetor.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +43,13 @@ public class BankApi {
     @GetMapping("/{accountId}/balance-history")
     public ResultResponse<List<TransactionHistoryResponse>> findBalanceHistory(@PathVariable Long accountId) {
         List<TransactionHistoryResponse> response = bankFrontService.findBalanceHistory(accountId);
+        return new ResultResponse<>(response);
+    }
+    
+    // 계좌 생성
+    @PostMapping("/{userId}")
+    public ResultResponse<AccountCreateResponse> createAccount(@PathVariable Long userId, @Valid @RequestBody AccountCreateRequest createRequest) {
+        AccountCreateResponse response = bankFrontService.createAccount(userId, createRequest);
         return new ResultResponse<>(response);
     }
 

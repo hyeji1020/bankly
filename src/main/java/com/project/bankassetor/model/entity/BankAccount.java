@@ -16,12 +16,18 @@ public class BankAccount {
     @Column(name = "id", nullable = false)
     private long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+//    @ManyToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "account_id", nullable = false)
+//    private Account account;
+//
+//    @ManyToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "account_id", nullable = false)
+    private long accountId;
+
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private long userId;
 
 }

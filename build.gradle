@@ -27,6 +27,7 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// Spring Web: HTTP 요청 및 응답 처리를 위한 라이브러리
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -43,6 +44,8 @@ dependencies {
 
 	testImplementation 'com.h2database:h2'
 
+	// Yauaa: User-Agent 분석을 위한 라이브러리
+	implementation 'nl.basjes.parse.useragent:yauaa:5.21'
 
 }
 

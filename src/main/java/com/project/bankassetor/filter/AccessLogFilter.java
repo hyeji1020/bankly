@@ -7,13 +7,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.amqp.RabbitTemplateConfigurer;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -27,11 +27,14 @@ import static com.project.bankassetor.utils.Utils.toJson;
 @RequiredArgsConstructor
 public class AccessLogFilter implements Filter {
 
-    private final RestTemplate restTemplate;
+    private final RabbitTemplate rabbitTemplate;
 
-    // @Value 어노테이션을 사용하여 yml 파일의 값을 주입
-    @Value("${external.access-log-url}")
-    private String externalApiUrl;
+    // RabbitMQ로 보낼 Exchange 이름과 Routing Key를 주입
+    @Value("${mq.exchange}")
+    private String exchange;
+
+    @Value("${mq.routing-key}")
+    private String routingKey;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -162,10 +165,10 @@ public class AccessLogFilter implements Filter {
 
     private void sendAccessLogToExternalServer(AccessLog accessLog) {
         try {
-            restTemplate.postForEntity(externalApiUrl, accessLog, Void.class);
-            log.info("AccessLog successfully sent to external server.");
+            rabbitTemplate.convertAndSend(exchange, routingKey, accessLog);
+            log.info("AccessLog가 MQ로 성공적으로 전송되었습니다.");
         } catch (Exception e) {
-            log.error("Failed to send AccessLog to external server", e, e.getMessage());
+            log.error("AccessLog를 MQ로 보내지 못했습니다", e);
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.project.bankassetor.service.perist;
 
+import com.project.bankassetor.listner.AccessLogListener;
 import com.project.bankassetor.model.entity.AccessLog;
-import com.project.bankassetor.repository.AccessLogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,10 +9,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AccessLogService {
 
-    private final AccessLogRepository accessLogRepository;
+    private final AccessLogListener accessLogListener;
 
-    public AccessLog save(AccessLog accessLog) {
-        AccessLog savedAccessLog = accessLogRepository.save(accessLog);
-        return savedAccessLog;
+    public void save(AccessLog accessLog) {
+        accessLogListener.receiveAccessLog(accessLog);
     }
 }

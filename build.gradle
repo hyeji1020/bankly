@@ -47,6 +47,9 @@ dependencies {
 	// Yauaa: User-Agent 분석을 위한 라이브러리
 	implementation 'nl.basjes.parse.useragent:yauaa:5.21'
 
+	// RabbitMQ 사용을 위한 라이브러리
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
 }
 
 tasks.named('test') {

@@ -1,4 +1,4 @@
-package com.project.bankassetor.model.entity;
+package com.project.bankassetor.model.entity.account.check;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,16 +10,15 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TransactionHistory {
+public class CheckingTransactionHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_account_id", nullable = false)
-    private BankAccount bankAccount;
+    private Long bankAccountId;
 
     @Column(name = "transaction_time")
     private LocalDateTime transactionTime;  // 거래 시간

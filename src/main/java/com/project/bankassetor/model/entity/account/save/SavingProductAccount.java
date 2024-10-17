@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Builder
 @Table(name = "saving_product_account")
@@ -25,16 +26,16 @@ public class SavingProductAccount {
     @JoinColumn(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "saving_account_number", nullable = false)
-    private Long savingAccountNumber;
-
-    @Column(name = "balance", nullable = false)
-    private BigDecimal balance;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "account_status", nullable = false)
-    private AccountStatus accountStatus;
+    @JoinColumn(name = "saving_account_id", nullable = false)
+    private Long savingAccountId;
 
     @Column(name = "monthly_deposit", nullable = false)
     private BigDecimal monthlyDeposit;
+
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
+
 }

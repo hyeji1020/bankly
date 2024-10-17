@@ -21,16 +21,14 @@ public class SavingProduct {
 
     private String name;
 
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
-
-    @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
-
     @Column(name = "saving_limit", nullable = false)
     private BigDecimal savingLimit;
 
     @Column(name = "interest_rate", nullable = false)
     private BigDecimal interestRate;
+
+    @ManyToOne
+    @JoinColumn(name = "saving_duration_id", nullable = false)
+    private SavingDuration savingDuration;
 
 }

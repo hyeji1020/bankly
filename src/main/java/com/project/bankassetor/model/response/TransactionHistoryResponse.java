@@ -1,6 +1,6 @@
 package com.project.bankassetor.model.response;
 
-import com.project.bankassetor.model.entity.TransactionHistory;
+import com.project.bankassetor.model.entity.account.check.CheckingTransactionHistory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,12 +18,12 @@ public class TransactionHistoryResponse {
     int transactionAmount;  // 거래 금액
     int balanceAfter;  // 거래 후 잔액
 
-    public static List<TransactionHistoryResponse> of(List<TransactionHistory> transactionHistories) {
+    public static List<TransactionHistoryResponse> of(List<CheckingTransactionHistory> transactionHistories) {
         return transactionHistories.stream()
-                .map(transactionHistory -> TransactionHistoryResponse.builder()
-                        .transactionTime(transactionHistory.getTransactionTime())
-                        .transactionAmount(transactionHistory.getTransactionAmount())
-                        .balanceAfter(transactionHistory.getBalance())
+                .map(checkingTransactionHistory -> TransactionHistoryResponse.builder()
+                        .transactionTime(checkingTransactionHistory.getTransactionTime())
+                        .transactionAmount(checkingTransactionHistory.getTransactionAmount())
+                        .balanceAfter(checkingTransactionHistory.getBalance())
                         .build())
                 .collect(Collectors.toList());
     }

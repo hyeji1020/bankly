@@ -4,11 +4,15 @@ import com.project.bankassetor.exception.AccountNotFoundException;
 import com.project.bankassetor.exception.BalanceNotEnoughException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.model.entity.Account;
-import com.project.bankassetor.model.entity.BankAccount;
+import com.project.bankassetor.model.entity.account.check.BankAccount;
+import com.project.bankassetor.model.entity.account.save.SavingAccount;
+import com.project.bankassetor.model.entity.account.save.SavingProduct;
+import com.project.bankassetor.model.enums.AccountStatus;
 import com.project.bankassetor.model.enums.AccountType;
 import com.project.bankassetor.model.request.AccountCreateRequest;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
+import com.project.bankassetor.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.repository.AccountRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,17 +28,19 @@ import java.util.Random;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final TransactionHistoryService historyService;
+    private final CheckingTransactionHistoryService historyService;
     private final BankAccountService bankAccountService;
     private final UserService userService;
+    private final SavingAccountService savingAccountService;
+    private final SavingProductService savingProductService;
+    private final SavingProductAccountService savingProductAccountService;
 
     // 계좌 조회
     public Account getAccountById(long id) {
-        Account account = accountRepository.findById(id).orElseThrow(() -> {
+        return accountRepository.findById(id).orElseThrow(() -> {
             log.warn("아이디 {}: 에 해당하는 계좌를 찾을 수 없습니다.", id);
             throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
         });
-        return account;
     }
 
     // 계좌 조회
@@ -135,24 +141,52 @@ public class AccountService {
         return accountNumber;
     }
 
-    // 계좌 생성
+    // 당좌 계좌 생성
     public Account createAccount(Long userId, AccountCreateRequest createRequest) {
         // 사용자 유효성 확인
         userService.findById(userId);
 
         // 계좌 번호 생성
-        long newAccountNumber = generateAccountNumber();
+        Long newAccountNumber = generateAccountNumber();
 
         // 저장
         Account account = Account.builder()
                 .accountNumber(newAccountNumber)
                 .balance(createRequest.getInitialDeposit())
-                .accountType(AccountType.valueOf(createRequest.getAccountType()))
+                .accountType(AccountType.CHECKING)
+                .accountStatus(AccountStatus.ACTIVE)
                 .build();
 
         Account savedAccount = accountRepository.save(account);
 
         bankAccountService.createBankAccount(userId, savedAccount.getId());
+
+        return savedAccount;
+    }
+
+    public Account createSavingAccount(Long userId, Long savingProductId, SavingAccountCreateRequest createRequest) {
+        // 사용자 유효성 확인
+        userService.findById(userId);
+
+        // 적금 상품 유효성 확인
+        SavingProduct savingProduct = savingProductService.findById(savingProductId);
+
+        // 계좌 번호 생성
+        Long newAccountNumber = generateAccountNumber();
+
+        // 저장
+        Account account = Account.builder()
+                .accountNumber(newAccountNumber)
+                .balance(createRequest.getInitialDeposit())
+                .accountType(AccountType.SAVING)
+                .accountStatus(AccountStatus.ACTIVE)
+                .build();
+
+        Account savedAccount = accountRepository.save(account);
+        SavingAccount savingAccount = savingAccountService.save(savedAccount.getId());
+
+        savingProductAccountService.save(userId, savingProductId, savingAccount.getId(),
+                savingProduct, createRequest.getMonthlyDeposit());
 
         return savedAccount;
     }

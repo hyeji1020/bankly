@@ -1,6 +1,6 @@
 package com.project.bankassetor.model.response;
 
-import com.project.bankassetor.model.entity.BankAccount;
+import com.project.bankassetor.model.entity.account.check.BankAccount;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

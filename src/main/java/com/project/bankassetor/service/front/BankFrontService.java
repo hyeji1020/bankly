@@ -56,7 +56,7 @@ public class BankFrontService {
         // 응답 DTO 반환
         return new AccountTransferResponse(
                 transferAccount.getUserId(),
-                transferAccount.getAccountId(),
+                transferAccount.getCheckingAccountId(),
                 transferRequest.getAmount()
         );
 

@@ -1,21 +1,18 @@
 package com.project.bankassetor.model.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class AccountCreateRequest {
-
-    @NotBlank(message = "생성하실 계좌 유형을 선택해주세요. (예: SAVING, CHECKING)")
-    String accountType;
 
     // 초기 입금액
     int initialDeposit;
 
     @Builder
-    public AccountCreateRequest(String accountType, int initialDeposit) {
-        this.accountType = accountType;
+    public AccountCreateRequest(int initialDeposit) {
         this.initialDeposit = initialDeposit;
     }
 }

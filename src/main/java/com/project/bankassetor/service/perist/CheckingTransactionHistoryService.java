@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.project.bankassetor.utils.Utils.toJson;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -23,12 +25,15 @@ public class CheckingTransactionHistoryService {
 
         CheckingTransactionHistory toHistory = CheckingTransactionHistory.builder()
                 .bankAccountId(bankAccount.getId())
+                .userId(bankAccount.getUserId())
+                .checkingAccountId(bankAccount.getCheckingAccountId())
+                .accountId(bankAccount.getAccountId())
                 .transactionTime(LocalDateTime.now())
                 .transactionAmount(amount)
                 .balance(balance)
                 .build();
 
-        log.info("거래내역 정보:{}", toHistory.toString());
+        log.info("거래내역 정보:{}", toJson(toHistory));
 
         return historyRepository.save(toHistory);
     }

@@ -1,5 +1,6 @@
 package com.project.bankassetor.model.entity.account.check;
 
+import com.project.bankassetor.model.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,8 +38,11 @@ public class CheckingTransactionHistory {
 
     @Column(name = "balance")
     private int balance;    // 거래 후 잔액
-    
-    // private String transactionType; // 거래 유형
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_type", nullable = false)
+    private TransactionType transactionType; // 거래 유형
+
     // private String transactionPlace; // 사용처
 
 }

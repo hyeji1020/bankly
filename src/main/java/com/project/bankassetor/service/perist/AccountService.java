@@ -5,13 +5,13 @@ import com.project.bankassetor.exception.BalanceNotEnoughException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.model.entity.Account;
 import com.project.bankassetor.model.entity.account.check.BankAccount;
+import com.project.bankassetor.model.entity.account.check.CheckingAccount;
 import com.project.bankassetor.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.model.enums.AccountStatus;
 import com.project.bankassetor.model.enums.AccountType;
 import com.project.bankassetor.model.request.AccountCreateRequest;
 import com.project.bankassetor.model.request.AccountRequest;
-import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.repository.AccountRepository;
 import jakarta.transaction.Transactional;
@@ -22,16 +22,19 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Random;
 
+import static com.project.bankassetor.utils.Utils.toJson;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final CheckingTransactionHistoryService historyService;
+    private final CheckingTransactionHistoryService checkingHistoryService;
     private final BankAccountService bankAccountService;
     private final UserService userService;
     private final SavingAccountService savingAccountService;
+    private final CheckingAccountService checkingAccountService;
     private final SavingProductService savingProductService;
     private final SavingProductAccountService savingProductAccountService;
 
@@ -60,7 +63,7 @@ public class AccountService {
 
         return account.getBalance();
     }
-
+    
     // 입금
     @Transactional
     public Account deposit(AccountRequest accountRequest) {
@@ -72,16 +75,15 @@ public class AccountService {
                     throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
 
-        // 입금 금액
-        int amount = accountRequest.getAmount();
-
         // 입금
-        accountRepository.depositUpdateBalance(account.getId(), amount);
-        log.info("입금 후 계좌정보:{}", account.toString());
+        account.setBalance(account.getBalance() + accountRequest.getAmount());
+
+        log.info("입금 후 계좌정보:{}", toJson(account));
 
         BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
 
-        historyService.save(bankAccount, accountRequest.getAmount(), account.getBalance());
+        // 거래 내역 저장
+        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance());
 
         return account;
     }
@@ -97,38 +99,41 @@ public class AccountService {
                     throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
 
-        BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
-
         // 출금 가능한 잔액 조회
         if(account.getBalance() < accountRequest.getAmount()){
-            log.warn("계좌번호: {}에 잔액이 부족합니다.", accountRequest.getAccountNumber());
+            log.warn("계좌번호: {}에 잔액이 부족합니다. 현재 잔액: {}", accountRequest.getAccountNumber(), account.getBalance());
             throw new BalanceNotEnoughException(ErrorCode.BALANCE_NOT_ENOUGH);
         }
 
-        // 출금 금액
-        int amount = accountRequest.getAmount();
+        // 출금
+        account.setBalance(account.getBalance() - accountRequest.getAmount());
 
-        accountRepository.withdrawUpdateBalance(account.getId(), amount);
-        log.info("출금 후 계좌정보:{}", account.toString());
+        log.info("출금 후 계좌정보:{}", toJson(account));
 
-        historyService.save(bankAccount, accountRequest.getAmount(), account.getBalance());
+        BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
+
+        // 거래 내역 저장
+        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance());
 
         return account;
     }
 
     //계좌 이체
     @Transactional
-    public BankAccount transfer(AccountTransferRequest transferRequest) {
+    public BankAccount transfer(Long fromAccountId, AccountRequest accountRequest) {
+
+        // toAccountNumber 가져오기
+        Account account = getAccountById(fromAccountId);
+        Long toAccountNumber = account.getAccountNumber();
 
         // 내 계좌에서 출금
-        AccountRequest withdrawRequest = new AccountRequest(transferRequest.getWithdrawalNumber(), transferRequest.getAmount());
+        AccountRequest withdrawRequest = new AccountRequest(toAccountNumber, accountRequest.getAmount());
         withdraw(withdrawRequest);
 
         // 상대방 계좌에 입금
-        AccountRequest depositRequest = new AccountRequest(transferRequest.getTransferNumber(), transferRequest.getAmount());
-        deposit(depositRequest);
+        deposit(accountRequest);
 
-        BankAccount transferAccount = bankAccountService.findByAccountNumber(transferRequest.getTransferNumber());
+        BankAccount transferAccount = bankAccountService.findByAccountNumber(accountRequest.getAccountNumber());
 
         return transferAccount;
     }
@@ -159,11 +164,14 @@ public class AccountService {
 
         Account savedAccount = accountRepository.save(account);
 
-        bankAccountService.createBankAccount(userId, savedAccount.getId());
+        CheckingAccount checkingAccount = checkingAccountService.save(savedAccount);
+
+        bankAccountService.save(userId, checkingAccount.getId(), savedAccount.getId());
 
         return savedAccount;
     }
 
+    // 적금 계좌 생성
     public Account createSavingAccount(Long userId, Long savingProductId, SavingAccountCreateRequest createRequest) {
         // 사용자 유효성 확인
         userService.findById(userId);

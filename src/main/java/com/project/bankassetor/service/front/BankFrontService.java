@@ -3,10 +3,8 @@ package com.project.bankassetor.service.front;
 import com.project.bankassetor.model.entity.Account;
 import com.project.bankassetor.model.entity.account.check.BankAccount;
 import com.project.bankassetor.model.entity.account.check.CheckingTransactionHistory;
-import com.project.bankassetor.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.model.request.AccountCreateRequest;
 import com.project.bankassetor.model.request.AccountRequest;
-import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.model.response.AccountCreateResponse;
 import com.project.bankassetor.model.response.AccountResponse;
@@ -49,15 +47,15 @@ public class BankFrontService {
     }
 
     // 계좌 이체
-    public AccountTransferResponse transfer(AccountTransferRequest transferRequest) {
+    public AccountTransferResponse transfer(Long fromAccountId, AccountRequest accountRequest) {
 
-        final BankAccount transferAccount = accountService.transfer(transferRequest);
+        final BankAccount transferAccount = accountService.transfer(fromAccountId, accountRequest);
 
         // 응답 DTO 반환
         return new AccountTransferResponse(
                 transferAccount.getUserId(),
-                transferAccount.getAccountId(),
-                transferRequest.getAmount()
+                transferAccount.getCheckingAccountId(),
+                accountRequest.getAmount()
         );
 
     }

@@ -2,7 +2,6 @@ package com.project.bankassetor.api;
 
 import com.project.bankassetor.model.request.AccountCreateRequest;
 import com.project.bankassetor.model.request.AccountRequest;
-import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;
@@ -34,9 +33,9 @@ public class BankApi {
     }
 
     // 계좌 이체
-    @PutMapping("/transfer")
-    public ResultResponse<AccountTransferResponse> transfer(@Valid @RequestBody AccountTransferRequest transferRequest) {
-        AccountTransferResponse response = bankFrontService.transfer(transferRequest);
+    @PutMapping("/{fromAccountId}/transfer")
+    public ResultResponse<AccountTransferResponse> transfer(@PathVariable Long fromAccountId, @Valid @RequestBody AccountRequest accountRequest) {
+        AccountTransferResponse response = bankFrontService.transfer(fromAccountId, accountRequest);
         return new ResultResponse<>(response);
     }
 

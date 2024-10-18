@@ -16,10 +16,13 @@ public class BankAccount {
     @Column(name = "id", nullable = false)
     private long id;
 
-    @JoinColumn(name = "account_id", nullable = false)
-    private long accountId;
+    @JoinColumn(name = "checking_account_id", nullable = false)
+    private long checkingAccountId;
 
     @JoinColumn(name = "user_id", nullable = false)
     private long userId;
+
+    @JoinColumn(name = "account_id", nullable = false)
+    private Long accountId;
 
 }

@@ -20,6 +20,15 @@ public class CheckingTransactionHistory {
     @JoinColumn(name = "bank_account_id", nullable = false)
     private Long bankAccountId;
 
+    @JoinColumn(name = "user_id", nullable = false)
+    private Long userId;
+
+    @JoinColumn(name = "checking_account_id", nullable = false)
+    private Long checkingAccountId;
+
+    @JoinColumn(name = "account_id", nullable = false)
+    private Long accountId;
+
     @Column(name = "transaction_time")
     private LocalDateTime transactionTime;  // 거래 시간
 

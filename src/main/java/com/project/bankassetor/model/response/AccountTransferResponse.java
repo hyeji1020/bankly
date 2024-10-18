@@ -14,7 +14,7 @@ public class AccountTransferResponse {
     private long userId;
 
     // 이체 한 계좌 번호
-    private long checkingAccountId;
+    private long toAccountId;
 
     // 이체 금액
     private int amount;
@@ -22,7 +22,7 @@ public class AccountTransferResponse {
     public static AccountTransferResponse of(BankAccount bankAccount, int amount){
         return AccountTransferResponse.builder()
                 .userId(bankAccount.getUserId())
-                .checkingAccountId(bankAccount.getCheckingAccountId())
+                .toAccountId(bankAccount.getCheckingAccountId())
                 .amount(amount)
                 .build();
     }

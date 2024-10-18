@@ -16,13 +16,4 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query(value = "SELECT a.* FROM account a WHERE a.account_number = :accountNumber", nativeQuery = true)
     Optional<Account> findByAccountNumber(@Param("accountNumber") long accountNumber);
 
-    // 잔액 변경(입금)
-    @Modifying
-    @Query(value = "UPDATE account SET balance = balance + :amount WHERE id = :id", nativeQuery = true)
-    void depositUpdateBalance(@Param("id") long id, @Param("amount") int amount);
-
-    // 잔액 변경(출금)
-    @Modifying
-    @Query(value = "UPDATE account SET balance = balance - :amount WHERE id = :id", nativeQuery = true)
-    void withdrawUpdateBalance(@Param("id") long id, @Param("amount") int amount);
 }

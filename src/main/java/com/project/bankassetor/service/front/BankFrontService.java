@@ -49,15 +49,15 @@ public class BankFrontService {
     }
 
     // 계좌 이체
-    public AccountTransferResponse transfer(AccountTransferRequest transferRequest) {
+    public AccountTransferResponse transfer(Long fromAccountId, AccountRequest accountRequest) {
 
-        final BankAccount transferAccount = accountService.transfer(transferRequest);
+        final BankAccount transferAccount = accountService.transfer(fromAccountId, accountRequest);
 
         // 응답 DTO 반환
         return new AccountTransferResponse(
                 transferAccount.getUserId(),
                 transferAccount.getCheckingAccountId(),
-                transferRequest.getAmount()
+                accountRequest.getAmount()
         );
 
     }

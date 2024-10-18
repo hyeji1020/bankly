@@ -15,8 +15,6 @@ import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.repository.AccountRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +29,6 @@ import static com.project.bankassetor.utils.Utils.toJson;
 @Service
 @RequiredArgsConstructor
 public class AccountService {
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     private final AccountRepository accountRepository;
     private final CheckingTransactionHistoryService checkingHistoryService;
@@ -69,7 +64,7 @@ public class AccountService {
 
         return account.getBalance();
     }
-
+    
     // 입금
     @Transactional
     public Account deposit(AccountRequest accountRequest) {
@@ -81,23 +76,15 @@ public class AccountService {
                     throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
 
-        // 입금 금액
-        int amount = accountRequest.getAmount();
-
         // 입금
-        accountRepository.depositUpdateBalance(account.getId(), amount);
+        account.setBalance(account.getBalance() + accountRequest.getAmount());
 
-        // balance 수정 반영 된 account 조회
-        Account updateAccount = getAccountById(account.getId());
+        log.info("입금 후 계좌정보:{}", toJson(account));
 
-        // DB에서 엔티티를 다시 로드
-        entityManager.refresh(updateAccount);
-        log.info("입금 후 계좌정보:{}", toJson(updateAccount));
-
-        BankAccount bankAccount = bankAccountService.findByAccountId(updateAccount.getId());
+        BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
 
         // 거래 내역 저장
-        checkingHistoryService.save(bankAccount, amount, updateAccount.getBalance());
+        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance());
 
         return account;
     }
@@ -119,40 +106,35 @@ public class AccountService {
             throw new BalanceNotEnoughException(ErrorCode.BALANCE_NOT_ENOUGH);
         }
 
-        // 출금 금액
-        int amount = accountRequest.getAmount();
-
         // 출금
-        accountRepository.withdrawUpdateBalance(account.getId(), amount);
+        account.setBalance(account.getBalance() - accountRequest.getAmount());
 
-        // balance 수정 반영 된 account 조회
-        Account updateAccount = getAccountById(account.getId());
-
-        // DB에서 엔티티를 다시 로드
-        entityManager.refresh(updateAccount);
-        log.info("출금 후 계좌정보:{}", toJson(updateAccount));
+        log.info("출금 후 계좌정보:{}", toJson(account));
 
         BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
 
         // 거래 내역 저장
-        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), updateAccount.getBalance());
+        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance());
 
         return account;
     }
 
     //계좌 이체
     @Transactional
-    public BankAccount transfer(AccountTransferRequest transferRequest) {
+    public BankAccount transfer(Long fromAccountId, AccountRequest accountRequest) {
+
+        // toAccountNumber 가져오기
+        Account account = getAccountById(fromAccountId);
+        Long toAccountNumber = account.getAccountNumber();
 
         // 내 계좌에서 출금
-        AccountRequest withdrawRequest = new AccountRequest(transferRequest.getWithdrawalNumber(), transferRequest.getAmount());
+        AccountRequest withdrawRequest = new AccountRequest(toAccountNumber, accountRequest.getAmount());
         withdraw(withdrawRequest);
 
         // 상대방 계좌에 입금
-        AccountRequest depositRequest = new AccountRequest(transferRequest.getTransferNumber(), transferRequest.getAmount());
-        deposit(depositRequest);
+        deposit(accountRequest);
 
-        BankAccount transferAccount = bankAccountService.findByAccountNumber(transferRequest.getTransferNumber());
+        BankAccount transferAccount = bankAccountService.findByAccountNumber(accountRequest.getAccountNumber());
 
         return transferAccount;
     }

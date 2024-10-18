@@ -12,7 +12,6 @@ import com.project.bankassetor.model.enums.AccountStatus;
 import com.project.bankassetor.model.enums.AccountType;
 import com.project.bankassetor.model.request.AccountCreateRequest;
 import com.project.bankassetor.model.request.AccountRequest;
-import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.repository.AccountRepository;
 import jakarta.transaction.Transactional;

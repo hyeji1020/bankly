@@ -2,7 +2,6 @@ package com.project.bankassetor.api;
 
 import com.project.bankassetor.model.request.AccountCreateRequest;
 import com.project.bankassetor.model.request.AccountRequest;
-import com.project.bankassetor.model.request.AccountTransferRequest;
 import com.project.bankassetor.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;

@@ -1,6 +1,6 @@
 package com.project.bankassetor.repository;
 
-import com.project.bankassetor.model.entity.BankAccount;
+import com.project.bankassetor.model.entity.account.check.BankAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -2,7 +2,7 @@ package com.project.bankassetor.service.perist;
 
 import com.project.bankassetor.exception.AccountNotFoundException;
 import com.project.bankassetor.exception.ErrorCode;
-import com.project.bankassetor.model.entity.BankAccount;
+import com.project.bankassetor.model.entity.account.check.BankAccount;
 import com.project.bankassetor.repository.BankAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

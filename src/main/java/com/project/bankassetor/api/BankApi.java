@@ -3,6 +3,7 @@ package com.project.bankassetor.api;
 import com.project.bankassetor.model.request.AccountCreateRequest;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.AccountTransferRequest;
+import com.project.bankassetor.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;
 import jakarta.validation.Valid;
@@ -46,10 +47,19 @@ public class BankApi {
         return new ResultResponse<>(response);
     }
     
-    // 계좌 생성
+    // 당좌 계좌 생성
     @PostMapping("/{userId}")
-    public ResultResponse<AccountCreateResponse> createAccount(@PathVariable Long userId, @Valid @RequestBody AccountCreateRequest createRequest) {
+    public ResultResponse<AccountCreateResponse> createCheckingAccount(@PathVariable Long userId, @Valid @RequestBody AccountCreateRequest createRequest) {
         AccountCreateResponse response = bankFrontService.createAccount(userId, createRequest);
+        return new ResultResponse<>(response);
+    }
+
+
+    // 적금 계좌 생성
+    @PostMapping("/{userId}/{savingProductId}")
+    public ResultResponse<AccountCreateResponse> createSavingAccount(@PathVariable Long userId,@PathVariable Long savingProductId,
+                                                                     @Valid @RequestBody SavingAccountCreateRequest createRequest) {
+        AccountCreateResponse response = bankFrontService.createSavingAccount(userId, savingProductId, createRequest);
         return new ResultResponse<>(response);
     }
 

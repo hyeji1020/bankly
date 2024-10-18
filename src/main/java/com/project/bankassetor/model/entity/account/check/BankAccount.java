@@ -1,4 +1,4 @@
-package com.project.bankassetor.model.entity;
+package com.project.bankassetor.model.entity.account.check;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,14 +15,6 @@ public class BankAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private long id;
-
-//    @ManyToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "account_id", nullable = false)
-//    private Account account;
-//
-//    @ManyToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private User user;
 
     @JoinColumn(name = "account_id", nullable = false)
     private long accountId;

@@ -13,7 +13,7 @@ public class AccountCreateResponse {
     // 계좌 유형 (예: SAVING, CHECKING)
     private String accountType;
     private long accountNumber;
-    private long balance;
+    private int balance;
 
     public static AccountCreateResponse of(Account account){
         return AccountCreateResponse.builder()

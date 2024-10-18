@@ -1,5 +1,6 @@
 package com.project.bankassetor.model.entity;
 
+import com.project.bankassetor.model.enums.AccountStatus;
 import com.project.bankassetor.model.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,5 +27,9 @@ public class Account {
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)
     private AccountType accountType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_status", nullable = false)
+    private AccountStatus accountStatus;
 
 }

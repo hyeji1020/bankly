@@ -2,6 +2,7 @@ package com.project.bankassetor.service.perist;
 
 import com.project.bankassetor.model.entity.account.check.BankAccount;
 import com.project.bankassetor.model.entity.account.check.CheckingTransactionHistory;
+import com.project.bankassetor.model.enums.TransactionType;
 import com.project.bankassetor.repository.CheckingTransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ public class CheckingTransactionHistoryService {
     private final BankAccountService bankAccountService;
 
     // 거래 내역 저장
-    public CheckingTransactionHistory save(BankAccount bankAccount, int amount, int balance) {
+    public CheckingTransactionHistory save(BankAccount bankAccount, int amount, int balance, String transactionType) {
 
         CheckingTransactionHistory toHistory = CheckingTransactionHistory.builder()
                 .bankAccountId(bankAccount.getId())
@@ -31,6 +32,7 @@ public class CheckingTransactionHistoryService {
                 .transactionTime(LocalDateTime.now())
                 .transactionAmount(amount)
                 .balance(balance)
+                .transactionType(TransactionType.valueOf(transactionType))
                 .build();
 
         log.info("거래내역 정보:{}", toJson(toHistory));

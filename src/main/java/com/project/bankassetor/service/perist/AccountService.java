@@ -10,6 +10,7 @@ import com.project.bankassetor.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.model.enums.AccountStatus;
 import com.project.bankassetor.model.enums.AccountType;
+import com.project.bankassetor.model.enums.TransactionType;
 import com.project.bankassetor.model.request.AccountCreateRequest;
 import com.project.bankassetor.model.request.AccountRequest;
 import com.project.bankassetor.model.request.SavingAccountCreateRequest;
@@ -37,6 +38,15 @@ public class AccountService {
     private final CheckingAccountService checkingAccountService;
     private final SavingProductService savingProductService;
     private final SavingProductAccountService savingProductAccountService;
+
+    // 계좌 번호로 조회
+    public Account findByAccountNumber(Long accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> {
+                    log.warn("계좌번호 {}: 에 해당하는 계좌를 찾을 수 없습니다.",accountNumber);
+                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
+    }
 
     // 계좌 조회
     public Account getAccountById(long id) {
@@ -83,7 +93,7 @@ public class AccountService {
         BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
 
         // 거래 내역 저장
-        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance());
+        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.DEPOSIT.toString());
 
         return account;
     }
@@ -113,27 +123,41 @@ public class AccountService {
         BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
 
         // 거래 내역 저장
-        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance());
+        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.WITHDRAW.toString());
 
         return account;
     }
 
-    //계좌 이체
+    /**
+     * 계좌 이체 기능을 처리하는 메서드.
+     *
+     * 1. 송금자의 계좌(fromAccountId)를 조회하여 유효성을 확인하고, 출금 금액을 반영해 잔액을 수정합니다.
+     * 2. 수신자의 계좌(accountRequest.getAccountNumber())를 조회하여 유효성을 확인하고, 입금 금액을 반영해 잔액을 수정합니다.
+     * 3. 거래 내역을 저장하며, 거래 유형은 "TRANSFER"로 기록합니다.
+     *
+     * @param fromAccountId 송금자의 계좌 ID
+     * @param accountRequest 송금 요청 정보 (송금액 및 수신 계좌 번호 포함)
+     * @return BankAccount 송금 후 수신자의 계좌 정보 반환
+     */
     @Transactional
     public BankAccount transfer(Long fromAccountId, AccountRequest accountRequest) {
 
-        // toAccountNumber 가져오기
-        Account account = getAccountById(fromAccountId);
-        Long toAccountNumber = account.getAccountNumber();
+        // 송금 계좌 유효성 확인
+        Account fromAccount = getAccountById(fromAccountId);
 
-        // 내 계좌에서 출금
-        AccountRequest withdrawRequest = new AccountRequest(toAccountNumber, accountRequest.getAmount());
-        withdraw(withdrawRequest);
+        // 송금 계좌에서 출금
+        fromAccount.setBalance(fromAccount.getBalance() - accountRequest.getAmount());
 
-        // 상대방 계좌에 입금
-        deposit(accountRequest);
+        // 수신 계좌 유효성 확인
+        Account toAccount = findByAccountNumber(accountRequest.getAccountNumber());
+
+        // 수신 계좌에 입금
+        toAccount.setBalance(toAccount.getBalance() + accountRequest.getAmount());
 
         BankAccount transferAccount = bankAccountService.findByAccountNumber(accountRequest.getAccountNumber());
+
+        // 거래 내역 저장(송금 계좌 기준)
+        checkingHistoryService.save(transferAccount, accountRequest.getAmount(), fromAccount.getBalance(), TransactionType.TRANSFER.toString());
 
         return transferAccount;
     }

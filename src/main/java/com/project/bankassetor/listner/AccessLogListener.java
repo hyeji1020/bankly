@@ -6,11 +6,14 @@ import com.project.bankassetor.model.entity.AccessLog;
 import com.project.bankassetor.repository.AccessLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import com.rabbitmq.client.Channel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,17 +29,29 @@ public class AccessLogListener implements SmartLifecycle {
     private volatile boolean running = false;
 
     /**
-     * MQ 메시지 큐에서 AccessLog 메시지를 수신하는 메서드
-     * 수신한 로그를 배치 리스트에 추가하며, 저장은 주기적으로 처리
+     * AccessLog를 직접 저장하는 메서드 (외부에서 호출 가능)
+     */
+    public void receiveAccessLog(AccessLog accessLog) {
+        try {
+            log.info("직접 호출: 전달 받은 AccessLog: {}", toJson(accessLog));
+            accessLogBatch.add(accessLog);  // 배치 리스트에 로그 추가
+        } catch (Exception e) {
+            log.error("AccessLog 처리 중 오류 발생: {}", toJson(accessLog), e);
+            throw new AccessLogException(ErrorCode.ACCESS_LOG_ERROR);
+        }
+    }
+
+    /**
+     * MQ 메시지 큐에서 AccessLog 메시지를 수신하는 메서드 (RabbitMQ에서 호출됨)
      */
     @RabbitListener(queues = "accessLogQueue")
-    public void receiveAccessLog(AccessLog accessLog) {
+    public void receiveAccessLog(AccessLog accessLog, Channel channel, Message message) {
         try {
             log.info("전달 받은 AccessLog: {}", toJson(accessLog));
             accessLogBatch.add(accessLog);  // 배치 리스트에 로그 추가 (저장은 주기적으로 처리)
         } catch (Exception e) {
             log.error("AccessLog를 처리하는 중 오류가 발생했습니다 : {}", accessLog, e);
-            throw new AccessLogException(ErrorCode.ACCESS_LOG_ERROR);
+            handleFailedMessage(channel, message);
         }
     }
 
@@ -55,6 +70,20 @@ public class AccessLogListener implements SmartLifecycle {
                 log.error("AccessLog 배치 저장 실패", e);
                 throw new AccessLogException(ErrorCode.ACCESS_LOG_BATCH_SAVE_ERROR);
             }
+        }
+    }
+
+    /**
+     * Dead Letter Queue로 메시지를 전송하는 메서드
+     * 메시지 처리 중 예외가 발생하면 Dead Letter Queue로 보내기 위한 Nack 처리
+     */
+    private void handleFailedMessage(Channel channel, Message message) {
+        try {
+            // NACK(negative acknowledgement)로 메시지를 처리하지 않고 Dead Letter Queue로 이동시킴
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+            log.info("Dead Letter Queue로 메시지 전송됨: {}", new String(message.getBody()));
+        } catch (IOException e) {
+            log.error("Dead Letter Queue로 메시지 전송 실패", e);
         }
     }
 

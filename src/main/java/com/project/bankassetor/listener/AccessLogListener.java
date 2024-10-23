@@ -4,17 +4,14 @@ import com.project.bankassetor.exception.AccessLogException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.model.entity.AccessLog;
 import com.project.bankassetor.repository.AccessLogRepository;
-import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,20 +57,6 @@ public class AccessLogListener implements SmartLifecycle {
                 log.error("AccessLog 배치 저장 실패", e);
                 throw new AccessLogException(ErrorCode.ACCESS_LOG_BATCH_SAVE_ERROR);
             }
-        }
-    }
-
-    /**
-     * Dead Letter Queue로 메시지를 전송하는 메서드
-     * 메시지 처리 중 예외가 발생하면 Dead Letter Queue로 보내기 위한 Nack 처리
-     */
-    private void handleFailedMessage(Channel channel, Message message) {
-        try {
-            // NACK(negative acknowledgement)로 메시지를 처리하지 않고 Dead Letter Queue로 이동시킴
-            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
-            log.info("Dead Letter Queue로 메시지 전송됨: {}", new String(message.getBody()));
-        } catch (IOException e) {
-            log.error("Dead Letter Queue로 메시지 전송 실패", e);
         }
     }
 

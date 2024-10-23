@@ -1,6 +1,6 @@
 package com.project.bankassetor.service.perist;
 
-import com.project.bankassetor.listner.AccessLogListener;
+import com.project.bankassetor.listener.AccessLogListener;
 import com.project.bankassetor.model.entity.AccessLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

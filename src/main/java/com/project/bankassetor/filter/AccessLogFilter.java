@@ -165,7 +165,7 @@ public class AccessLogFilter implements Filter {
 
     private void sendAccessLogToExternalServer(AccessLog accessLog) {
         try {
-            rabbitTemplate.convertAndSend(exchange, routingKey, toJson(accessLog));
+            rabbitTemplate.convertAndSend(exchange, routingKey, accessLog);
             log.info("AccessLog가 MQ로 성공적으로 전송되었습니다.");
         } catch (Exception e) {
             log.error("AccessLog를 MQ로 보내지 못했습니다", e);

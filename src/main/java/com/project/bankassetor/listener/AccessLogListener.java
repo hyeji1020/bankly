@@ -1,17 +1,18 @@
-package com.project.bankassetor.listner;
+package com.project.bankassetor.listener;
 
 import com.project.bankassetor.exception.AccessLogException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.model.entity.AccessLog;
 import com.project.bankassetor.repository.AccessLogRepository;
+import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import com.rabbitmq.client.Channel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,29 +30,18 @@ public class AccessLogListener implements SmartLifecycle {
     private volatile boolean running = false;
 
     /**
-     * AccessLog를 직접 저장하는 메서드 (외부에서 호출 가능)
+     * MQ 메시지 큐에서 AccessLog 메시지를 수신하는 메서드
+     * RabbitMQ 큐에 저장된 AccessLog 메시지를 수신하고, 배치 리스트에 추가하는 역할을 합니다.
+     * @RabbitListener 어노테이션을 통해 RabbitMQ로부터 메시지를 수신합니다.
      */
+    @RabbitListener(queues = "accessLogQueue")
     public void receiveAccessLog(AccessLog accessLog) {
         try {
-            log.info("직접 호출: 전달 받은 AccessLog: {}", toJson(accessLog));
+            log.info("전달 받은 AccessLog: {}", toJson(accessLog));
             accessLogBatch.add(accessLog);  // 배치 리스트에 로그 추가
         } catch (Exception e) {
             log.error("AccessLog 처리 중 오류 발생: {}", toJson(accessLog), e);
-            throw new AccessLogException(ErrorCode.ACCESS_LOG_ERROR);
-        }
-    }
-
-    /**
-     * MQ 메시지 큐에서 AccessLog 메시지를 수신하는 메서드 (RabbitMQ에서 호출됨)
-     */
-    @RabbitListener(queues = "accessLogQueue")
-    public void receiveAccessLog(AccessLog accessLog, Channel channel, Message message) {
-        try {
-            log.info("전달 받은 AccessLog: {}", toJson(accessLog));
-            accessLogBatch.add(accessLog);  // 배치 리스트에 로그 추가 (저장은 주기적으로 처리)
-        } catch (Exception e) {
-            log.error("AccessLog를 처리하는 중 오류가 발생했습니다 : {}", accessLog, e);
-            handleFailedMessage(channel, message);
+            throw new AmqpRejectAndDontRequeueException("처리 중 예외 발생 - 메시지를 재큐하지 않음", e);
         }
     }
 

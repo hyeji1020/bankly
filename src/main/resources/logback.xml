@@ -32,11 +32,11 @@
         </encoder>
     </appender>
 
-    <!-- 에러 로그를 기록하고, 일별로 로그를 압축하여 저장하는 appender -->
+    <!-- 컨슈머 로그를 기록하고, 일별로 로그를 압축하여 저장하는 appender -->
     <appender name="messageProcessingAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>./logs/consumer.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>./logs/archive/messageProcessing_%d{yyyyMMdd}.log.gz</FileNamePattern>
+            <FileNamePattern>./logs/archive/consumer_%d{yyyyMMdd}.log.gz</FileNamePattern>
             <maxHistory>90</maxHistory>
         </rollingPolicy>
         <encoder>

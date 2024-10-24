@@ -34,7 +34,7 @@
 
     <!-- 에러 로그를 기록하고, 일별로 로그를 압축하여 저장하는 appender -->
     <appender name="messageProcessingAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>./logs/messageProcessing.log</File>
+        <File>./logs/consumer.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>./logs/archive/messageProcessing_%d{yyyyMMdd}.log.gz</FileNamePattern>
             <maxHistory>90</maxHistory>

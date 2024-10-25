@@ -4,6 +4,7 @@ import com.project.bankassetor.exception.AccessLogException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.model.entity.AccessLog;
 import com.project.bankassetor.service.perist.AccessLogService;
+import com.project.bankassetor.service.perist.TelegramNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
@@ -27,6 +28,7 @@ public class AccessLogListener implements SmartLifecycle {
     private final List<AccessLog> accessLogBatch = new ArrayList<>();
     private volatile boolean running = false;
     private final AccessLogService accessLogService;
+    private final TelegramNotificationService telegramNotificationService;
 
     /**
      * MQ 메시지 큐에서 AccessLog 메시지를 수신하는 메서드
@@ -40,6 +42,7 @@ public class AccessLogListener implements SmartLifecycle {
             accessLogBatch.add(accessLog);  // 배치 리스트에 로그 추가
         } catch (Exception e) {
             log.error("AccessLog 처리 중 오류 발생: {}", toJson(accessLog), e);
+            telegramNotificationService.sendTelegramMessage("AccessLog 처리 중 오류 발생: " + e.getMessage());
             throw new AmqpRejectAndDontRequeueException("처리 중 예외 발생 - 메시지를 재큐하지 않음", e);
         }
     }

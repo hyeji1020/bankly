@@ -3,12 +3,13 @@ package com.project.bankassetor.listener;
 import com.project.bankassetor.exception.AccessLogException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.model.entity.AccessLog;
-import com.project.bankassetor.repository.AccessLogRepository;
+import com.project.bankassetor.service.perist.AccessLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.SmartLifecycle;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,15 @@ import java.util.List;
 
 import static com.project.bankassetor.utils.Utils.toJson;
 
+@Profile("access")
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccessLogListener implements SmartLifecycle {
 
-    private final AccessLogRepository accessLogRepository;
     private final List<AccessLog> accessLogBatch = new ArrayList<>();
     private volatile boolean running = false;
+    private final AccessLogService accessLogService;
 
     /**
      * MQ 메시지 큐에서 AccessLog 메시지를 수신하는 메서드
@@ -51,7 +53,7 @@ public class AccessLogListener implements SmartLifecycle {
         if (!accessLogBatch.isEmpty()) {  // 배치 리스트가 비어 있지 않으면 저장
             try {
                 log.info("배치로 저장 중: AccessLogs 크기={}", accessLogBatch.size());
-                accessLogRepository.saveAll(new ArrayList<>(accessLogBatch));
+                accessLogService.saveBatch(new ArrayList<>(accessLogBatch));
                 accessLogBatch.clear();  // 저장 후 리스트 초기화
             } catch (Exception e) {
                 log.error("AccessLog 배치 저장 실패", e);

@@ -47,4 +47,12 @@ public class AccessLog {
     private LocalDateTime requestAt;
     private LocalDateTime responseAt;
     private String requestId;
+
+    // 새로운 생성자 (테스트에서 사용)
+    public AccessLog(String memberId, String status, String uri) {
+        this.memberId = memberId;
+        this.status = status;
+        this.uri = uri;
+        this.requestAt = LocalDateTime.now(); // 요청 시각을 현재 시각으로 설정
+    }
 }

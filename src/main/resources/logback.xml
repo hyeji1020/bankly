@@ -32,6 +32,18 @@
         </encoder>
     </appender>
 
+    <!-- 컨슈머 로그를 기록하고, 일별로 로그를 압축하여 저장하는 appender -->
+    <appender name="messageProcessingAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>./logs/consumer.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>./logs/archive/consumer_%d{yyyyMMdd}.log.gz</FileNamePattern>
+            <maxHistory>90</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>[${HOSTNAME}] [%d{YYYY-MM-dd HH:mm:ss z, Asia/Seoul}] [%-5level] [%thread] %logger{36}:%L - %msg -- %X{log.remoteAddr}%n</Pattern>
+        </encoder>
+    </appender>
+
     <!-- 패키지 로그 설정 -->
     <logger name="com.project.bankassetor" additivity="false" level="INFO">
         <appender-ref ref="console" />
@@ -42,6 +54,12 @@
     <logger name="com.project.bankassetor.filter.AccessLogFilter" additivity="false" level="INFO">
         <appender-ref ref="console" />
         <appender-ref ref="accessLogDailyRollingFileAppender"/>
+    </logger>
+
+    <!-- AccessLogListener 클래스의 액세스 로그 설정 -->
+    <logger name="com.project.bankassetor.listener.AccessLogListener" additivity="false" level="INFO">
+        <appender-ref ref="console" />
+        <appender-ref ref="messageProcessingAppender"/>
     </logger>
 
     <!-- 루트 로거 설정 (전체 애플리케이션에 적용) -->

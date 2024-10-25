@@ -2,32 +2,36 @@ package com.project.bankassetor.filter;
 
 import com.project.bankassetor.filter.response.LocationResponse;
 import com.project.bankassetor.model.entity.AccessLog;
+import com.project.bankassetor.model.entity.Config;
+import com.project.bankassetor.service.perist.ConfigService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.amqp.RabbitTemplateConfigurer;
-import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 
 import static com.project.bankassetor.utils.Utils.toJson;
 
-@Profile("api")
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AccessLogFilter implements Filter {
 
     private final RabbitTemplate rabbitTemplate;
+    private final ConfigService configService;
 
     // RabbitMQ로 보낼 Exchange 이름과 Routing Key를 주입
     @Value("${mq.exchange}")
@@ -36,21 +40,48 @@ public class AccessLogFilter implements Filter {
     @Value("${mq.routing-key}")
     private String routingKey;
 
+    // Spring의 Environment를 주입받아 활성화된 프로파일을 확인할 수 있도록 설정
+    @Autowired
+    private Environment env;
+
+    /**
+     * AccessLog 필터링 및 로깅 처리를 담당하는 메서드.
+     * "access" 프로파일이 활성화된 경우 필터를 건너뛰며,
+     * `access-log.enabled` 설정에 따라 로깅 여부를 결정한다.
+     *
+     * @param request  클라이언트의 요청 객체
+     * @param response 서버의 응답 객체
+     * @param chain    다음 필터 또는 서블릿으로 요청을 전달하기 위한 필터 체인
+     * @throws IOException   입출력 예외 발생 시
+     * @throws ServletException 서블릿 예외 발생 시
+     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        // HttpServletRequest와 HttpServletResponse를 감싸는 Wrapper로 변환
+        // 1. "access" 프로파일 활성화 여부를 확인하여 필터를 건너뛸지 결정한다.
+        if (Arrays.asList(env.getActiveProfiles()).contains("access")) {
+            // 다음 필터로 요청을 넘기고 현재 필터를 종료
+            chain.doFilter(request, response);
+            return;
+        }
+
+        // 2. runtime 시 설정된 `access-log.enabled` 값이 "off"인 경우 로깅을 비활성화한다.
+        Config config = configService.getConfigInCache("access-log.enabled");
+        if(config.getVal().equalsIgnoreCase("off")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        // 3. HttpServletRequest와 HttpServletResponse를 감싸는 Wrapper로 변환하여 로그 데이터를 수집한다.
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper((HttpServletResponse) response);
 
-        // AccessLog 객체 생성 및 기본 정보 설정
+        // 4. AccessLog 객체 생성 후, 요청 데이터를 설정하여 필터 체인을 호출한다.
         AccessLog accessLog = createAccessLog(requestWrapper);
 
         try {
             // 요청 데이터 설정
             setRequestData(requestWrapper, accessLog);
-
-            // 다음 필터 또는 서블릿 호출
             chain.doFilter(requestWrapper, responseWrapper);
         } finally {
             // 응답 데이터 설정 및 로그 기록
@@ -58,7 +89,8 @@ public class AccessLogFilter implements Filter {
             finalizeAccessLog(responseWrapper, accessLog);
         }
 
-            sendAccessLogToExternalServer(accessLog);
+        // 5. 응답 완료 후 응답 데이터를 AccessLog 객체에 추가하고, RabbitMQ로 전송하여 로그를 저장한다.
+        sendAccessLogToMQ(accessLog);
 
     }
 
@@ -163,7 +195,7 @@ public class AccessLogFilter implements Filter {
         }
     }
 
-    private void sendAccessLogToExternalServer(AccessLog accessLog) {
+    private void sendAccessLogToMQ(AccessLog accessLog) {
         try {
             rabbitTemplate.convertAndSend(exchange, routingKey, accessLog);
             log.info("AccessLog가 MQ로 성공적으로 전송되었습니다.");

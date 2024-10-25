@@ -2,6 +2,8 @@ package com.project.bankassetor.filter;
 
 import com.project.bankassetor.filter.response.LocationResponse;
 import com.project.bankassetor.model.entity.AccessLog;
+import com.project.bankassetor.model.entity.Config;
+import com.project.bankassetor.service.perist.ConfigService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,6 +31,7 @@ import static com.project.bankassetor.utils.Utils.toJson;
 public class AccessLogFilter implements Filter {
 
     private final RabbitTemplate rabbitTemplate;
+    private final ConfigService configService;
 
     // RabbitMQ로 보낼 Exchange 이름과 Routing Key를 주입
     @Value("${mq.exchange}")
@@ -73,14 +76,12 @@ public class AccessLogFilter implements Filter {
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper((HttpServletResponse) response);
 
-        // AccessLog 객체 생성 및 기본 정보 설정
+        // 4. AccessLog 객체 생성 후, 요청 데이터를 설정하여 필터 체인을 호출한다.
         AccessLog accessLog = createAccessLog(requestWrapper);
 
         try {
             // 요청 데이터 설정
             setRequestData(requestWrapper, accessLog);
-
-            // 다음 필터 또는 서블릿 호출
             chain.doFilter(requestWrapper, responseWrapper);
         } finally {
             // 응답 데이터 설정 및 로그 기록
@@ -194,7 +195,7 @@ public class AccessLogFilter implements Filter {
         }
     }
 
-    private void sendAccessLogToExternalServer(AccessLog accessLog) {
+    private void sendAccessLogToMQ(AccessLog accessLog) {
         try {
             rabbitTemplate.convertAndSend(exchange, routingKey, accessLog);
             log.info("AccessLog가 MQ로 성공적으로 전송되었습니다.");

@@ -50,6 +50,9 @@ dependencies {
 	// RabbitMQ 사용을 위한 라이브러리
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
+	implementation "org.springframework.boot:spring-boot-starter-cache"
+	implementation "org.springframework.boot:spring-boot-starter-data-redis"
+
 }
 
 tasks.named('test') {

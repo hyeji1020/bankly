@@ -42,7 +42,7 @@ public class AccessLogFilter implements Filter {
 
     // Spring의 Environment를 주입받아 활성화된 프로파일을 확인할 수 있도록 설정
     @Autowired
-    private Environment env;
+    private final Environment env;
 
     /**
      * AccessLog 필터링 및 로깅 처리를 담당하는 메서드.
@@ -119,11 +119,6 @@ public class AccessLogFilter implements Filter {
         accessLog.setMethod(requestWrapper.getMethod());
         accessLog.setRequestAt(LocalDateTime.now());
         accessLog.setReferer(requestWrapper.getHeader("Referer"));
-
-        // 위치 정보 (IP 기반) 설정
-        LocationResponse location = AccessLogUtil.getLocationInfoByIp(clientIp);
-        accessLog.setCountry(location.getCountry());
-        accessLog.setCity(location.getCity());
 
         return accessLog;
     }

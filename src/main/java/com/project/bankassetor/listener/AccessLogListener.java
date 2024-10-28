@@ -2,7 +2,9 @@ package com.project.bankassetor.listener;
 
 import com.project.bankassetor.exception.AccessLogException;
 import com.project.bankassetor.exception.ErrorCode;
-import com.project.bankassetor.model.entity.AccessLog;
+import com.project.bankassetor.filter.AccessLogUtil;
+import com.project.bankassetor.filter.response.LocationResponse;
+import com.project.bankassetor.secondary.model.entity.AccessLog;
 import com.project.bankassetor.service.perist.AccessLogService;
 import com.project.bankassetor.service.perist.TelegramNotificationService;
 import lombok.RequiredArgsConstructor;
@@ -39,11 +41,29 @@ public class AccessLogListener implements SmartLifecycle {
     public void receiveAccessLog(AccessLog accessLog) {
         try {
             log.info("전달 받은 AccessLog: {}", toJson(accessLog));
+            getLocationByIP(accessLog);     // 위치 정보 (IP 기반) 설정
             accessLogBatch.add(accessLog);  // 배치 리스트에 로그 추가
         } catch (Exception e) {
             log.error("AccessLog 처리 중 오류 발생: {}", toJson(accessLog), e);
             telegramNotificationService.sendTelegramMessage("AccessLog 처리 중 오류 발생: " + e.getMessage());
             throw new AmqpRejectAndDontRequeueException("처리 중 예외 발생 - 메시지를 재큐하지 않음", e);
+        }
+    }
+
+    /**
+     * Client IP를 기반으로 위치 정보를 조회하여 AccessLog 객체에 설정하는 메서드
+     * 조회된 국가와 도시 정보를 AccessLog의 country와 city 필드에 설정
+     * 위치 정보 조회 중 예외가 발생할 경우, 로그에 오류 메시지를 기록하고 AccessLogException 발생.
+     */
+    public void getLocationByIP(AccessLog accessLog) {
+        try {
+            LocationResponse location = AccessLogUtil.getLocationInfoByIp(accessLog.getClientIp());
+            accessLog.setCountry(location.getCountry());
+            accessLog.setCity(location.getCity());
+        }
+        catch (Exception e) {
+            log.error("AccessLog IP 기반 위치 정보 설정 중 오류 발생", toJson(accessLog), e);
+            throw new AccessLogException(ErrorCode.ACCESS_LOG_IP_LOCATION_ERROR);
         }
     }
 

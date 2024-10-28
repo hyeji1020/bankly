@@ -1,9 +1,8 @@
 package com.project.bankassetor.service.perist;
 
-import com.project.bankassetor.model.entity.account.save.SavingAccount;
-import com.project.bankassetor.model.entity.account.save.SavingProduct;
-import com.project.bankassetor.model.entity.account.save.SavingProductAccount;
-import com.project.bankassetor.repository.SavingProductAccountRepository;
+import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
+import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
+import com.project.bankassetor.primary.repository.SavingProductAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

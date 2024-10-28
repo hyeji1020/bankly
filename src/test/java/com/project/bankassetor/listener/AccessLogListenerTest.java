@@ -1,6 +1,6 @@
 package com.project.bankassetor.listener;
 
-import com.project.bankassetor.model.entity.AccessLog;
+import com.project.bankassetor.secondary.model.entity.AccessLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

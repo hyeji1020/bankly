@@ -1,8 +1,7 @@
 package com.project.bankassetor.filter;
 
-import com.project.bankassetor.filter.response.LocationResponse;
-import com.project.bankassetor.model.entity.AccessLog;
-import com.project.bankassetor.model.entity.Config;
+import com.project.bankassetor.secondary.model.entity.AccessLog;
+import com.project.bankassetor.primary.model.entity.Config;
 import com.project.bankassetor.service.perist.ConfigService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +31,7 @@ public class AccessLogFilter implements Filter {
 
     private final RabbitTemplate rabbitTemplate;
     private final ConfigService configService;
+    private final Environment env;
 
     // RabbitMQ로 보낼 Exchange 이름과 Routing Key를 주입
     @Value("${mq.exchange}")
@@ -39,10 +39,6 @@ public class AccessLogFilter implements Filter {
 
     @Value("${mq.routing-key}")
     private String routingKey;
-
-    // Spring의 Environment를 주입받아 활성화된 프로파일을 확인할 수 있도록 설정
-    @Autowired
-    private Environment env;
 
     /**
      * AccessLog 필터링 및 로깅 처리를 담당하는 메서드.
@@ -66,11 +62,11 @@ public class AccessLogFilter implements Filter {
         }
 
         // 2. runtime 시 설정된 `access-log.enabled` 값이 "off"인 경우 로깅을 비활성화한다.
-        Config config = configService.getConfigInCache("access-log.enabled");
-        if(config.getVal().equalsIgnoreCase("off")) {
-            chain.doFilter(request, response);
-            return;
-        }
+//        Config config = configService.getConfigInCache("access-log.enabled");
+//        if(config.getVal().equalsIgnoreCase("off")) {
+//            chain.doFilter(request, response);
+//            return;
+//        }
 
         // 3. HttpServletRequest와 HttpServletResponse를 감싸는 Wrapper로 변환하여 로그 데이터를 수집한다.
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);
@@ -119,11 +115,6 @@ public class AccessLogFilter implements Filter {
         accessLog.setMethod(requestWrapper.getMethod());
         accessLog.setRequestAt(LocalDateTime.now());
         accessLog.setReferer(requestWrapper.getHeader("Referer"));
-
-        // 위치 정보 (IP 기반) 설정
-        LocationResponse location = AccessLogUtil.getLocationInfoByIp(clientIp);
-        accessLog.setCountry(location.getCountry());
-        accessLog.setCity(location.getCity());
 
         return accessLog;
     }

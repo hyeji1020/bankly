@@ -1,9 +1,8 @@
 package com.project.bankassetor.service.perist;
 
-import com.project.bankassetor.config.CachingConfig;
 import com.project.bankassetor.exception.BankException;
-import com.project.bankassetor.model.entity.Config;
-import com.project.bankassetor.repository.ConfigRepository;
+import com.project.bankassetor.primary.model.entity.Config;
+import com.project.bankassetor.primary.repository.ConfigRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;

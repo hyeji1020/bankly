@@ -1,9 +1,9 @@
 package com.project.bankassetor.api;
 
-import com.project.bankassetor.model.request.AccountCreateRequest;
-import com.project.bankassetor.model.request.AccountRequest;
-import com.project.bankassetor.model.request.SavingAccountCreateRequest;
-import com.project.bankassetor.model.response.*;
+import com.project.bankassetor.primary.model.request.AccountCreateRequest;
+import com.project.bankassetor.primary.model.request.AccountRequest;
+import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
+import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

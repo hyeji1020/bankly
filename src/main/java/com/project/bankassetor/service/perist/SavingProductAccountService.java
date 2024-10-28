@@ -1,5 +1,7 @@
 package com.project.bankassetor.service.perist;
 
+import com.project.bankassetor.exception.AccountNotFoundException;
+import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
 import com.project.bankassetor.primary.repository.SavingProductAccountRepository;
@@ -30,5 +32,14 @@ public class SavingProductAccountService {
                 .build();
 
         return productAccountRepository.save(savingProductAccount);
+    }
+
+    public SavingProductAccount findByAccountId(Long accountId) {
+
+        return productAccountRepository.findByAccountId(accountId)
+                .orElseThrow(() -> {
+                    log.warn("{}: 아이디에 해당하는 적금 계좌를 찾을 수 없습니다.", accountId);
+                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
     }
 }

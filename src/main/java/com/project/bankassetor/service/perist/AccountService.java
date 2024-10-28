@@ -8,6 +8,7 @@ import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
+import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
 import com.project.bankassetor.primary.model.enums.AccountType;
 import com.project.bankassetor.primary.model.enums.TransactionType;
@@ -31,13 +32,17 @@ import static com.project.bankassetor.utils.Utils.toJson;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private final CheckingTransactionHistoryService checkingHistoryService;
+
     private final BankAccountService bankAccountService;
     private final UserService userService;
-    private final SavingAccountService savingAccountService;
+
+    private final CheckingTransactionHistoryService checkingHistoryService;
     private final CheckingAccountService checkingAccountService;
+
+    private final SavingAccountService savingAccountService;
     private final SavingProductService savingProductService;
     private final SavingProductAccountService savingProductAccountService;
+    private final SavingTransactionHistoryService savingHistoryService;
 
     // 계좌 번호로 조회
     public Account findByAccountNumber(String accountNumber) {
@@ -78,8 +83,10 @@ public class AccountService {
     @Transactional
     public Account deposit(AccountRequest accountRequest) {
 
+        String accountNumber = accountRequest.getAccountNumber();
+
         // 요청 계좌 번호 확인
-        Account account = accountRepository.findByAccountNumber(accountRequest.getAccountNumber())
+        Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> {
                     log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
                     throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
@@ -88,12 +95,17 @@ public class AccountService {
         // 입금
         account.setBalance(account.getBalance() + accountRequest.getAmount());
 
-        log.info("입금 후 계좌정보:{}", toJson(account));
-
-        BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
+        log.info("입금 금액:{}, 입금 후 계좌정보:{}", accountRequest.getAmount(), toJson(account));
 
         // 거래 내역 저장
-        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.DEPOSIT.toString());
+        if(account.getAccountType() == AccountType.CHECKING) {
+            BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
+            checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.DEPOSIT.toString());
+        }
+        else if (account.getAccountType() == AccountType.SAVING) {
+            SavingProductAccount savingProductAccount = savingProductAccountService.findByAccountId(account.getId());
+            savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.DEPOSIT.toString());
+        }
 
         return account;
     }

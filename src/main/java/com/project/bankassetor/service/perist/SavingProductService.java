@@ -19,7 +19,7 @@ public class SavingProductService {
     public SavingProduct findById(Long id){
         return savingProductRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.warn("{}: 에 해당하는 아이디를 찾을 수 없습니다.", id);
+                    log.warn("{}: 아이디에 해당하는 적금 상품을 찾을 수 없습니다.", id);
                     throw new AccountNotFoundException(ErrorCode.SAVING_ACCOUNT_NOT_FOUND);
                 });
     }

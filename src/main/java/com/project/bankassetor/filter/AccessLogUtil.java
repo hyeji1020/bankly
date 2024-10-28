@@ -2,7 +2,7 @@ package com.project.bankassetor.filter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.project.bankassetor.filter.response.LocationResponse;
-import com.project.bankassetor.model.entity.AccessLog;
+import com.project.bankassetor.secondary.model.entity.AccessLog;
 import com.project.bankassetor.utils.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import nl.basjes.parse.useragent.UserAgent;

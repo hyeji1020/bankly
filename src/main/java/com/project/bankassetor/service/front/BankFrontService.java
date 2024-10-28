@@ -1,15 +1,15 @@
 package com.project.bankassetor.service.front;
 
-import com.project.bankassetor.model.entity.Account;
-import com.project.bankassetor.model.entity.account.check.BankAccount;
-import com.project.bankassetor.model.entity.account.check.CheckingTransactionHistory;
-import com.project.bankassetor.model.request.AccountCreateRequest;
-import com.project.bankassetor.model.request.AccountRequest;
-import com.project.bankassetor.model.request.SavingAccountCreateRequest;
-import com.project.bankassetor.model.response.AccountCreateResponse;
-import com.project.bankassetor.model.response.AccountResponse;
-import com.project.bankassetor.model.response.AccountTransferResponse;
-import com.project.bankassetor.model.response.TransactionHistoryResponse;
+import com.project.bankassetor.primary.model.entity.Account;
+import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
+import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
+import com.project.bankassetor.primary.model.request.AccountCreateRequest;
+import com.project.bankassetor.primary.model.request.AccountRequest;
+import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
+import com.project.bankassetor.primary.model.response.AccountCreateResponse;
+import com.project.bankassetor.primary.model.response.AccountResponse;
+import com.project.bankassetor.primary.model.response.AccountTransferResponse;
+import com.project.bankassetor.primary.model.response.TransactionHistoryResponse;
 import com.project.bankassetor.service.perist.AccountService;
 import com.project.bankassetor.service.perist.BankAccountService;
 import com.project.bankassetor.service.perist.CheckingTransactionHistoryService;

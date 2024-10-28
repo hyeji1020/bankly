@@ -1,9 +1,9 @@
 package com.project.bankassetor.service.perist;
 
-import com.project.bankassetor.model.entity.account.check.BankAccount;
-import com.project.bankassetor.model.entity.account.check.CheckingTransactionHistory;
-import com.project.bankassetor.model.enums.TransactionType;
-import com.project.bankassetor.repository.CheckingTransactionHistoryRepository;
+import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
+import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
+import com.project.bankassetor.primary.model.enums.TransactionType;
+import com.project.bankassetor.primary.repository.CheckingTransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

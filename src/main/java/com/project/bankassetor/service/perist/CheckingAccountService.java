@@ -1,8 +1,8 @@
 package com.project.bankassetor.service.perist;
 
-import com.project.bankassetor.model.entity.Account;
-import com.project.bankassetor.model.entity.account.check.CheckingAccount;
-import com.project.bankassetor.repository.CheckingAccountRepository;
+import com.project.bankassetor.primary.model.entity.Account;
+import com.project.bankassetor.primary.model.entity.account.check.CheckingAccount;
+import com.project.bankassetor.primary.repository.CheckingAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

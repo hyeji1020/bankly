@@ -1,11 +1,9 @@
 package com.project.bankassetor.service.perist;
 
-import com.project.bankassetor.exception.AccountNotFoundException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.exception.UserNotFoundException;
-import com.project.bankassetor.model.entity.Account;
-import com.project.bankassetor.model.entity.User;
-import com.project.bankassetor.repository.UserRepository;
+import com.project.bankassetor.primary.model.entity.User;
+import com.project.bankassetor.primary.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

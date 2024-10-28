@@ -1,6 +1,6 @@
 package com.project.bankassetor.exception;
 
-import com.project.bankassetor.model.response.RestError;
+import com.project.bankassetor.primary.model.response.RestError;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

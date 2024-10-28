@@ -4,7 +4,7 @@ import com.project.bankassetor.exception.AccessLogException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.filter.AccessLogUtil;
 import com.project.bankassetor.filter.response.LocationResponse;
-import com.project.bankassetor.model.entity.AccessLog;
+import com.project.bankassetor.secondary.model.entity.AccessLog;
 import com.project.bankassetor.service.perist.AccessLogService;
 import com.project.bankassetor.service.perist.TelegramNotificationService;
 import lombok.RequiredArgsConstructor;

@@ -40,7 +40,7 @@ public class AccountService {
     private final SavingProductAccountService savingProductAccountService;
 
     // 계좌 번호로 조회
-    public Account findByAccountNumber(Long accountNumber) {
+    public Account findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> {
                     log.warn("계좌번호 {}: 에 해당하는 계좌를 찾을 수 없습니다.",accountNumber);
@@ -62,7 +62,7 @@ public class AccountService {
     }
 
     // 특정 계좌의 잔액 확인
-    public int checkBalance(Long accountNumber) {
+    public int checkBalance(String accountNumber) {
 
         // 요청 계좌 번호 확인
         Account account = accountRepository.findByAccountNumber(accountNumber)
@@ -163,11 +163,13 @@ public class AccountService {
     }
 
     // 계좌 번호 생성 로직
-    private long generateAccountNumber() {
-        Random random = new Random();
-        // 100000부터 999999까지의 숫자 생성 (7자리)
-        long accountNumber = 1000000 + random.nextInt(900000);
-        return accountNumber;
+    private String generateAccountNumber() {
+
+        String newAccountNumber = accountRepository.findFirstByOrderByIdDesc()
+                .map(account -> (Integer.parseInt(account.getAccountNumber())) + 1 + "")
+                .orElse("1000000000");
+
+        return newAccountNumber;
     }
 
     // 당좌 계좌 생성
@@ -176,7 +178,7 @@ public class AccountService {
         userService.findById(userId);
 
         // 계좌 번호 생성
-        Long newAccountNumber = generateAccountNumber();
+        String newAccountNumber = generateAccountNumber();
 
         // 저장
         Account account = Account.builder()
@@ -204,7 +206,7 @@ public class AccountService {
         SavingProduct savingProduct = savingProductService.findById(savingProductId);
 
         // 계좌 번호 생성
-        Long newAccountNumber = generateAccountNumber();
+        String newAccountNumber = generateAccountNumber();
 
         // 저장
         Account account = Account.builder()

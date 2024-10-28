@@ -9,14 +9,14 @@ import lombok.Getter;
 public class AccountRequest {
 
     @NotNull(message = "계좌 번호 입력은 필수 입니다.")
-    Long accountNumber;
+    String accountNumber;
 
     @NotNull(message = "입출금 금액 입력은 필수 입니다.")
     @Min(0)
     int amount;
 
     @Builder
-    public AccountRequest(Long accountNumber, int amount) {
+    public AccountRequest(String accountNumber, int amount) {
         this.accountNumber = accountNumber;
         this.amount = amount;
     }

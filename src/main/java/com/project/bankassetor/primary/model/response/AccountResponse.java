@@ -11,7 +11,7 @@ import lombok.Getter;
 public class AccountResponse {
 
     // 입출금 계좌 번호
-    private Long accountNumber;
+    private String accountNumber;
 
     // 입출금 후 잔고
     private int balance;

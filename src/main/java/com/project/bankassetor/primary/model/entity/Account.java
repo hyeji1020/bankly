@@ -20,7 +20,7 @@ public class Account {
     private long id;
 
     @Column(name = "account_number", nullable = false)
-    private long accountNumber;
+    private String accountNumber;
 
     @Column(name = "balance", nullable = false)
     private int balance;

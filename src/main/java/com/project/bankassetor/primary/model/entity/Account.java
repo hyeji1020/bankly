@@ -14,12 +14,7 @@ import java.math.BigDecimal;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Account {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private long id;
+public class Account extends BaseEntity {
 
     @Column(name = "account_number", nullable = false)
     private String accountNumber;

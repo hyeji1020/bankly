@@ -46,7 +46,7 @@ public class PrimaryDBConfig {
 
         HashMap<String, Object> prop = new HashMap<>();
         prop.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        prop.put("hibernate.hbm2ddl.auto", "none");
+        prop.put("hibernate.hbm2ddl.auto", "update");
         prop.put("hibernate.format_sql", true);
         em.setJpaPropertyMap(prop);
 

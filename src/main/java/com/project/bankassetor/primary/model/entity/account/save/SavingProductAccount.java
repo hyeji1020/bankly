@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Table(name = "saving_product_account")
 @Entity
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SavingProductAccount {

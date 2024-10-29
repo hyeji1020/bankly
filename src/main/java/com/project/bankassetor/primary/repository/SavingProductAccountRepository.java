@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,4 +20,7 @@ public interface SavingProductAccountRepository extends JpaRepository<SavingProd
         WHERE sa.accountId = :accountId
     """, nativeQuery = true)
     Optional<SavingProductAccount> findByAccountId(@Param("accountId") Long accountId);
+
+    @Query(value = "SELECT * FROM saving_product_account WHERE end_date <= :now", nativeQuery = true)
+    Optional<List<SavingProductAccount>> findAllByEndDateBefore(LocalDate now);
 }

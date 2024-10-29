@@ -49,7 +49,7 @@ public class AccountService {
     public Account findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> {
-                    log.warn("계좌번호 {}: 에 해당하는 계좌를 찾을 수 없습니다.",accountNumber);
+                    log.warn("계좌번호 {}: 에 해당하는 계좌를 찾을 수 없습니다.", accountNumber);
                     throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
     }
@@ -79,7 +79,7 @@ public class AccountService {
 
         return account.getBalance();
     }
-    
+
     // 입금
     @Transactional
     public Account deposit(AccountRequest accountRequest) {
@@ -93,29 +93,30 @@ public class AccountService {
                     throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
 
-        // 입금 한도 확인
-        BigDecimal depositAmount = accountRequest.getAmount();
-        BigDecimal maxDepositLimit = account.getDepositLimit();
-        if (depositAmount.compareTo(maxDepositLimit) > 0) {
-            log.warn("입금 금액: {}이 계좌의 입금 한도: {}를 초과했습니다.", depositAmount, maxDepositLimit);
-            throw new BankException(ErrorCode.DEPOSIT_LIMIT_EXCEEDED);
+        if (account.getAccountStatus() == AccountStatus.ACTIVE) {
+
+            // 입금 한도 확인
+            BigDecimal depositAmount = accountRequest.getAmount();
+            BigDecimal maxDepositLimit = account.getDepositLimit();
+            if (depositAmount.compareTo(maxDepositLimit) > 0) {
+                log.warn("입금 금액: {}이 계좌의 입금 한도: {}를 초과했습니다.", depositAmount, maxDepositLimit);
+                throw new BankException(ErrorCode.DEPOSIT_LIMIT_EXCEEDED);
+            }
+
+            // 입금
+            account.setBalance(account.getBalance().add(depositAmount));
+
+            log.info("입금 금액:{}, 입금 후 계좌정보:{}", accountRequest.getAmount(), toJson(account));
+
+            // 거래 내역 저장
+            if (account.getAccountType() == AccountType.CHECKING) {
+                BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
+                checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.DEPOSIT.toString());
+            } else if (account.getAccountType() == AccountType.SAVING) {
+                SavingProductAccount savingProductAccount = savingProductAccountService.findByAccountId(account.getId());
+                savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.DEPOSIT.toString());
+            }
         }
-
-        // 입금
-        account.setBalance(account.getBalance().add(depositAmount));
-
-        log.info("입금 금액:{}, 입금 후 계좌정보:{}", accountRequest.getAmount(), toJson(account));
-
-        // 거래 내역 저장
-        if(account.getAccountType() == AccountType.CHECKING) {
-            BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
-            checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.DEPOSIT.toString());
-        }
-        else if (account.getAccountType() == AccountType.SAVING) {
-            SavingProductAccount savingProductAccount = savingProductAccountService.findByAccountId(account.getId());
-            savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.DEPOSIT.toString());
-        }
-
         return account;
     }
 
@@ -130,34 +131,35 @@ public class AccountService {
                     throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
 
-        // 출금 가능한 잔액 조회
-        BigDecimal withdrawalAmount = accountRequest.getAmount();
-        if(account.getBalance().compareTo(withdrawalAmount) < 0){
-            log.warn("계좌번호: {}에 잔액이 부족합니다. 현재 잔액: {}", accountRequest.getAccountNumber(), account.getBalance());
-            throw new BalanceNotEnoughException(ErrorCode.BALANCE_NOT_ENOUGH);
+        if (account.getAccountStatus() == AccountStatus.ACTIVE) {
+            // 출금 가능한 잔액 조회
+            BigDecimal withdrawalAmount = accountRequest.getAmount();
+            if (account.getBalance().compareTo(withdrawalAmount) < 0) {
+                log.warn("계좌번호: {}에 잔액이 부족합니다. 현재 잔액: {}", accountRequest.getAccountNumber(), account.getBalance());
+                throw new BalanceNotEnoughException(ErrorCode.BALANCE_NOT_ENOUGH);
+            }
+
+            // 출금
+            account.setBalance(account.getBalance().subtract(withdrawalAmount));
+
+            log.info("출금 후 계좌정보:{}", toJson(account));
+
+            BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
+
+            // 거래 내역 저장
+            checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.WITHDRAW.toString());
         }
-
-        // 출금
-        account.setBalance(account.getBalance().subtract(withdrawalAmount));
-
-        log.info("출금 후 계좌정보:{}", toJson(account));
-
-        BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
-
-        // 거래 내역 저장
-        checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.WITHDRAW.toString());
-
         return account;
     }
 
     /**
      * 계좌 이체 기능을 처리하는 메서드.
-     *
+     * <p>
      * 1. 송금자의 계좌(fromAccountId)를 조회하여 유효성을 확인하고, 출금 금액을 반영해 잔액을 수정합니다.
      * 2. 수신자의 계좌(accountRequest.getAccountNumber())를 조회하여 유효성을 확인하고, 입금 금액을 반영해 잔액을 수정합니다.
      * 3. 거래 내역을 저장하며, 거래 유형은 "TRANSFER"로 기록합니다.
      *
-     * @param fromAccountId 송금자의 계좌 ID
+     * @param fromAccountId  송금자의 계좌 ID
      * @param accountRequest 송금 요청 정보 (송금액 및 수신 계좌 번호 포함)
      * @return BankAccount 송금 후 수신자의 계좌 정보 반환
      */
@@ -244,7 +246,7 @@ public class AccountService {
         SavingAccount savingAccount = savingAccountService.save(savedAccount.getId());
 
         savingProductAccountService.save(userId, savingProductId, savingAccount.getId(),
-                savingProduct, createRequest.getMonthlyDeposit());
+                savingProduct, createRequest.getMonthlyDeposit(), savedAccount);
 
         return savedAccount;
     }

@@ -4,6 +4,7 @@ import com.project.bankassetor.exception.AccountNotFoundException;
 import com.project.bankassetor.exception.BankException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.primary.model.entity.Account;
+import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
@@ -27,15 +28,16 @@ public class SavingProductAccountService {
     private final AccountRepository accountRepository;
 
     public SavingProductAccount save(Long userId, Long savingProductId, Long savingAccountId,
-                                     SavingProduct savingProduct, BigDecimal monthlyDeposit){
+                                     SavingProduct savingProduct, BigDecimal monthlyDeposit, Account account){
 
         SavingProductAccount savingProductAccount = SavingProductAccount.builder()
                 .savingProductId(savingProductId)
                 .savingAccountId(savingAccountId)
                 .userId(userId)
                 .monthlyDeposit(monthlyDeposit)
-                .startDate(LocalDate.now()) // 시작 날짜
-                .endDate(LocalDate.now().plusMonths(savingProduct.getSavingDuration().getDurationInMonths()))
+                .startDate(account.getCreatedAt().toLocalDate())
+                .endDate(account.getCreatedAt().toLocalDate()
+                        .plusMonths(savingProduct.getSavingDuration().getDurationInMonths()))
                 .build();
 
         return productAccountRepository.save(savingProductAccount);

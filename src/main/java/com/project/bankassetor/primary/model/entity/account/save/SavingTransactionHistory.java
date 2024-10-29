@@ -4,6 +4,7 @@ import com.project.bankassetor.primary.model.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Table(name = "saving_transaction_history")
@@ -41,10 +42,10 @@ public class SavingTransactionHistory {
     private LocalDateTime transactionTime;  // 거래 시간
 
     @Column(name = "transaction_amount")
-    private int transactionAmount;  // 거래 금액
+    private BigDecimal transactionAmount;  // 거래 금액
 
     @Column(name = "balance")
-    private int balance;    // 거래 후 잔액
+    private BigDecimal balance;    // 거래 후 잔액
 
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type", nullable = false)

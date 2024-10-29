@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+
 @AllArgsConstructor
 @Builder
 @Getter
@@ -17,9 +19,9 @@ public class AccountTransferResponse {
     private long toAccountId;
 
     // 이체 금액
-    private int amount;
+    private BigDecimal amount;
 
-    public static AccountTransferResponse of(BankAccount bankAccount, int amount){
+    public static AccountTransferResponse of(BankAccount bankAccount, BigDecimal amount){
         return AccountTransferResponse.builder()
                 .userId(bankAccount.getUserId())
                 .toAccountId(bankAccount.getCheckingAccountId())

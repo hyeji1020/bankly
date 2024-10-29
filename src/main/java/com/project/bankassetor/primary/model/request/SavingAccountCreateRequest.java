@@ -17,10 +17,10 @@ public class SavingAccountCreateRequest {
     BigDecimal monthlyDeposit;
 
     @Min(0)
-    int initialDeposit;
+    BigDecimal initialDeposit;
 
     @Builder
-    public SavingAccountCreateRequest(Long savingDurationId, BigDecimal monthlyDeposit, int initialDeposit) {
+    public SavingAccountCreateRequest(Long savingDurationId, BigDecimal monthlyDeposit, BigDecimal initialDeposit) {
         this.savingDurationId = savingDurationId;
         this.monthlyDeposit = monthlyDeposit;
         this.initialDeposit = initialDeposit;

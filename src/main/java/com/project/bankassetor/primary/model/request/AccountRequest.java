@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+
 @Getter
 public class AccountRequest {
 
@@ -13,10 +15,10 @@ public class AccountRequest {
 
     @NotNull(message = "입출금 금액 입력은 필수 입니다.")
     @Min(0)
-    int amount;
+    BigDecimal amount;
 
     @Builder
-    public AccountRequest(String accountNumber, int amount) {
+    public AccountRequest(String accountNumber, BigDecimal amount) {
         this.accountNumber = accountNumber;
         this.amount = amount;
     }

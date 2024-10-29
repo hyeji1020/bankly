@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static com.project.bankassetor.utils.Utils.toJson;
@@ -20,7 +21,7 @@ public class SavingTransactionHistoryService {
 
     private final SavingTransactionHistoryRepository historyRepository;
     private final SavingProductAccountService savingProductAccountService;
-    public SavingTransactionHistory save(SavingProductAccount savingProductAccount, int amount, Account account, String transactionType) {
+    public SavingTransactionHistory save(SavingProductAccount savingProductAccount, BigDecimal amount, Account account, String transactionType) {
 
         SavingTransactionHistory toHistory = SavingTransactionHistory.builder()
                 .savingProductAccountId(savingProductAccount.getId())

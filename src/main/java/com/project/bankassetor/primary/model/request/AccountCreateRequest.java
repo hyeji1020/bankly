@@ -4,15 +4,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Getter
 @NoArgsConstructor
 public class AccountCreateRequest {
 
     // 초기 입금액
-    int initialDeposit;
+    BigDecimal initialDeposit;
 
     @Builder
-    public AccountCreateRequest(int initialDeposit) {
+    public AccountCreateRequest(BigDecimal initialDeposit) {
         this.initialDeposit = initialDeposit;
     }
 }

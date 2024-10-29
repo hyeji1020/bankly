@@ -5,6 +5,8 @@ import com.project.bankassetor.primary.model.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Table(name = "account")
 @Entity
 @Getter
@@ -23,7 +25,10 @@ public class Account {
     private String accountNumber;
 
     @Column(name = "balance", nullable = false)
-    private int balance;
+    private BigDecimal balance;
+
+    @Column(name = "deposit_limit", nullable = false)
+    private BigDecimal depositLimit;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)

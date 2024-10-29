@@ -12,6 +12,7 @@ public enum ErrorCode {
     BALANCE_NOT_ENOUGH("BANK_ERR_002", "계좌 잔액이 부족합니다.", HttpStatus.BAD_REQUEST),
     BAD_REQUEST("BANK_ERR_003", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
     SAVING_ACCOUNT_NOT_FOUND("BANK_ERR_004", "해당 적금 상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND ),
+    DEPOSIT_LIMIT_EXCEEDED("BANK_ERR_005", "입금 한도를 초과했습니다.", HttpStatus.BAD_REQUEST),
 
     GENERAL_ERROR("BANK_ERR_999", "서버 내부 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_NOT_FOUND("BANK_ERR_005", "해당 사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),

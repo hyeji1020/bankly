@@ -13,6 +13,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     
     // 계좌 번호로 조회
     @Query(value = "SELECT a.* FROM account a WHERE a.account_number = :accountNumber", nativeQuery = true)
-    Optional<Account> findByAccountNumber(@Param("accountNumber") long accountNumber);
+    Optional<Account> findByAccountNumber(@Param("accountNumber") String accountNumber);
 
+    Optional<Account> findFirstByOrderByIdDesc();
 }

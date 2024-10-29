@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Table(name = "saving_product_account")
 @Entity
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SavingProductAccount {
@@ -22,11 +23,17 @@ public class SavingProductAccount {
     @JoinColumn(name = "saving_product_id", nullable = false)
     private Long savingProductId;
 
+    @JoinColumn(name = "saving_duration_id", nullable = false)
+    private Long savingDurationId;
+
     @JoinColumn(name = "user_id", nullable = false)
     private Long userId;
 
     @JoinColumn(name = "saving_account_id", nullable = false)
     private Long savingAccountId;
+
+    @JoinColumn(name = "account_id", nullable = false)
+    private Long accountId;
 
     @Column(name = "monthly_deposit", nullable = false)
     private BigDecimal monthlyDeposit;

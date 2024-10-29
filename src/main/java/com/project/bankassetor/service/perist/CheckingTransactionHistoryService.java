@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class CheckingTransactionHistoryService {
     private final BankAccountService bankAccountService;
 
     // 거래 내역 저장
-    public CheckingTransactionHistory save(BankAccount bankAccount, int amount, int balance, String transactionType) {
+    public CheckingTransactionHistory save(BankAccount bankAccount, BigDecimal amount, BigDecimal balance, String transactionType) {
 
         CheckingTransactionHistory toHistory = CheckingTransactionHistory.builder()
                 .bankAccountId(bankAccount.getId())

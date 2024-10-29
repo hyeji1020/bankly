@@ -29,7 +29,7 @@ public class BankAccountService {
     }
 
     // 계좌번호로 조회
-    public BankAccount findByAccountNumber(Long accountNumber) {
+    public BankAccount findByAccountNumber(String accountNumber) {
 
         // 요청 계좌 번호 확인
         BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber);

@@ -13,7 +13,7 @@ public interface BankAccountRepository extends JpaRepository<BankAccount, Long> 
 
     // 계좌 번호로 계좌 찾기
     @Query(value = "SELECT ba.* FROM bank_account ba " +
-            "JOIN account a ON ba.account_id = a.id " +
+            "JOIN account a ON ba.accountId = a.id " +
             "WHERE a.account_number = :accountNumber", nativeQuery = true)
    BankAccount findByAccountNumber(@Param("accountNumber") String accountNumber);
 

@@ -2,6 +2,7 @@ package com.project.bankassetor.service.perist;
 
 import com.project.bankassetor.exception.AccountNotFoundException;
 import com.project.bankassetor.exception.BalanceNotEnoughException;
+import com.project.bankassetor.exception.BankException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.primary.model.entity.Account;
 import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
@@ -21,8 +22,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Random;
 
 import static com.project.bankassetor.utils.Utils.toJson;
 
@@ -54,7 +55,7 @@ public class AccountService {
     }
 
     // 계좌 조회
-    public Account getAccountById(long id) {
+    public Account getAccountById(Long id) {
         return accountRepository.findById(id).orElseThrow(() -> {
             log.warn("아이디 {}: 에 해당하는 계좌를 찾을 수 없습니다.", id);
             throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
@@ -67,7 +68,7 @@ public class AccountService {
     }
 
     // 특정 계좌의 잔액 확인
-    public int checkBalance(String accountNumber) {
+    public BigDecimal checkBalance(String accountNumber) {
 
         // 요청 계좌 번호 확인
         Account account = accountRepository.findByAccountNumber(accountNumber)
@@ -92,8 +93,16 @@ public class AccountService {
                     throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
 
+        // 입금 한도 확인
+        BigDecimal depositAmount = accountRequest.getAmount();
+        BigDecimal maxDepositLimit = account.getDepositLimit();
+        if (depositAmount.compareTo(maxDepositLimit) > 0) {
+            log.warn("입금 금액: {}이 계좌의 입금 한도: {}를 초과했습니다.", depositAmount, maxDepositLimit);
+            throw new BankException(ErrorCode.DEPOSIT_LIMIT_EXCEEDED);
+        }
+
         // 입금
-        account.setBalance(account.getBalance() + accountRequest.getAmount());
+        account.setBalance(account.getBalance().add(depositAmount));
 
         log.info("입금 금액:{}, 입금 후 계좌정보:{}", accountRequest.getAmount(), toJson(account));
 
@@ -122,13 +131,14 @@ public class AccountService {
                 });
 
         // 출금 가능한 잔액 조회
-        if(account.getBalance() < accountRequest.getAmount()){
+        BigDecimal withdrawalAmount = accountRequest.getAmount();
+        if(account.getBalance().compareTo(withdrawalAmount) < 0){
             log.warn("계좌번호: {}에 잔액이 부족합니다. 현재 잔액: {}", accountRequest.getAccountNumber(), account.getBalance());
             throw new BalanceNotEnoughException(ErrorCode.BALANCE_NOT_ENOUGH);
         }
 
         // 출금
-        account.setBalance(account.getBalance() - accountRequest.getAmount());
+        account.setBalance(account.getBalance().subtract(withdrawalAmount));
 
         log.info("출금 후 계좌정보:{}", toJson(account));
 
@@ -157,14 +167,15 @@ public class AccountService {
         // 송금 계좌 유효성 확인
         Account fromAccount = getAccountById(fromAccountId);
 
-        // 송금 계좌에서 출금
-        fromAccount.setBalance(fromAccount.getBalance() - accountRequest.getAmount());
+        // 입출금 금액
+        BigDecimal amount = accountRequest.getAmount();
 
-        // 수신 계좌 유효성 확인
-        Account toAccount = findByAccountNumber(accountRequest.getAccountNumber());
+        // 송금 계좌에서 출금
+        AccountRequest withdrawRequest = new AccountRequest(fromAccount.getAccountNumber(), amount);
+        withdraw(withdrawRequest);
 
         // 수신 계좌에 입금
-        toAccount.setBalance(toAccount.getBalance() + accountRequest.getAmount());
+        deposit(accountRequest);
 
         BankAccount transferAccount = bankAccountService.findByAccountNumber(accountRequest.getAccountNumber());
 
@@ -198,6 +209,7 @@ public class AccountService {
                 .balance(createRequest.getInitialDeposit())
                 .accountType(AccountType.CHECKING)
                 .accountStatus(AccountStatus.ACTIVE)
+                .depositLimit(createRequest.getDepositLimit())
                 .build();
 
         Account savedAccount = accountRepository.save(account);

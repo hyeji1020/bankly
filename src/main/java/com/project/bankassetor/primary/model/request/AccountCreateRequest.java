@@ -13,8 +13,12 @@ public class AccountCreateRequest {
     // 초기 입금액
     BigDecimal initialDeposit;
 
+    // 입금 한도
+    BigDecimal depositLimit;
+
     @Builder
-    public AccountCreateRequest(BigDecimal initialDeposit) {
+    public AccountCreateRequest(BigDecimal initialDeposit, BigDecimal depositLimit) {
         this.initialDeposit = initialDeposit;
+        this.depositLimit = depositLimit;
     }
 }

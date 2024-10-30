@@ -22,5 +22,5 @@ public interface SavingProductAccountRepository extends JpaRepository<SavingProd
     Optional<SavingProductAccount> findByAccountId(@Param("accountId") Long accountId);
 
     @Query(value = "SELECT * FROM saving_product_account WHERE end_date <= :now", nativeQuery = true)
-    Optional<List<SavingProductAccount>> findAllByEndDateBefore(LocalDate now);
+    List<SavingProductAccount> findAllByEndDateBefore(LocalDate now);
 }

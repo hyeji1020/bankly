@@ -36,11 +36,12 @@ public class SavingProductAccountService {
         SavingProductAccount savingProductAccount = SavingProductAccount.builder()
                 .savingProductId(savingProductId)
                 .savingAccountId(savingAccountId)
+                .accountId(account.getId())
+                .savingDurationId(savingProduct.getSavingDuration().getId())
                 .userId(userId)
                 .monthlyDeposit(monthlyDeposit)
-                .startDate(account.getCreatedAt().toLocalDate())
-                .endDate(account.getCreatedAt().toLocalDate()
-                        .plusMonths(savingProduct.getSavingDuration().getDurationInMonths()))
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusMonths(savingProduct.getSavingDuration().getDurationInMonths()))
                 .build();
 
         return productAccountRepository.save(savingProductAccount);

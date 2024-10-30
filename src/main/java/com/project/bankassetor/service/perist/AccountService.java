@@ -240,6 +240,7 @@ public class AccountService {
                 .balance(createRequest.getInitialDeposit())
                 .accountType(AccountType.SAVING)
                 .accountStatus(AccountStatus.ACTIVE)
+                .depositLimit(createRequest.getDepositLimit())
                 .build();
 
         Account savedAccount = accountRepository.save(account);

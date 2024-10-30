@@ -19,10 +19,13 @@ public class SavingAccountCreateRequest {
     @Min(0)
     BigDecimal initialDeposit;
 
+    BigDecimal depositLimit;
+
     @Builder
-    public SavingAccountCreateRequest(Long savingDurationId, BigDecimal monthlyDeposit, BigDecimal initialDeposit) {
+    public SavingAccountCreateRequest(Long savingDurationId, BigDecimal monthlyDeposit, BigDecimal initialDeposit, BigDecimal depositLimit) {
         this.savingDurationId = savingDurationId;
         this.monthlyDeposit = monthlyDeposit;
         this.initialDeposit = initialDeposit;
+        this.depositLimit = depositLimit;
     }
 }

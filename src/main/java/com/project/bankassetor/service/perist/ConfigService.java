@@ -26,7 +26,7 @@ public class ConfigService {
     // 스프링 캐시 추상화 부분. key-value 쌍으로 구성이되어 있음.
     @Cacheable(value = CONFIG_CACHE, key = "#code")
     public Config getConfigInCache(String code) {
-        log.info("searching config in cache !! {}", code);
+        log.info("searching config in redis !! {}", code);
         return configRepository.findByCode(code).orElseThrow(() -> new BankException(CONFIG_NOT_FOUND_ERROR));
     }
 

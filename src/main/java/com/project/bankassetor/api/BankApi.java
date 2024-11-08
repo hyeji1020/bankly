@@ -1,5 +1,7 @@
 package com.project.bankassetor.api;
 
+import com.project.bankassetor.config.security.Authed;
+import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.request.AccountCreateRequest;
 import com.project.bankassetor.primary.model.request.AccountRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
@@ -7,6 +9,9 @@ import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,18 +52,29 @@ public class BankApi {
     }
     
     // 당좌 계좌 생성
-    @PostMapping("/{userId}")
-    public ResultResponse<AccountCreateResponse> createCheckingAccount(@PathVariable Long userId, @Valid @RequestBody AccountCreateRequest createRequest) {
-        AccountCreateResponse response = bankFrontService.createAccount(userId, createRequest);
+    @PostMapping("/{memberId}")
+    public ResultResponse<AccountCreateResponse> createCheckingAccount(@PathVariable Long memberId, @Valid @RequestBody AccountCreateRequest createRequest) {
+        AccountCreateResponse response = bankFrontService.createAccount(memberId, createRequest);
         return new ResultResponse<>(response);
     }
 
 
     // 적금 계좌 생성
-    @PostMapping("/{userId}/{savingProductId}")
-    public ResultResponse<AccountCreateResponse> createSavingAccount(@PathVariable Long userId,@PathVariable Long savingProductId,
+    @PostMapping("/{memberId}/{savingProductId}")
+    public ResultResponse<AccountCreateResponse> createSavingAccount(@PathVariable Long memberId,@PathVariable Long savingProductId,
                                                                      @Valid @RequestBody SavingAccountCreateRequest createRequest) {
-        AccountCreateResponse response = bankFrontService.createSavingAccount(userId, savingProductId, createRequest);
+        AccountCreateResponse response = bankFrontService.createSavingAccount(memberId, savingProductId, createRequest);
+        return new ResultResponse<>(response);
+    }
+
+    // 나의 계좌 목록
+    @GetMapping("/my-accounts")
+    public ResultResponse<List<BankAccountResponse>> getMyAccounts(@Authed Member member) {
+        if (member == null) {
+            return new ResultResponse<>(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");  // 적절한 에러 응답
+        }
+        String email = member.getUsername();
+        List<BankAccountResponse> response = bankFrontService.getMyAccounts(email);
         return new ResultResponse<>(response);
     }
 

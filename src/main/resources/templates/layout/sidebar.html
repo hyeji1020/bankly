@@ -1,0 +1,57 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="sidebar(member, link, group)">
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="/" class="brand-link" >
+      <span class="brand-text font-weight-light">bank V1</span>
+    </a>
+
+    <div class="sidebar">
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+          <img src="/assets/dist/img/default-user-v1.jpeg" class="img-circle elevation-2" alt="User Image">
+        </div>
+        <div class="info">
+          <a href="#" class="d-block" th:utext="${member.getName()}">Default User</a>
+        </div>
+      </div>
+
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+          <li class="nav-item menu-is-opening menu-open">
+            <a href="#" class="nav-link" th:classappend="${link} == '/history' ? 'active' : ''">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>
+                통장관리
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="/my-accounts" class="nav-link" th:classappend="${link} == '/my-accounts' ? 'active' : ''">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>거래내역</p>
+                </a>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="/saving-product" class="nav-link" th:classappend="${link} == '/saving-product' ? 'active' : ''">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>적금 상품</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+        </ul>
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+</th:block>
+
+</html>

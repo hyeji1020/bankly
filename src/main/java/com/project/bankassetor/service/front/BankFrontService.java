@@ -6,10 +6,7 @@ import com.project.bankassetor.primary.model.entity.account.check.CheckingTransa
 import com.project.bankassetor.primary.model.request.AccountCreateRequest;
 import com.project.bankassetor.primary.model.request.AccountRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
-import com.project.bankassetor.primary.model.response.AccountCreateResponse;
-import com.project.bankassetor.primary.model.response.AccountResponse;
-import com.project.bankassetor.primary.model.response.AccountTransferResponse;
-import com.project.bankassetor.primary.model.response.TransactionHistoryResponse;
+import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.perist.AccountService;
 import com.project.bankassetor.service.perist.BankAccountService;
 import com.project.bankassetor.service.perist.CheckingTransactionHistoryService;
@@ -69,17 +66,32 @@ public class BankFrontService {
     }
 
     // 계좌 생성
-    public AccountCreateResponse createAccount(Long userId, AccountCreateRequest createRequest) {
+    public AccountCreateResponse createAccount(Long memberId, AccountCreateRequest createRequest) {
 
-        final Account account = accountService.createAccount(userId, createRequest);
+        final Account account = accountService.createAccount(memberId, createRequest);
+
+        return AccountCreateResponse.of(account);
+    }
+
+    public AccountCreateResponse createSavingAccount(Long memberId, Long savingProductId, SavingAccountCreateRequest createRequest) {
+
+        final Account account = accountService.createSavingAccount(memberId, savingProductId, createRequest);
 
         return AccountCreateResponse.of(account);
     }
 
-    public AccountCreateResponse createSavingAccount(Long userId, Long savingProductId, SavingAccountCreateRequest createRequest) {
+    // 나의 당좌 계좌 목록 확인
+    public List<AccountResponse> getMyCheckAccounts(long memberId) {
+        final List<Account> accounts = accountService.findCheckByMemberId(memberId);
 
-        final Account account = accountService.createSavingAccount(userId, savingProductId, createRequest);
-
-        return AccountCreateResponse.of(account);
+        return AccountResponse.of(accounts);
     }
+
+    // 나의 적금 계좌 목록 확인
+    public List<AccountResponse> getMySaveAccounts(long memberId) {
+        final List<Account> accounts = accountService.findSaveByMemberId(memberId);
+
+        return AccountResponse.of(accounts);
+    }
+
 }

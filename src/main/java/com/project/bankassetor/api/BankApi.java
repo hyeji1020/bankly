@@ -10,8 +10,6 @@ import com.project.bankassetor.service.front.BankFrontService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -67,14 +65,27 @@ public class BankApi {
         return new ResultResponse<>(response);
     }
 
-    // 나의 계좌 목록
-    @GetMapping("/my-accounts")
-    public ResultResponse<List<BankAccountResponse>> getMyAccounts(@Authed Member member) {
+    // 나의 당좌 계좌 목록
+    @GetMapping("/my-checking-accounts")
+    public ResultResponse<List<AccountResponse>> getMyCheckAccounts(@Authed Member member) {
         if (member == null) {
-            return new ResultResponse<>(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");  // 적절한 에러 응답
+            return new ResultResponse<>(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
         }
-        String email = member.getUsername();
-        List<BankAccountResponse> response = bankFrontService.getMyAccounts(email);
+        long memberId = member.getId();
+
+        List<AccountResponse> response = bankFrontService.getMyCheckAccounts(memberId);
+        return new ResultResponse<>(response);
+    }
+
+    // 나의 적금 계좌 목록
+    @GetMapping("/my-saving-accounts")
+    public ResultResponse<List<AccountResponse>> getMySaveAccounts(@Authed Member member) {
+        if (member == null) {
+            return new ResultResponse<>(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
+        }
+        long memberId = member.getId();
+
+        List<AccountResponse> response = bankFrontService.getMySaveAccounts(memberId);
         return new ResultResponse<>(response);
     }
 

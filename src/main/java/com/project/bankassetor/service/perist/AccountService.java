@@ -45,38 +45,17 @@ public class AccountService {
     private final SavingProductAccountService savingProductAccountService;
     private final SavingTransactionHistoryService savingHistoryService;
 
-    // 계좌 번호로 조회
-    public Account findByAccountNumber(String accountNumber) {
-        return accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> {
-                    log.warn("계좌번호 {}: 에 해당하는 계좌를 찾을 수 없습니다.", accountNumber);
-                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-                });
-    }
-
     // 계좌 조회
     public Account getAccountById(Long id) {
         return accountRepository.findById(id).orElseThrow(() -> {
             log.warn("아이디 {}: 에 해당하는 계좌를 찾을 수 없습니다.", id);
-            throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+            return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
         });
     }
 
     // 계좌 조회
     public List<Account> getAccounts() {
         return accountRepository.findAll();
-    }
-
-    // 특정 계좌의 잔액 확인
-    public BigDecimal checkBalance(String accountNumber) {
-
-        // 요청 계좌 번호 확인
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> {
-                    log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountNumber);
-                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-                });
-
-        return account.getBalance();
     }
 
     // 입금
@@ -143,10 +122,15 @@ public class AccountService {
 
             log.info("출금 후 계좌정보:{}", toJson(account));
 
-            BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
-
             // 거래 내역 저장
-            checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.WITHDRAW.toString());
+            if (account.getAccountType() == AccountType.CHECKING) {
+                BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
+                checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.WITHDRAW.toString());
+            } else if (account.getAccountType() == AccountType.SAVING) {
+                SavingProductAccount savingProductAccount = savingProductAccountService.findByAccountId(account.getId());
+                savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.WITHDRAW.toString());
+            }
+
         }
         return account;
     }

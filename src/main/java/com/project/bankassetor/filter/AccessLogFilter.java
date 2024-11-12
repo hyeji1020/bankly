@@ -1,7 +1,7 @@
 package com.project.bankassetor.filter;
 
-import com.project.bankassetor.secondary.model.entity.AccessLog;
 import com.project.bankassetor.primary.model.entity.Config;
+import com.project.bankassetor.secondary.model.entity.AccessLog;
 import com.project.bankassetor.service.perist.ConfigService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -62,11 +61,11 @@ public class AccessLogFilter implements Filter {
         }
 
         // 2. runtime 시 설정된 `access-log.enabled` 값이 "off"인 경우 로깅을 비활성화한다.
-//        Config config = configService.getConfigInCache("access-log.enabled");
-//        if(config.getVal().equalsIgnoreCase("off")) {
-//            chain.doFilter(request, response);
-//            return;
-//        }
+        Config config = configService.getConfigInCache("access-log.enabled");
+        if(config.getVal().equalsIgnoreCase("off")) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         // 3. HttpServletRequest와 HttpServletResponse를 감싸는 Wrapper로 변환하여 로그 데이터를 수집한다.
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);

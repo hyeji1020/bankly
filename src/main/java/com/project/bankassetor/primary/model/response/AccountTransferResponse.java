@@ -23,7 +23,7 @@ public class AccountTransferResponse {
 
     public static AccountTransferResponse of(BankAccount bankAccount, BigDecimal amount){
         return AccountTransferResponse.builder()
-                .userId(bankAccount.getUserId())
+                .userId(bankAccount.getMemberId())
                 .toAccountId(bankAccount.getCheckingAccountId())
                 .amount(amount)
                 .build();

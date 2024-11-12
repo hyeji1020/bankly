@@ -36,6 +36,7 @@ public class AccessLog {
     private String city;
     private long elapsed;
     private String request;
+    @Column(name = "response", length = 5000)
     private String response;
     private String status;
     private String deviceName;

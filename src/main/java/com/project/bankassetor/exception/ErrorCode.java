@@ -21,8 +21,9 @@ public enum ErrorCode {
     ACCESS_LOG_BATCH_SAVE_ERROR("ACCESS_LOG_ERR_002", "엑세스 로그 배치 저장 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ACCESS_LOG_IP_LOCATION_ERROR("ACCESS_LOG_ERR_003", "엑세스 로그 IP 기반 위치를 가져올 수 없습니다..", HttpStatus.INTERNAL_SERVER_ERROR),
 
-    CONFIG_NOT_FOUND_ERROR("CONFIG_NOT_FOUND", "해당 설정이 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
+    CONFIG_NOT_FOUND_ERROR("CONFIG_NOT_FOUND", "해당 설정이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
 
+    USER_EMAIL_DUPLICATE("AUTH_ERR_001", "이미 가입되어 있는 이메일입니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;            // 에러 고유 코드
     private final String defaultMessage;  // 기본 에러 메시지

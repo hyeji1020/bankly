@@ -35,7 +35,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
 
     private final BankAccountService bankAccountService;
-    private final UserService userService;
+    private final MemberService memberService;
 
     private final CheckingTransactionHistoryService checkingHistoryService;
     private final CheckingAccountService checkingAccountService;
@@ -45,39 +45,17 @@ public class AccountService {
     private final SavingProductAccountService savingProductAccountService;
     private final SavingTransactionHistoryService savingHistoryService;
 
-    // 계좌 번호로 조회
-    public Account findByAccountNumber(String accountNumber) {
-        return accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> {
-                    log.warn("계좌번호 {}: 에 해당하는 계좌를 찾을 수 없습니다.", accountNumber);
-                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-                });
-    }
-
     // 계좌 조회
     public Account getAccountById(Long id) {
         return accountRepository.findById(id).orElseThrow(() -> {
             log.warn("아이디 {}: 에 해당하는 계좌를 찾을 수 없습니다.", id);
-            throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+            return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
         });
     }
 
     // 계좌 조회
     public List<Account> getAccounts() {
         return accountRepository.findAll();
-    }
-
-    // 특정 계좌의 잔액 확인
-    public BigDecimal checkBalance(String accountNumber) {
-
-        // 요청 계좌 번호 확인
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> {
-                    log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountNumber);
-                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-                });
-
-        return account.getBalance();
     }
 
     // 입금
@@ -90,7 +68,7 @@ public class AccountService {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> {
                     log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
-                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                    return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
 
         if (account.getAccountStatus() == AccountStatus.ACTIVE) {
@@ -128,7 +106,7 @@ public class AccountService {
         Account account = accountRepository.findByAccountNumber(accountRequest.getAccountNumber())
                 .orElseThrow(() -> {
                     log.warn("계좌번호{}: 에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
-                    throw new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                    return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
 
         if (account.getAccountStatus() == AccountStatus.ACTIVE) {
@@ -144,10 +122,15 @@ public class AccountService {
 
             log.info("출금 후 계좌정보:{}", toJson(account));
 
-            BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
-
             // 거래 내역 저장
-            checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.WITHDRAW.toString());
+            if (account.getAccountType() == AccountType.CHECKING) {
+                BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
+                checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.WITHDRAW.toString());
+            } else if (account.getAccountType() == AccountType.SAVING) {
+                SavingProductAccount savingProductAccount = savingProductAccountService.findByAccountId(account.getId());
+                savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.WITHDRAW.toString());
+            }
+
         }
         return account;
     }
@@ -190,17 +173,15 @@ public class AccountService {
     // 계좌 번호 생성 로직
     private String generateAccountNumber() {
 
-        String newAccountNumber = accountRepository.findFirstByOrderByIdDesc()
+        return accountRepository.findFirstByOrderByIdDesc()
                 .map(account -> (Integer.parseInt(account.getAccountNumber())) + 1 + "")
                 .orElse("1000000000");
-
-        return newAccountNumber;
     }
 
     // 당좌 계좌 생성
-    public Account createAccount(Long userId, AccountCreateRequest createRequest) {
+    public Account createAccount(Long memberId, AccountCreateRequest createRequest) {
         // 사용자 유효성 확인
-        userService.findById(userId);
+        memberService.findById(memberId);
 
         // 계좌 번호 생성
         String newAccountNumber = generateAccountNumber();
@@ -218,15 +199,15 @@ public class AccountService {
 
         CheckingAccount checkingAccount = checkingAccountService.save(savedAccount);
 
-        bankAccountService.save(userId, checkingAccount.getId(), savedAccount.getId());
+        bankAccountService.save(memberId, checkingAccount.getId(), savedAccount.getId());
 
         return savedAccount;
     }
 
     // 적금 계좌 생성
-    public Account createSavingAccount(Long userId, Long savingProductId, SavingAccountCreateRequest createRequest) {
+    public Account createSavingAccount(Long memberId, Long savingProductId, SavingAccountCreateRequest createRequest) {
         // 사용자 유효성 확인
-        userService.findById(userId);
+        memberService.findById(memberId);
 
         // 적금 상품 유효성 확인
         SavingProduct savingProduct = savingProductService.findById(savingProductId);
@@ -240,14 +221,25 @@ public class AccountService {
                 .balance(createRequest.getInitialDeposit())
                 .accountType(AccountType.SAVING)
                 .accountStatus(AccountStatus.ACTIVE)
+                .depositLimit(createRequest.getDepositLimit())
                 .build();
 
         Account savedAccount = accountRepository.save(account);
         SavingAccount savingAccount = savingAccountService.save(savedAccount.getId());
 
-        savingProductAccountService.save(userId, savingProductId, savingAccount.getId(),
+        savingProductAccountService.save(memberId, savingProductId, savingAccount.getId(),
                 savingProduct, createRequest.getMonthlyDeposit(), savedAccount);
 
         return savedAccount;
+    }
+
+    public List<Account> findCheckByMemberId(long memberId) {
+        return accountRepository.findCheckByMemberId(memberId)
+                .orElseThrow(() -> new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND));
+    }
+
+    public List<Account> findSaveByMemberId(long memberId) {
+        return accountRepository.findSaveByMemberId(memberId)
+                .orElseThrow(() -> new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND));
     }
 }

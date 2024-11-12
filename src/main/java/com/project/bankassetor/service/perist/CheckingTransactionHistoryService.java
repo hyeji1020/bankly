@@ -21,13 +21,14 @@ public class CheckingTransactionHistoryService {
 
     private final CheckingTransactionHistoryRepository historyRepository;
     private final BankAccountService bankAccountService;
+    private final CheckingTransactionHistoryRepository checkingTransactionHistoryRepository;
 
     // 거래 내역 저장
     public CheckingTransactionHistory save(BankAccount bankAccount, BigDecimal amount, BigDecimal balance, String transactionType) {
 
         CheckingTransactionHistory toHistory = CheckingTransactionHistory.builder()
                 .bankAccountId(bankAccount.getId())
-                .userId(bankAccount.getUserId())
+                .memberId(bankAccount.getMemberId())
                 .checkingAccountId(bankAccount.getCheckingAccountId())
                 .accountId(bankAccount.getAccountId())
                 .transactionTime(LocalDateTime.now())
@@ -44,10 +45,12 @@ public class CheckingTransactionHistoryService {
     // 거래 내역 확인
     public List<CheckingTransactionHistory> findBalanceHistory(Long accountId) {
 
-        bankAccountService.findByAccountId(accountId);
-
         List<CheckingTransactionHistory> findHistory = historyRepository.findHistoriesByAccountId(accountId);
 
         return findHistory;
+    }
+
+    public List<CheckingTransactionHistory> findCheckTransactionHistoryByAccountId(long accountId) {
+        return checkingTransactionHistoryRepository.findByAccountId(accountId);
     }
 }

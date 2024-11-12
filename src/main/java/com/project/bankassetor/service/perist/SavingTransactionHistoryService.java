@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.project.bankassetor.utils.Utils.toJson;
 
@@ -21,12 +22,13 @@ public class SavingTransactionHistoryService {
 
     private final SavingTransactionHistoryRepository historyRepository;
     private final SavingProductAccountService savingProductAccountService;
+
     public SavingTransactionHistory save(SavingProductAccount savingProductAccount, BigDecimal amount, Account account, String transactionType) {
 
         SavingTransactionHistory toHistory = SavingTransactionHistory.builder()
                 .savingProductAccountId(savingProductAccount.getId())
                 .savingProductId(savingProductAccount.getSavingProductId())
-                .userId(savingProductAccount.getUserId())
+                .memberId(savingProductAccount.getMemberId())
                 .savingAccountId(savingProductAccount.getSavingAccountId())
                 .accountId(account.getId())
                 .savingDurationId(savingProductAccount.getSavingDurationId())
@@ -39,5 +41,9 @@ public class SavingTransactionHistoryService {
         log.info("거래내역 정보:{}", toJson(toHistory));
 
         return historyRepository.save(toHistory);
+    }
+
+    public List<SavingTransactionHistory> findSaveTransactionHistoryByAccountId(long accountId) {
+        return historyRepository.findByAccountId(accountId);
     }
 }

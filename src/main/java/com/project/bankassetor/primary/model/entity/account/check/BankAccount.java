@@ -19,8 +19,8 @@ public class BankAccount {
     @JoinColumn(name = "checking_account_id", nullable = false)
     private long checkingAccountId;
 
-    @JoinColumn(name = "user_id", nullable = false)
-    private long userId;
+    @JoinColumn(name = "member_id", nullable = false)
+    private long memberId;
 
     @JoinColumn(name = "account_id", nullable = false)
     private Long accountId;

@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface SavingTransactionHistoryRepository extends JpaRepository<SavingTransactionHistory, Long> {
 
-    @Query(value = "SELECT * FROM saving_transaction_history sth WHERE sth.memberId = :memberId AND sth.accountId = :accountId", nativeQuery = true)
-    List<SavingTransactionHistory> findByMemberId(@Param("memberId") long memberId, @Param("accountId") long accountId);
+    @Query(value = "SELECT sth.* FROM saving_transaction_history sth WHERE sth.accountId = :accountId", nativeQuery = true)
+    List<SavingTransactionHistory> findByAccountId(@Param("accountId") long accountId);
 }

@@ -9,7 +9,6 @@ import com.project.bankassetor.primary.model.request.AccountRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.perist.AccountService;
-import com.project.bankassetor.service.perist.BankAccountService;
 import com.project.bankassetor.service.perist.CheckingTransactionHistoryService;
 import com.project.bankassetor.service.perist.SavingTransactionHistoryService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BankFrontService {
 
-    private final BankAccountService bankAccountService;
     private final CheckingTransactionHistoryService historyService;
     private final AccountService accountService;
     private final CheckingTransactionHistoryService checkingTransactionHistoryService;
@@ -98,14 +96,14 @@ public class BankFrontService {
         return AccountResponse.of(accounts);
     }
 
-    public List<CheckingTransactionHistoryResponse> getCheckTransactionHistory(long memberId, long accountId) {
-        final List<CheckingTransactionHistory> checkHistories = checkingTransactionHistoryService.findCheckTransactionHistoryByMemberId(memberId, accountId);
+    public List<CheckingTransactionHistoryResponse> getCheckTransactionHistory(long accountId) {
+        final List<CheckingTransactionHistory> checkHistories = checkingTransactionHistoryService.findCheckTransactionHistoryByAccountId(accountId);
 
         return CheckingTransactionHistoryResponse.of(checkHistories);
     }
 
-    public List<SavingTransactionHistoryResponse> getSaveTransactionHistory(long memberId, long accountId) {
-        final List<SavingTransactionHistory> saveHistories = savingTransactionHistoryService.findSaveTransactionHistoryByMemberId(memberId, accountId);
+    public List<SavingTransactionHistoryResponse> getSaveTransactionHistory(long accountId) {
+        final List<SavingTransactionHistory> saveHistories = savingTransactionHistoryService.findSaveTransactionHistoryByAccountId(accountId);
 
         return SavingTransactionHistoryResponse.of(saveHistories);
     }

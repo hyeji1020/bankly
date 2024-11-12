@@ -14,8 +14,8 @@ public interface CheckingTransactionHistoryRepository extends JpaRepository<Chec
     @Query(value = "SELECT th.* FROM checking_transaction_history th " +
             "JOIN bank_account ba ON th.bankAccountId = ba.id " +
             "WHERE ba.accountId = :accountId", nativeQuery = true)
-    List<CheckingTransactionHistory> findHistoriesByAccountId (Long accountId);
+    List<CheckingTransactionHistory> findHistoriesByAccountId (@Param("accountId") Long accountId);
 
-    @Query(value = "SELECT * FROM checking_transaction_history cth WHERE cth.id = :memberId AND cth.accountId = :accountId", nativeQuery = true)
-    List<CheckingTransactionHistory> findByMemberId(@Param("memberId") long memberId, @Param("accountId") long accountId);
+    @Query(value = "SELECT cth.* FROM checking_transaction_history cth WHERE cth.accountId = :accountId", nativeQuery = true)
+    List<CheckingTransactionHistory> findByAccountId(@Param("accountId") long accountId);
 }

@@ -43,7 +43,7 @@ public class SavingTransactionHistoryService {
         return historyRepository.save(toHistory);
     }
 
-    public List<SavingTransactionHistory> findSaveTransactionHistoryByMemberId(long memberId, long accountId) {
-        return historyRepository.findByMemberId(memberId, accountId);
+    public List<SavingTransactionHistory> findSaveTransactionHistoryByAccountId(long accountId) {
+        return historyRepository.findByAccountId(accountId);
     }
 }

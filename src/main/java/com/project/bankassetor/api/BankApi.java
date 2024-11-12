@@ -65,18 +65,34 @@ public class BankApi {
         return new ResultResponse<>(response);
     }
 
+    // 나의 입출금 계좌 목록
+    @GetMapping("/my-checking-accounts")
+    public ResultResponse<List<AccountResponse>> getMyCheckAccounts(@Authed Member member) {
+        List<AccountResponse> checkAccounts = bankFrontService.getMyCheckAccounts(member.getId());
+
+        return new ResultResponse<>(checkAccounts);
+    }
+
+    // 나의 적금 계좌 목록
+    @GetMapping("/my-saving-accounts")
+    public ResultResponse<List<AccountResponse>> getMySaveAccounts(@Authed Member member) {
+        List<AccountResponse> savingAccounts = bankFrontService.getMySaveAccounts(member.getId());
+
+        return new ResultResponse<>(savingAccounts);
+    }
+
     // 입출금 거래내역
     @GetMapping("/checking-transaction-history/{accountId}")
-    public ResultResponse<List<CheckingTransactionHistoryResponse>> getMyCheckTransactionHistory(Model model, @Authed Member member, @PathVariable long accountId) {
-        List<CheckingTransactionHistoryResponse> response = bankFrontService.getCheckTransactionHistory(member.getId(), accountId);
+    public ResultResponse<List<CheckingTransactionHistoryResponse>> getMyCheckTransactionHistory(@Authed Member member, @PathVariable long accountId) {
+        List<CheckingTransactionHistoryResponse> response = bankFrontService.getCheckTransactionHistory(accountId);
 
         return new ResultResponse<>(response);
     }
 
     // 적금 거래내역
     @GetMapping("/saving-transaction-history/{accountId}")
-    public ResultResponse<List<SavingTransactionHistoryResponse>> getMySaveTransactionHistory(Model model, @Authed Member member, @PathVariable long accountId) {
-        List<SavingTransactionHistoryResponse> response = bankFrontService.getSaveTransactionHistory(member.getId(), accountId);
+    public ResultResponse<List<SavingTransactionHistoryResponse>> getMySaveTransactionHistory(@Authed Member member, @PathVariable long accountId) {
+        List<SavingTransactionHistoryResponse> response = bankFrontService.getSaveTransactionHistory(accountId);
 
         return new ResultResponse<>(response);
     }

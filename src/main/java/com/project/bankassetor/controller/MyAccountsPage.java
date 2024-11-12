@@ -24,7 +24,7 @@ public class MyAccountsPage {
 
     // 나의 모든 계좌 목록
     @GetMapping("/my-accounts")
-    public String getMyCheckAccounts(Model model, @Authed Member member) {
+    public String getMyAccounts(Model model, @Authed Member member) {
         List<AccountResponse> checkAccounts = bankFrontService.getMyCheckAccounts(member.getId());
         List<AccountResponse> savingAccounts = bankFrontService.getMySaveAccounts(member.getId());
 
@@ -37,7 +37,7 @@ public class MyAccountsPage {
     // 입출금 거래내역
     @GetMapping("/checking-transaction-history/{accountId}")
     public String getMyCheckTransactionHistory(Model model, @Authed Member member, @PathVariable long accountId) {
-        List<CheckingTransactionHistoryResponse> checkHistory = bankFrontService.getCheckTransactionHistory(member.getId(), accountId);
+        List<CheckingTransactionHistoryResponse> checkHistory = bankFrontService.getCheckTransactionHistory(accountId);
 
         model.addAttribute("member", member);
         model.addAttribute("myCheckHistory", checkHistory);
@@ -48,7 +48,7 @@ public class MyAccountsPage {
     // 적금 거래내역
     @GetMapping("/saving-transaction-history/{accountId}")
     public String getMySaveTransactionHistory(Model model, @Authed Member member, @PathVariable long accountId) {
-        List<SavingTransactionHistoryResponse> saveHistory = bankFrontService.getSaveTransactionHistory(member.getId(), accountId);
+        List<SavingTransactionHistoryResponse> saveHistory = bankFrontService.getSaveTransactionHistory(accountId);
 
         model.addAttribute("member", member);
         model.addAttribute("mySaveHistory", saveHistory);

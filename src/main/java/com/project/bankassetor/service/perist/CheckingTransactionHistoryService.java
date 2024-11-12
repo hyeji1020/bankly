@@ -45,14 +45,12 @@ public class CheckingTransactionHistoryService {
     // 거래 내역 확인
     public List<CheckingTransactionHistory> findBalanceHistory(Long accountId) {
 
-        bankAccountService.findByAccountId(accountId);
-
         List<CheckingTransactionHistory> findHistory = historyRepository.findHistoriesByAccountId(accountId);
 
         return findHistory;
     }
 
-    public List<CheckingTransactionHistory> findCheckTransactionHistoryByMemberId(long memberId, long accountId) {
-        return checkingTransactionHistoryRepository.findByMemberId(memberId, accountId);
+    public List<CheckingTransactionHistory> findCheckTransactionHistoryByAccountId(long accountId) {
+        return checkingTransactionHistoryRepository.findByAccountId(accountId);
     }
 }

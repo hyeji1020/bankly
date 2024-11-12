@@ -21,12 +21,13 @@ public class SavingTransactionHistoryService {
 
     private final SavingTransactionHistoryRepository historyRepository;
     private final SavingProductAccountService savingProductAccountService;
+
     public SavingTransactionHistory save(SavingProductAccount savingProductAccount, BigDecimal amount, Account account, String transactionType) {
 
         SavingTransactionHistory toHistory = SavingTransactionHistory.builder()
                 .savingProductAccountId(savingProductAccount.getId())
                 .savingProductId(savingProductAccount.getSavingProductId())
-                .userId(savingProductAccount.getUserId())
+                .memberId(savingProductAccount.getMemberId())
                 .savingAccountId(savingProductAccount.getSavingAccountId())
                 .accountId(account.getId())
                 .savingDurationId(savingProductAccount.getSavingDurationId())

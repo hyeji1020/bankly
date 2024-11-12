@@ -26,8 +26,8 @@ public class SavingProductAccount {
     @JoinColumn(name = "saving_duration_id", nullable = false)
     private Long savingDurationId;
 
-    @JoinColumn(name = "user_id", nullable = false)
-    private Long userId;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Long memberId;
 
     @JoinColumn(name = "saving_account_id", nullable = false)
     private Long savingAccountId;

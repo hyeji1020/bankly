@@ -23,8 +23,8 @@ public class CheckingTransactionHistory {
     @JoinColumn(name = "bank_account_id", nullable = false)
     private Long bankAccountId;
 
-    @JoinColumn(name = "user_id", nullable = false)
-    private Long userId;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Long memberId;
 
     @JoinColumn(name = "checking_account_id", nullable = false)
     private Long checkingAccountId;

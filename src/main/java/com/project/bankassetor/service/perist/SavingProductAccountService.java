@@ -30,7 +30,7 @@ public class SavingProductAccountService {
     private final SavingProductAccountRepository productAccountRepository;
     private final AccountRepository accountRepository;
 
-    public SavingProductAccount save(Long userId, Long savingProductId, Long savingAccountId,
+    public SavingProductAccount save(Long memberId, Long savingProductId, Long savingAccountId,
                                      SavingProduct savingProduct, BigDecimal monthlyDeposit, Account account){
 
         SavingProductAccount savingProductAccount = SavingProductAccount.builder()
@@ -38,7 +38,7 @@ public class SavingProductAccountService {
                 .savingAccountId(savingAccountId)
                 .accountId(account.getId())
                 .savingDurationId(savingProduct.getSavingDuration().getId())
-                .userId(userId)
+                .memberId(memberId)
                 .monthlyDeposit(monthlyDeposit)
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusMonths(savingProduct.getSavingDuration().getDurationInMonths()))

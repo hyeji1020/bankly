@@ -26,8 +26,8 @@ public class SavingTransactionHistory {
     @JoinColumn(name = "saving_product_id", nullable = false)
     private Long savingProductId;
 
-    @JoinColumn(name = "user_id", nullable = false)
-    private Long userId;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Long memberId;
 
     @JoinColumn(name = "saving_account_id", nullable = false)
     private Long savingAccountId;

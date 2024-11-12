@@ -18,11 +18,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     public Member findById(Long id){
-        Member member = memberRepository.findById(id).orElseThrow(() -> {
+        return memberRepository.findById(id).orElseThrow(() -> {
             log.error("아이디 {}: 에 해당하는 사용자를 찾을 수 없습니다.", id);
             throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
         });
-        return member;
     }
 
     public Optional<Member> findMemberByEmail(String email) {

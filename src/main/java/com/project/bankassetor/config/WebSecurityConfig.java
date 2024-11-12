@@ -29,7 +29,7 @@ public class WebSecurityConfig {
         http
             .authorizeHttpRequests(request -> request
                 .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                .requestMatchers("/login", "/favicon.ico", "/error").permitAll()
+                .requestMatchers("/login", "/favicon.ico", "/error", "/join", "/joinProc").permitAll()
                 .requestMatchers("/public-api/**", "/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )

@@ -21,7 +21,7 @@ import java.util.Set;
 @Setter
 @Entity
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Member implements UserDetails, Serializable {
 
     @Id
@@ -51,6 +51,7 @@ public class Member implements UserDetails, Serializable {
     @LastModifiedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -23,9 +23,16 @@
   <!-- /.login-logo -->
   <div class="card">
     <div class="card-body login-card-body">
-      <p class="login-box-msg">로그인 해주세요 </p>
 
-      <form action="/login" method="post">
+      <form action="/joinProc" method="post" name="joinForm">
+        <div class="input-group mb-3">
+          <input type="text" name="name" class="form-control" placeholder="이름을 입력해주세요">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
         <div class="input-group mb-3">
           <input type="text" name="email" class="form-control" placeholder="아이디를 입력해주세요">
           <div class="input-group-append">
@@ -42,27 +49,14 @@
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-8">
-            <div class="icheck-primary">
-              <div class=" details">
-                <h4 th:if="${error}">Who are you ?</h4>
-              </div>
-            </div>
-          </div>
           <!-- /.col -->
           <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            <button type="submit" class="btn btn-primary btn-block">완료</button>
           </div>
-        </div>
       </form>
-      <div class="col-4">
-        <button onclick="window.location.href='/join'" class="btn btn-primary btn-block">회원가입</button>
-      </div>
 
   </div>
 </div>
-<!-- /.login-box -->
 
 <!-- jQuery -->
 <script src="/assets/plugins/jquery/jquery.min.js"></script>

@@ -13,18 +13,20 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Builder
 @Getter
-public class TransactionHistoryResponse {
+public class CheckingTransactionHistoryResponse {
 
-    LocalDateTime transactionTime;  // 거래 시간
-    BigDecimal transactionAmount;  // 거래 금액
-    BigDecimal balanceAfter;  // 거래 후 잔액
+    private LocalDateTime transactionTime;  // 거래 시간
+    private BigDecimal transactionAmount;  // 거래 금액
+    private BigDecimal balanceAfter;  // 거래 후 잔액
+    private String type;
 
-    public static List<TransactionHistoryResponse> of(List<CheckingTransactionHistory> transactionHistories) {
+    public static List<CheckingTransactionHistoryResponse> of(List<CheckingTransactionHistory> transactionHistories) {
         return transactionHistories.stream()
-                .map(checkingTransactionHistory -> TransactionHistoryResponse.builder()
+                .map(checkingTransactionHistory -> CheckingTransactionHistoryResponse.builder()
                         .transactionTime(checkingTransactionHistory.getTransactionTime())
                         .transactionAmount(checkingTransactionHistory.getTransactionAmount())
                         .balanceAfter(checkingTransactionHistory.getBalance())
+                        .type(checkingTransactionHistory.getTransactionType().getDisplayName())
                         .build())
                 .collect(Collectors.toList());
     }

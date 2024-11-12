@@ -21,6 +21,7 @@ public class CheckingTransactionHistoryService {
 
     private final CheckingTransactionHistoryRepository historyRepository;
     private final BankAccountService bankAccountService;
+    private final CheckingTransactionHistoryRepository checkingTransactionHistoryRepository;
 
     // 거래 내역 저장
     public CheckingTransactionHistory save(BankAccount bankAccount, BigDecimal amount, BigDecimal balance, String transactionType) {
@@ -49,5 +50,9 @@ public class CheckingTransactionHistoryService {
         List<CheckingTransactionHistory> findHistory = historyRepository.findHistoriesByAccountId(accountId);
 
         return findHistory;
+    }
+
+    public List<CheckingTransactionHistory> findCheckTransactionHistoryByMemberId(long memberId, long accountId) {
+        return checkingTransactionHistoryRepository.findByMemberId(memberId, accountId);
     }
 }

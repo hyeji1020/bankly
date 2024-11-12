@@ -35,7 +35,9 @@
         </thead>
         <tbody>
         <!-- response 리스트를 반복하여 출력 -->
-        <tr th:each="checkAccount : ${myCheckAccounts}">
+        <tr th:each="checkAccount : ${myCheckAccounts}"
+            th:onclick="'window.location.href=\'/checking-transaction-history/' + ${checkAccount.accountId} + '\''"
+            style="cursor: pointer;">>
             <td th:text="${checkAccount.accountNumber}">계좌번호</td>
             <td th:if="${checkAccount.balance == checkAccount.balance.intValue()}" th:text="${checkAccount.balance.intValue()} + '원'">잔액</td>
             <td th:unless="${checkAccount.balance == checkAccount.balance.intValue()}" th:text="${#numbers.formatDecimal(checkAccount.balance, 0, '2')} + '원'">잔액</td>
@@ -57,7 +59,9 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="saveAccount : ${mySaveAccounts}">
+        <tr th:each="saveAccount : ${mySaveAccounts}"
+            th:onclick="'window.location.href=\'/saving-transaction-history/' + ${saveAccount.accountId} + '\''"
+            style="cursor: pointer;">
             <td th:text="${saveAccount.accountNumber}">계좌번호</td>
             <td th:if="${saveAccount.balance == saveAccount.balance.intValue()}" th:text="${saveAccount.balance.intValue()} + '원'">잔액</td>
             <td th:unless="${saveAccount.balance == saveAccount.balance.intValue()}" th:text="${#numbers.formatDecimal(saveAccount.balance, 0, '2')} + '원'">잔액</td>

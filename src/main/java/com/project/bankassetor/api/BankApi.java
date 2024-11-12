@@ -9,7 +9,7 @@ import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,8 +44,8 @@ public class BankApi {
 
     // 거래 내역 확인
     @GetMapping("/{accountId}/balance-history")
-    public ResultResponse<List<TransactionHistoryResponse>> findBalanceHistory(@PathVariable Long accountId) {
-        List<TransactionHistoryResponse> response = bankFrontService.findBalanceHistory(accountId);
+    public ResultResponse<List<CheckingTransactionHistoryResponse>> findBalanceHistory(@PathVariable Long accountId) {
+        List<CheckingTransactionHistoryResponse> response = bankFrontService.findBalanceHistory(accountId);
         return new ResultResponse<>(response);
     }
     
@@ -65,27 +65,19 @@ public class BankApi {
         return new ResultResponse<>(response);
     }
 
-    // 나의 당좌 계좌 목록
-    @GetMapping("/my-checking-accounts")
-    public ResultResponse<List<AccountResponse>> getMyCheckAccounts(@Authed Member member) {
-        if (member == null) {
-            return new ResultResponse<>(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
-        }
-        long memberId = member.getId();
+    // 입출금 거래내역
+    @GetMapping("/checking-transaction-history/{accountId}")
+    public ResultResponse<List<CheckingTransactionHistoryResponse>> getMyCheckTransactionHistory(Model model, @Authed Member member, @PathVariable long accountId) {
+        List<CheckingTransactionHistoryResponse> response = bankFrontService.getCheckTransactionHistory(member.getId(), accountId);
 
-        List<AccountResponse> response = bankFrontService.getMyCheckAccounts(memberId);
         return new ResultResponse<>(response);
     }
 
-    // 나의 적금 계좌 목록
-    @GetMapping("/my-saving-accounts")
-    public ResultResponse<List<AccountResponse>> getMySaveAccounts(@Authed Member member) {
-        if (member == null) {
-            return new ResultResponse<>(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.");
-        }
-        long memberId = member.getId();
+    // 적금 거래내역
+    @GetMapping("/saving-transaction-history/{accountId}")
+    public ResultResponse<List<SavingTransactionHistoryResponse>> getMySaveTransactionHistory(Model model, @Authed Member member, @PathVariable long accountId) {
+        List<SavingTransactionHistoryResponse> response = bankFrontService.getSaveTransactionHistory(member.getId(), accountId);
 
-        List<AccountResponse> response = bankFrontService.getMySaveAccounts(memberId);
         return new ResultResponse<>(response);
     }
 

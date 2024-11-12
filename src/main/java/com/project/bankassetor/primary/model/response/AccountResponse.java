@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 @Getter
 public class AccountResponse {
 
+    private long accountId;
+
     // 입출금 계좌 번호
     private String accountNumber;
 
@@ -35,6 +37,7 @@ public class AccountResponse {
     public static List<AccountResponse> of(List<Account> accounts){
         return accounts.stream()
                 .map(account -> AccountResponse.builder()
+                        .accountId(account.getId())
                         .accountNumber(account.getAccountNumber())
                         .balance(account.getBalance())
                         .createdAt(account.getCreatedAt())

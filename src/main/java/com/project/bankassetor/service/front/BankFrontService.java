@@ -3,6 +3,7 @@ package com.project.bankassetor.service.front;
 import com.project.bankassetor.primary.model.entity.Account;
 import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
+import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.request.AccountCreateRequest;
 import com.project.bankassetor.primary.model.request.AccountRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
@@ -10,6 +11,7 @@ import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.perist.AccountService;
 import com.project.bankassetor.service.perist.BankAccountService;
 import com.project.bankassetor.service.perist.CheckingTransactionHistoryService;
+import com.project.bankassetor.service.perist.SavingTransactionHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ public class BankFrontService {
     private final BankAccountService bankAccountService;
     private final CheckingTransactionHistoryService historyService;
     private final AccountService accountService;
+    private final CheckingTransactionHistoryService checkingTransactionHistoryService;
+    private final SavingTransactionHistoryService savingTransactionHistoryService;
 
     // 입금
     public AccountResponse deposit(AccountRequest accountRequest) {
@@ -58,11 +62,11 @@ public class BankFrontService {
     }
 
     // 거래 내역 확인
-    public List<TransactionHistoryResponse> findBalanceHistory(Long accountId) {
+    public List<CheckingTransactionHistoryResponse> findBalanceHistory(Long accountId) {
 
         final List<CheckingTransactionHistory> balanceHistory = historyService.findBalanceHistory(accountId);
 
-        return TransactionHistoryResponse.of(balanceHistory);
+        return CheckingTransactionHistoryResponse.of(balanceHistory);
     }
 
     // 계좌 생성
@@ -94,4 +98,15 @@ public class BankFrontService {
         return AccountResponse.of(accounts);
     }
 
+    public List<CheckingTransactionHistoryResponse> getCheckTransactionHistory(long memberId, long accountId) {
+        final List<CheckingTransactionHistory> checkHistories = checkingTransactionHistoryService.findCheckTransactionHistoryByMemberId(memberId, accountId);
+
+        return CheckingTransactionHistoryResponse.of(checkHistories);
+    }
+
+    public List<SavingTransactionHistoryResponse> getSaveTransactionHistory(long memberId, long accountId) {
+        final List<SavingTransactionHistory> saveHistories = savingTransactionHistoryService.findSaveTransactionHistoryByMemberId(memberId, accountId);
+
+        return SavingTransactionHistoryResponse.of(saveHistories);
+    }
 }

@@ -9,7 +9,6 @@ import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -96,4 +95,19 @@ public class BankApi {
         return new ResultResponse<>(response);
     }
 
+    // 적금 상품 목록
+    @GetMapping("/saving-products")
+    public ResultResponse<List<SavingProductResponse>> getSavingProducts() {
+        List<SavingProductResponse> response = bankFrontService.getSavingProducts();
+
+        return new ResultResponse<>(response);
+    }
+
+    // 적금 상품 조회
+    @GetMapping("/saving-products-detail/{savingProductId}")
+    public ResultResponse<SavingProductResponse> getSavingProducts(@PathVariable long savingProductId) {
+        SavingProductResponse response = bankFrontService.getSavingProduct(savingProductId);
+
+        return new ResultResponse<>(response);
+    }
 }

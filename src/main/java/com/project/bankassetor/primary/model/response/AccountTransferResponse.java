@@ -1,11 +1,14 @@
 package com.project.bankassetor.primary.model.response;
 
 import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 @AllArgsConstructor
 @Builder
@@ -19,13 +22,18 @@ public class AccountTransferResponse {
     private long toAccountId;
 
     // 이체 금액
-    private BigDecimal amount;
+    private String amount;
+
+    private static String formatAmount(BigDecimal amount) {
+        DecimalFormat decimalFormat = new DecimalFormat("#,###");
+        return decimalFormat.format(amount);
+    }
 
     public static AccountTransferResponse of(BankAccount bankAccount, BigDecimal amount){
         return AccountTransferResponse.builder()
                 .userId(bankAccount.getMemberId())
                 .toAccountId(bankAccount.getCheckingAccountId())
-                .amount(amount)
+                .amount(formatAmount(amount))
                 .build();
     }
 

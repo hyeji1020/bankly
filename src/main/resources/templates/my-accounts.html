@@ -1,79 +1,100 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>My Accounts</title>
-
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="/assets/plugins/fontawesome-free/css/all.css">
-    <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="/assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="/assets/dist/css/adminlte.min.css">
-    <link rel="stylesheet" href="/custom/my.css">
+<head th:replace="~{layout/head :: head(~{::title}, ~{::link})}">
+    <title>나의 계좌</title>
 </head>
-<body>
-<div class="container">
-    <h1 th:text="${member.name} + '님의 계좌 목록'">내 계좌 목록</h1>
+<body class="hold-transition sidebar-mini">
 
-    <!-- 당좌 계좌 목록 테이블 -->
-    <div class="account-header" style="text-align: left;">
-        입출금 계좌
+<div class="wrapper">
+
+    <!-- Navbar -->
+    <th:block th:replace="~{layout/navbar :: navbar(${member}, '')}"/>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <th:block th:replace="~{layout/sidebar :: sidebar(${member}, '/', '1')}"/>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+
+        <div class="container">
+            <h1 th:text="${member.name} + '님의 계좌 목록'">내 계좌 목록</h1>
+
+            <!-- 당좌 계좌 목록 테이블 -->
+            <div class="account-header" style="text-align: left;">
+                입출금 계좌
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>계좌번호</th>
+                    <th>잔액</th>
+                    <th>생성일시</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- response 리스트를 반복하여 출력 -->
+                <tr th:each="checkAccount, iterStat : ${myCheckAccounts}"
+                    th:onclick="'window.location.href=\'/checking-transaction-history/' + ${checkAccount.accountId} + '\''"
+                    style="cursor: pointer;">>
+                    <td th:text="${checkAccount.accountNumber}">계좌번호</td>
+                    <td th:text="${checkAccount.balance} + '원'">잔액
+                    </td>
+                    <td th:text="${checkAccount.createdAt}">생성일시</td>
+                </tr>
+                </tbody>
+            </table>
+            <p th:if="${myCheckAccounts == null || #lists.isEmpty(myCheckAccounts)}">등록된 입출금 계좌가 없습니다.</p>
+
+            <!-- 적금 계좌 목록 테이블 -->
+            <div class="account-header" style="text-align: left;">
+                적금 계좌
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>계좌번호</th>
+                    <th>잔액</th>
+                    <th>생성일시</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="saveAccount : ${mySaveAccounts}"
+                    th:onclick="'window.location.href=\'/saving-transaction-history/' + ${saveAccount.accountId} + '\''"
+                    style="cursor: pointer;">
+                    <td th:text="${saveAccount.accountNumber}">계좌번호</td>
+                    <td th:text="${saveAccount.balance} + '원'">잔액</td>
+                    <td th:text="${saveAccount.createdAt}">생성일시</td>
+                </tr>
+                </tbody>
+            </table>
+            <!-- 계좌가 없는 경우 -->
+            <p th:if="${mySaveAccounts == null || #lists.isEmpty(mySaveAccounts)}">등록된 적금 계좌가 없습니다.</p>
+        </div>
     </div>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>계좌번호</th>
-            <th>잔액</th>
-            <th>생성일자</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- response 리스트를 반복하여 출력 -->
-        <tr th:each="checkAccount : ${myCheckAccounts}"
-            th:onclick="'window.location.href=\'/checking-transaction-history/' + ${checkAccount.accountId} + '\''"
-            style="cursor: pointer;">>
-            <td th:text="${checkAccount.accountNumber}">계좌번호</td>
-            <td th:if="${checkAccount.balance == checkAccount.balance.intValue()}" th:text="${checkAccount.balance.intValue()} + '원'">잔액</td>
-            <td th:unless="${checkAccount.balance == checkAccount.balance.intValue()}" th:text="${#numbers.formatDecimal(checkAccount.balance, 0, '2')} + '원'">잔액</td>
-            <td th:text="${checkAccount.createdAt}">생성일자</td>
-        </tr>
-        </tbody>
-    </table>
-    <p th:if="${myCheckAccounts == null || #lists.isEmpty(myCheckAccounts)}">등록된 입출금 계좌가 없습니다.</p>
-
-    <!-- 적금 계좌 목록 테이블 -->
-    <div class="account-header" style="text-align: left;">
-        적금 계좌
-    </div>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>계좌번호</th>
-            <th>잔액</th>
-            <th>생성일자</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="saveAccount : ${mySaveAccounts}"
-            th:onclick="'window.location.href=\'/saving-transaction-history/' + ${saveAccount.accountId} + '\''"
-            style="cursor: pointer;">
-            <td th:text="${saveAccount.accountNumber}">계좌번호</td>
-            <td th:if="${saveAccount.balance == saveAccount.balance.intValue()}" th:text="${saveAccount.balance.intValue()} + '원'">잔액</td>
-            <td th:unless="${saveAccount.balance == saveAccount.balance.intValue()}" th:text="${#numbers.formatDecimal(saveAccount.balance, 0, '2')} + '원'">잔액</td>
-            <td th:text="${saveAccount.createdAt}">생성일자</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- 계좌가 없는 경우 -->
-    <p th:if="${mySaveAccounts == null || #lists.isEmpty(mySaveAccounts)}">등록된 적금 계좌가 없습니다.</p>
-
+    <!-- Main Footer -->
+    <footer class="main-footer">
+        <!-- To the right -->
+        <div class="float-right d-none d-sm-inline">
+            Anything you want
+        </div>
+        <!-- Default to the left -->
+        <strong>Copyright &copy; 2014-2024 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights
+        reserved.
+    </footer>
 </div>
+<th:block th:replace="~{layout/scripts :: scripts('', '')}"/>
 </body>
 </html>

@@ -50,18 +50,17 @@ public class BankApi {
     }
     
     // 당좌 계좌 생성
-    @PostMapping("/{memberId}")
-    public ResultResponse<AccountCreateResponse> createCheckingAccount(@PathVariable Long memberId, @Valid @RequestBody AccountCreateRequest createRequest) {
-        AccountCreateResponse response = bankFrontService.createAccount(memberId, createRequest);
+    @PostMapping("/checking-accounts")
+    public ResultResponse<AccountCreateResponse> createCheckingAccount(@Authed Member member, @Valid @RequestBody AccountCreateRequest createRequest) {
+        AccountCreateResponse response = bankFrontService.createAccount(member.getId(), createRequest);
         return new ResultResponse<>(response);
     }
 
-
     // 적금 계좌 생성
-    @PostMapping("/{memberId}/{savingProductId}")
-    public ResultResponse<AccountCreateResponse> createSavingAccount(@PathVariable Long memberId,@PathVariable Long savingProductId,
+    @PostMapping("/saving-products/{savingProductId}/accounts")
+    public ResultResponse<AccountCreateResponse> createSavingAccount(@Authed Member member,@PathVariable Long savingProductId,
                                                                      @Valid @RequestBody SavingAccountCreateRequest createRequest) {
-        AccountCreateResponse response = bankFrontService.createSavingAccount(memberId, savingProductId, createRequest);
+        AccountCreateResponse response = bankFrontService.createSavingAccount(member.getId(), savingProductId, createRequest);
         return new ResultResponse<>(response);
     }
 

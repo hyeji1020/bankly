@@ -26,6 +26,9 @@ public class SavingProduct {
     @Column(name = "interest_rate", nullable = false)
     private BigDecimal interestRate;
 
+    @Column
+    private String description;
+
     @ManyToOne
     @JoinColumn(name = "saving_duration_id", nullable = false)
     private SavingDuration savingDuration;

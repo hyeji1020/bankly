@@ -107,4 +107,16 @@ public class BankFrontService {
 
         return SavingTransactionHistoryResponse.of(saveHistories);
     }
+
+    public List<SavingProductResponse> getSavingProducts() {
+        final List<SavingProduct> savingProducts = savingProductService.findAll();
+
+        return SavingProductResponse.of(savingProducts);
+    }
+
+    public SavingProductResponse getSavingProduct(long savingProductId) {
+        final SavingProduct savingProduct = savingProductService.findById(savingProductId);
+
+        return SavingProductResponse.of(savingProduct);
+    }
 }

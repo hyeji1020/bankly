@@ -4,6 +4,7 @@ import com.project.bankassetor.config.security.Authed;
 import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.response.AccountResponse;
 import com.project.bankassetor.primary.model.response.CheckingTransactionHistoryResponse;
+import com.project.bankassetor.primary.model.response.SavingProductResponse;
 import com.project.bankassetor.primary.model.response.SavingTransactionHistoryResponse;
 import com.project.bankassetor.service.front.BankFrontService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class MyAccountsPage {
+public class AccountsPage {
 
     private final BankFrontService bankFrontService;
 
@@ -54,6 +55,27 @@ public class MyAccountsPage {
         model.addAttribute("mySaveHistory", saveHistory);
         model.addAttribute("type", "saving");
         return "transaction-history";
+    }
+
+    // 적금 상품 목록
+    @GetMapping("/saving-products")
+    public String getSavingProducts(Model model, @Authed Member member) {
+        List<SavingProductResponse> savingProducts = bankFrontService.getSavingProducts();
+
+        model.addAttribute("member", member);
+        model.addAttribute("savingProducts", savingProducts);
+        return "saving-products";
+    }
+
+    // 적금 상품
+    @GetMapping("/saving-products-detail/{savingProductId}")
+    public String getSavingProduct(@PathVariable Long savingProductId, Model model, @Authed Member member) {
+        SavingProductResponse savingProduct = bankFrontService.getSavingProduct(savingProductId);
+
+        model.addAttribute("member", member);
+        model.addAttribute("savingProduct", savingProduct);
+        model.addAttribute("id", savingProductId);
+        return "saving-products-detail";
     }
 
 }

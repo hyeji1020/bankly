@@ -51,8 +51,6 @@ public class MemberService {
         data.setName(joinRequest.getName());
         data.setEmail(joinRequest.getEmail());
         data.setPassword(passwordEncoder.encode(joinRequest.getPassword()));
-        data.setCreatedAt(LocalDateTime.now());
-        data.setUpdatedAt(LocalDateTime.now());
         data.setRole("ROLE_USER");
         data.setStatus("ACTIVE");
 

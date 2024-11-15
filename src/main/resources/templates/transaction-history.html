@@ -1,99 +1,110 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <title>My Accounts</title>
 
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="/assets/plugins/fontawesome-free/css/all.css">
-    <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="/assets/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="/assets/dist/css/adminlte.min.css">
-    <link rel="stylesheet" href="/custom/my.css">
+<head th:replace="~{layout/head :: head(~{::title}, ~{::link})}">
+    <title>거래 내역</title>
 </head>
-<body>
-<div class="container">
-    <h1 th:text="${member.name} + '님의 거래 내역 조회'">거래 내역 조회</h1>
 
-    <div th:if="${type == 'checking'}">
-        <table class="table">
-            <thead>
-            <tr>
-                <th>거래일자</th>
-                <th>거래 금액</th>
-                <th>잔액</th>
-                <th>거래 유형</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- response 리스트를 반복하여 출력 -->
-            <tr th:each="checkHistory : ${myCheckHistory}">
-                <td th:text="${checkHistory.transactionTime}">거래 시간</td>
-                <!--      거래 금액      -->
-                <td th:if="${checkHistory.transactionAmount != null and checkHistory.transactionAmount.stripTrailingZeros().scale() <= 0}"
-                    th:style="${checkHistory.type == '입금' ? 'color: blue;' : (checkHistory.type == '출금' ? 'color: red;' : '')}"
-                    th:text="${checkHistory.transactionAmount.intValue()} + '원'">거래 금액</td>
-                <!--      소수일 경우 두번 째 자리까지 출력     -->
-                <td th:unless="${checkHistory.transactionAmount != null and checkHistory.transactionAmount.stripTrailingZeros().scale() <= 0}"
-                    th:style="${checkHistory.type == '입금' ? 'color: blue;' : (checkHistory.type == '출금' ? 'color: red;' : '')}"
-                    th:text="${#numbers.formatDecimal(checkHistory.transactionAmount, 0, 2)} + '원'">거래 금액</td>
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
 
-                <!--      거래 후 잔액      -->
-                <td th:if="${checkHistory.balanceAfter != null and checkHistory.balanceAfter.stripTrailingZeros().scale() <= 0}"
-                    th:text="${checkHistory.balanceAfter.intValue()} + '원'">잔액</td>
-                <td th:unless="${checkHistory.balanceAfter != null and checkHistory.balanceAfter.stripTrailingZeros().scale() <= 0}"
-                    th:text="${#numbers.formatDecimal(checkHistory.balanceAfter, 0, 2)} + '원'">잔액</td>
+        <!-- Navbar -->
+        <th:block th:replace="~{layout/navbar :: navbar(${member}, '')}"/>
+        <!-- /.navbar -->
 
-                <td th:style="${checkHistory.type == '입금' ? 'color: blue;' : (checkHistory.type == '출금' ? 'color: red;' : '')}"
-                    th:text="${checkHistory.type}">거래 유형</td>
-            </tr>
-            </tbody>
-            <p th:if="${myCheckHistory == null || #lists.isEmpty(myCheckHistory)}">거래내역이 없습니다.</p>
-        </table>
+        <!-- Main Sidebar Container -->
+        <th:block th:replace="~{layout/sidebar :: sidebar(${member}, '/', '1')}"/>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+
+            <!-- Content Header (Page header) -->
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+
+                        </div><!-- /.col -->
+                    </div><!-- /.row -->
+                </div><!-- /.container-fluid -->
+            </div>
+            <div class="container">
+                <h1 th:text="${member.name} + '님의 거래 내역 조회'">거래 내역 조회</h1>
+
+                <div th:if="${type == 'checking'}">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>거래일시</th>
+                            <th>거래 금액</th>
+                            <th>잔액</th>
+                            <th>거래 유형</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- response 리스트를 반복하여 출력 -->
+                        <tr th:each="checkHistory : ${myCheckHistory}">
+                            <td th:text="${checkHistory.transactionTime}">거래 시간</td>
+                            <!--      거래 금액      -->
+                            <td
+                                th:style="${checkHistory.type == '입금' ? 'color: blue;' : (checkHistory.type == '출금' ? 'color: red;' : '')}"
+                                th:text="${checkHistory.transactionAmount} + '원'">거래 금액
+                            </td>
+                            <!--      거래 후 잔액      -->
+                            <td th:text="${checkHistory.balanceAfter} + '원'">잔액</td>
+                            <!--      거래 유형      -->
+                            <td th:style="${checkHistory.type == '입금' ? 'color: blue;' : (checkHistory.type == '출금' ? 'color: red;' : '')}"
+                                th:text="${checkHistory.type}">거래 유형
+                            </td>
+                        </tr>
+                        </tbody>
+                        <p th:if="${myCheckHistory == null || #lists.isEmpty(myCheckHistory)}">거래내역이 없습니다.</p>
+                    </table>
+                </div>
+
+                <div th:if="${type == 'saving'}">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>거래일시</th>
+                            <th>거래 금액</th>
+                            <th>잔액</th>
+                            <th>거래 유형</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="saveHistory : ${mySaveHistory}">
+                            <td th:text="${saveHistory.transactionTime}">거래 시간</td>
+                            <!--      거래 금액      -->
+                            <td
+                                th:style="${saveHistory.type == '입금' ? 'color: blue;' : (saveHistory.type == '출금' ? 'color: red;' : '')}"
+                                th:text="${saveHistory.transactionAmount} + '원'">거래 금액
+                            </td>
+                            <!--      거래 후 잔액      -->
+                            <td th:text="${saveHistory.balanceAfter} + '원'">잔액</td>
+                            <!--      거래 유형      -->
+                            <td th:style="${saveHistory.type == '입금' ? 'color: blue;' : (saveHistory.type == '출금' ? 'color: red;' : '')}"
+                                th:text="${saveHistory.type}">거래 유형
+                            </td>
+                        </tr>
+                        </tbody>
+                        <p th:if="${mySaveHistory == null || #lists.isEmpty(mySaveHistory)}">거래내역이 없습니다.</p>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <footer class="main-footer">
+            <!-- To the right -->
+            <div class="float-right d-none d-sm-inline">
+                Anything you want
+            </div>
+            <!-- Default to the left -->
+            <strong>Copyright &copy; 2014-2024 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights
+            reserved.
+        </footer>
     </div>
+<th:block th:replace="~{layout/scripts :: scripts('', '')}"/>
 
-    <div th:if="${type == 'saving'}">
-        <table class="table">
-            <thead>
-            <tr>
-                <th>거래일자</th>
-                <th>거래 금액</th>
-                <th>잔액</th>
-                <th>거래 유형</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="saveHistory : ${mySaveHistory}">
-                <td th:text="${saveHistory.transactionTime}">거래 시간</td>
-                <!--      거래 금액      -->
-                <td th:if="${saveHistory.transactionAmount != null and saveHistory.transactionAmount.stripTrailingZeros().scale() <= 0}"
-                    th:style="${saveHistory.type == '입금' ? 'color: blue;' : (saveHistory.type == '출금' ? 'color: red;' : '')}"
-                    th:text="${saveHistory.transactionAmount.intValue()} + '원'">거래 금액</td>
-                <!--      소수일 경우 두번 째 자리까지 출력     -->
-                <td th:unless="${saveHistory.transactionAmount != null and saveHistory.transactionAmount.stripTrailingZeros().scale() <= 0}"
-                    th:style="${saveHistory.type == '입금' ? 'color: blue;' : (saveHistory.type == '출금' ? 'color: red;' : '')}"
-                    th:text="${#numbers.formatDecimal(saveHistory.transactionAmount, 0, 2)} + '원'">거래 금액</td>
-
-                <!--      거래 후 잔액      -->
-                <td th:if="${saveHistory.balanceAfter != null and saveHistory.balanceAfter.stripTrailingZeros().scale() <= 0}"
-                    th:text="${saveHistory.balanceAfter.intValue()} + '원'">잔액</td>
-                <td th:unless="${saveHistory.balanceAfter != null and saveHistory.balanceAfter.stripTrailingZeros().scale() <= 0}"
-                    th:text="${#numbers.formatDecimal(saveHistory.balanceAfter, 0, 2)} + '원'">잔액</td>
-
-                <td th:style="${saveHistory.type == '입금' ? 'color: blue;' : (saveHistory.type == '출금' ? 'color: red;' : '')}"
-                    th:text="${saveHistory.type}">거래 유형</td>
-            </tr>
-            </tbody>
-            <p th:if="${mySaveHistory == null || #lists.isEmpty(mySaveHistory)}">거래내역이 없습니다.</p>
-        </table>
-    </div>
-
-</div>
 </body>
 </html>

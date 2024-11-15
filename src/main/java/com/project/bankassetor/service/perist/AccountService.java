@@ -199,7 +199,9 @@ public class AccountService {
 
         CheckingAccount checkingAccount = checkingAccountService.save(savedAccount);
 
-        bankAccountService.save(memberId, checkingAccount.getId(), savedAccount.getId());
+        BankAccount bankaccount = bankAccountService.save(memberId, checkingAccount.getId(), savedAccount.getId());
+
+        log.info("입출금 계좌 생성 성공 : {}", toJson(bankaccount));
 
         return savedAccount;
     }
@@ -227,19 +229,27 @@ public class AccountService {
         Account savedAccount = accountRepository.save(account);
         SavingAccount savingAccount = savingAccountService.save(savedAccount.getId());
 
-        savingProductAccountService.save(memberId, savingProductId, savingAccount.getId(),
+        SavingProductAccount savingProductAccount = savingProductAccountService.save(memberId, savingProductId, savingAccount.getId(),
                 savingProduct, createRequest.getMonthlyDeposit(), savedAccount);
+
+        log.info("적금 계좌 생성 성공 : {}", toJson(savingProductAccount));
 
         return savedAccount;
     }
 
     public List<Account> findCheckByMemberId(long memberId) {
         return accountRepository.findCheckByMemberId(memberId)
-                .orElseThrow(() -> new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> {
+                    log.error("{}에 해당하는 입출금 계좌가 없습니다.", memberId);
+                    return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
     }
 
     public List<Account> findSaveByMemberId(long memberId) {
         return accountRepository.findSaveByMemberId(memberId)
-                .orElseThrow(() -> new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> {
+                    log.error("{}에 해당하는 적금 계좌가 없습니다.", memberId);
+                    return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
     }
 }

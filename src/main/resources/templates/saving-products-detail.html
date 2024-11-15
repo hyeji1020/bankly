@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/head :: head(~{::title}, ~{::link})}">>
+    <title>적금 상품 상세 정보</title>
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+    <!-- Navbar -->
+    <th:block th:replace="~{layout/navbar :: navbar(${member}, '')}"/>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <th:block th:replace="~{layout/sidebar :: sidebar(${member}, '/', '1')}"/>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+
+        <div class="col-sm-5">
+            <h1 th:text="${savingProduct.name}">적금 상품 이름</h1>
+            <p>설명: <span th:text="${savingProduct.description}">설명</span></p>
+            <p>이자율: <span th:text="${savingProduct.interestRate} + '%'">연 이자율</span></p>
+            <p>저축 한도: <span th:text="${savingProduct.savingLimit} + '원'">한도</span></p>
+            <p>가입 기간: <span th:text="${savingProduct.durationInMonths} + '개월'">기간</span></p>
+        </div>
+
+        <div class="col-sm-5">
+            <button onclick="window.location.href='/saving-products'" class="btn btn-primary btn-block">목록으로 돌아가기
+            </button>
+            <button onclick="window.location.href='/#'" class="btn btn-primary btn-block">이자 계산기</button>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <!-- To the right -->
+        <div class="float-right d-none d-sm-inline">
+            Anything you want
+        </div>
+        <!-- Default to the left -->
+        <strong>Copyright &copy; 2014-2024 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
+    </footer>
+</div>
+<th:block th:replace="~{layout/scripts :: scripts('', '')}"/>
+</body>
+</html>

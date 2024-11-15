@@ -24,7 +24,6 @@ public class JoinPage {
 
     @PostMapping("/joinProc")
     public String joinProcess(@ModelAttribute JoinRequest joinRequest) {
-        System.out.println(joinRequest.getEmail());
         memberService.joinProcess(joinRequest);
         return "redirect:/login";
     }

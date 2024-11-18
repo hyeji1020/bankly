@@ -16,11 +16,11 @@ public interface SavingProductAccountRepository extends JpaRepository<SavingProd
     @Query(value = """
         SELECT spa.*
         FROM saving_product_account spa
-        JOIN account a ON spa.savingAccountId = a.id
+        JOIN account a ON spa.accountId = a.id
         WHERE a.id = :accountId
     """, nativeQuery = true)
     Optional<SavingProductAccount> findByAccountId(@Param("accountId") Long accountId);
 
-    @Query(value = "SELECT * FROM saving_product_account WHERE end_date <= :now", nativeQuery = true)
+    @Query(value = "SELECT * FROM saving_product_account WHERE endDate <= :now", nativeQuery = true)
     List<SavingProductAccount> findAllByEndDateBefore(LocalDate now);
 }

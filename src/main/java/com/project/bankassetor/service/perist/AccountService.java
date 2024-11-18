@@ -5,9 +5,8 @@ import com.project.bankassetor.exception.BalanceNotEnoughException;
 import com.project.bankassetor.exception.BankException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.primary.model.entity.Account;
+import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
-import com.project.bankassetor.primary.model.entity.account.check.CheckingAccount;
-import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
@@ -38,9 +37,6 @@ public class AccountService {
     private final MemberService memberService;
 
     private final CheckingTransactionHistoryService checkingHistoryService;
-    private final CheckingAccountService checkingAccountService;
-
-    private final SavingAccountService savingAccountService;
     private final SavingProductService savingProductService;
     private final SavingProductAccountService savingProductAccountService;
     private final SavingTransactionHistoryService savingHistoryService;
@@ -65,13 +61,9 @@ public class AccountService {
         String accountNumber = accountRequest.getAccountNumber();
 
         // 요청 계좌 번호 확인
-        Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> {
-                    log.warn("계좌번호: {}에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
-                    return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-                });
+        Account account = findByAccountNumber(accountNumber);
 
-        if (account.getAccountStatus() == AccountStatus.ACTIVE) {
+        if (account.getAccountStatus() == AccountStatus.active) {
 
             // 입금 한도 확인
             BigDecimal depositAmount = accountRequest.getAmount();
@@ -87,12 +79,12 @@ public class AccountService {
             log.info("입금 금액:{}, 입금 후 계좌정보:{}", accountRequest.getAmount(), toJson(account));
 
             // 거래 내역 저장
-            if (account.getAccountType() == AccountType.CHECKING) {
+            if (account.getAccountType() == AccountType.checking) {
                 BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
-                checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.DEPOSIT.toString());
-            } else if (account.getAccountType() == AccountType.SAVING) {
+                checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.deposit.toString());
+            } else if (account.getAccountType() == AccountType.saving) {
                 SavingProductAccount savingProductAccount = savingProductAccountService.findByAccountId(account.getId());
-                savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.DEPOSIT.toString());
+                savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.deposit.toString());
             }
         }
         return account;
@@ -103,13 +95,9 @@ public class AccountService {
     public Account withdraw(AccountRequest accountRequest) {
 
         // 요청 계좌 번호 확인
-        Account account = accountRepository.findByAccountNumber(accountRequest.getAccountNumber())
-                .orElseThrow(() -> {
-                    log.warn("계좌번호{}: 에 해당하는 계좌를 찾을 수 없습니다.", accountRequest.getAccountNumber());
-                    return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
-                });
+        Account account = findByAccountNumber(accountRequest.getAccountNumber());
 
-        if (account.getAccountStatus() == AccountStatus.ACTIVE) {
+        if (account.getAccountStatus() == AccountStatus.active) {
             // 출금 가능한 잔액 조회
             BigDecimal withdrawalAmount = accountRequest.getAmount();
             if (account.getBalance().compareTo(withdrawalAmount) < 0) {
@@ -123,12 +111,12 @@ public class AccountService {
             log.info("출금 후 계좌정보:{}", toJson(account));
 
             // 거래 내역 저장
-            if (account.getAccountType() == AccountType.CHECKING) {
+            if (account.getAccountType() == AccountType.checking) {
                 BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
-                checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.WITHDRAW.toString());
-            } else if (account.getAccountType() == AccountType.SAVING) {
+                checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.withdraw.toString());
+            } else if (account.getAccountType() == AccountType.saving) {
                 SavingProductAccount savingProductAccount = savingProductAccountService.findByAccountId(account.getId());
-                savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.WITHDRAW.toString());
+                savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.withdraw.toString());
             }
 
         }
@@ -147,27 +135,26 @@ public class AccountService {
      * @return BankAccount 송금 후 수신자의 계좌 정보 반환
      */
     @Transactional
-    public BankAccount transfer(Long fromAccountId, AccountRequest accountRequest) {
+    public Account transfer(Long fromAccountId, AccountRequest accountRequest) {
 
-        // 송금 계좌 유효성 확인
+        // 출금 계좌
         Account fromAccount = getAccountById(fromAccountId);
 
-        // 입출금 금액
-        BigDecimal amount = accountRequest.getAmount();
+        // 송금 계좌
+        Account toAccount = findByAccountNumber(accountRequest.getAccountNumber());
 
-        // 송금 계좌에서 출금
-        AccountRequest withdrawRequest = new AccountRequest(fromAccount.getAccountNumber(), amount);
+        // 출금
+        AccountRequest withdrawRequest = new AccountRequest(fromAccount.getAccountNumber(), accountRequest.getAmount());
         withdraw(withdrawRequest);
 
         // 수신 계좌에 입금
         deposit(accountRequest);
 
-        BankAccount transferAccount = bankAccountService.findByAccountNumber(accountRequest.getAccountNumber());
+        Member member = findMemberByAccountType(toAccount);
+        log.info("{}님에게 {}원 입금합니다. 받는계좌:{}",
+                member.getName(), accountRequest.getAmount(), toAccount.getAccountNumber());
 
-        // 거래 내역 저장(송금 계좌 기준)
-        checkingHistoryService.save(transferAccount, accountRequest.getAmount(), fromAccount.getBalance(), TransactionType.TRANSFER.toString());
-
-        return transferAccount;
+        return toAccount;
     }
 
     // 계좌 번호 생성 로직
@@ -190,16 +177,14 @@ public class AccountService {
         Account account = Account.builder()
                 .accountNumber(newAccountNumber)
                 .balance(createRequest.getInitialDeposit())
-                .accountType(AccountType.CHECKING)
-                .accountStatus(AccountStatus.ACTIVE)
+                .accountType(AccountType.checking)
+                .accountStatus(AccountStatus.active)
                 .depositLimit(createRequest.getDepositLimit())
                 .build();
 
         Account savedAccount = accountRepository.save(account);
 
-        CheckingAccount checkingAccount = checkingAccountService.save(savedAccount);
-
-        BankAccount bankaccount = bankAccountService.save(memberId, checkingAccount.getId(), savedAccount.getId());
+        BankAccount bankaccount = bankAccountService.save(memberId, savedAccount.getId());
 
         log.info("입출금 계좌 생성 성공 : {}", toJson(bankaccount));
 
@@ -221,16 +206,14 @@ public class AccountService {
         Account account = Account.builder()
                 .accountNumber(newAccountNumber)
                 .balance(createRequest.getInitialDeposit())
-                .accountType(AccountType.SAVING)
-                .accountStatus(AccountStatus.ACTIVE)
-                .depositLimit(createRequest.getDepositLimit())
+                .accountType(AccountType.saving)
+                .accountStatus(AccountStatus.active)
+                .depositLimit(savingProduct.getSavingLimit())
                 .build();
 
         Account savedAccount = accountRepository.save(account);
-        SavingAccount savingAccount = savingAccountService.save(savedAccount.getId());
 
-        SavingProductAccount savingProductAccount = savingProductAccountService.save(memberId, savingProductId, savingAccount.getId(),
-                savingProduct, createRequest.getMonthlyDeposit(), savedAccount);
+        SavingProductAccount savingProductAccount = savingProductAccountService.save(memberId, savingProduct, createRequest.getMonthlyDeposit(), savedAccount);
 
         log.info("적금 계좌 생성 성공 : {}", toJson(savingProductAccount));
 
@@ -252,4 +235,20 @@ public class AccountService {
                     return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
     }
+
+    public Account findByAccountNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> {
+                    log.error("{}에 해당하는 계좌가 없습니다.", accountNumber);
+                    return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
+    }
+
+    // 입금 계좌 유형에 따라 수신자 정보 가져오는 메서드
+    private Member findMemberByAccountType(Account toAccount) {
+        return toAccount.getAccountType() == AccountType.checking
+                ? memberService.findCheckByAccountId(toAccount.getId())
+                : memberService.findSaveByAccountId(toAccount.getId());
+    }
+
 }

@@ -4,7 +4,6 @@ import com.project.bankassetor.exception.AccountNotFoundException;
 import com.project.bankassetor.exception.BankException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.primary.model.entity.Account;
-import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
@@ -30,12 +29,10 @@ public class SavingProductAccountService {
     private final SavingProductAccountRepository productAccountRepository;
     private final AccountRepository accountRepository;
 
-    public SavingProductAccount save(Long memberId, Long savingProductId, Long savingAccountId,
-                                     SavingProduct savingProduct, BigDecimal monthlyDeposit, Account account){
+    public SavingProductAccount save(Long memberId, SavingProduct savingProduct, BigDecimal monthlyDeposit, Account account){
 
         SavingProductAccount savingProductAccount = SavingProductAccount.builder()
-                .savingProductId(savingProductId)
-                .savingAccountId(savingAccountId)
+                .savingProductId(savingProduct.getId())
                 .accountId(account.getId())
                 .savingDurationId(savingProduct.getSavingDuration().getId())
                 .memberId(memberId)
@@ -78,7 +75,7 @@ public class SavingProductAccountService {
                     .orElseThrow(() -> new BankException(ErrorCode.ACCOUNT_NOT_FOUND));
 
             // 2. 각 계좌의 상태를 만기(EXPIRED)로 업데이트
-            savingAccount.setAccountStatus(AccountStatus.EXPIRED);
+            savingAccount.setAccountStatus(AccountStatus.expired);
             log.info("계좌번호: {} 만기 처리 완료. 현재 상태: {}", savingAccount.getAccountNumber(), savingAccount.getAccountStatus());
 
             // 3. 업데이트된 계좌 정보를 Map에 저장하여 중복 방지

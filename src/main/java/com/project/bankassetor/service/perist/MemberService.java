@@ -52,8 +52,24 @@ public class MemberService {
         data.setEmail(joinRequest.getEmail());
         data.setPassword(passwordEncoder.encode(joinRequest.getPassword()));
         data.setRole("ROLE_USER");
-        data.setStatus("ACTIVE");
+        data.setStatus("active");
 
         memberRepository.save(data);
+    }
+
+    public Member findCheckByAccountId(long accountId) {
+        
+        return memberRepository.findCheckByAccountId(accountId).orElseThrow(() -> {
+            log.error("입출금 계좌아이디 {}: 를 보유한 사용자를 찾을 수 없습니다.", accountId);
+            throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
+        });
+    }
+
+    public Member findSaveByAccountId(long accountId) {
+
+        return memberRepository.findSaveByAccountId(accountId).orElseThrow(() -> {
+            log.error("적금 계좌아이디 {}: 를 보유한 사용자를 찾을 수 없습니다.", accountId);
+            throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
+        });
     }
 }

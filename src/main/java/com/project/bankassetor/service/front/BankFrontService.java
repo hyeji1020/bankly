@@ -1,7 +1,6 @@
 package com.project.bankassetor.service.front;
 
 import com.project.bankassetor.primary.model.entity.Account;
-import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
@@ -52,7 +51,7 @@ public class BankFrontService {
     // 계좌 이체
     public AccountTransferResponse transfer(Long fromAccountId, AccountRequest accountRequest) {
 
-        final BankAccount transferAccount = accountService.transfer(fromAccountId, accountRequest);
+        final Account transferAccount = accountService.transfer(fromAccountId, accountRequest);
 
         // 응답 DTO 반환
         return AccountTransferResponse.of(transferAccount, accountRequest.getAmount());

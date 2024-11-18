@@ -29,7 +29,6 @@ public class CheckingTransactionHistoryService {
         CheckingTransactionHistory toHistory = CheckingTransactionHistory.builder()
                 .bankAccountId(bankAccount.getId())
                 .memberId(bankAccount.getMemberId())
-                .checkingAccountId(bankAccount.getCheckingAccountId())
                 .accountId(bankAccount.getAccountId())
                 .transactionTime(LocalDateTime.now())
                 .transactionAmount(amount)

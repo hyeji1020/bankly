@@ -1,6 +1,5 @@
 package com.project.bankassetor.fixture;
 
-import com.project.bankassetor.primary.model.entity.account.save.SavingDuration;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
 
 import java.math.BigDecimal;
@@ -14,8 +13,7 @@ public class SavingProductAccountFixture {
         return SavingProductAccount.builder()
                 .accountId(accountId)
                 .savingProductId(savingProductId)
-                .savingAccountId(savingAccountId)
-                .userId(userId)
+                .memberId(userId)
                 .savingDurationId(savingDurationId)
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().minusMonths(3))

@@ -1,5 +1,6 @@
 package com.project.bankassetor.primary.model.entity.account.save;
 
+import com.project.bankassetor.primary.model.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,35 +14,24 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SavingProductAccount {
+public class SavingProductAccount extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
-    @JoinColumn(name = "saving_product_id", nullable = false)
-    private Long savingProductId;
-
-    @JoinColumn(name = "saving_duration_id", nullable = false)
-    private Long savingDurationId;
-
-    @JoinColumn(name = "member_id", nullable = false)
-    private Long memberId;
-
-    @JoinColumn(name = "saving_account_id", nullable = false)
-    private Long savingAccountId;
-
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn
     private Long accountId;
 
-    @Column(name = "monthly_deposit", nullable = false)
+    @JoinColumn
+    private Long memberId;
+
+    @JoinColumn
+    private Long savingProductId;
+
+    @JoinColumn
+    private Long savingDurationId;
+
     private BigDecimal monthlyDeposit;
 
-    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
 }

@@ -1,5 +1,7 @@
 package com.project.bankassetor.primary.model.entity.account.save;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
+import com.project.bankassetor.primary.model.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,16 +11,9 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SavingDuration {
+public class SavingDuration extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
-    @Column(name = "duration_in_months", nullable = false)
     private int durationInMonths;
 
-    @Column(name = "description")
     private String description;
 }

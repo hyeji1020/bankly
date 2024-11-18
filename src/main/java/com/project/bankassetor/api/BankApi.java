@@ -4,12 +4,12 @@ import com.project.bankassetor.config.security.Authed;
 import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.request.AccountCreateRequest;
 import com.project.bankassetor.primary.model.request.AccountRequest;
+import com.project.bankassetor.primary.model.request.InterestCalcRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,18 +50,17 @@ public class BankApi {
     }
     
     // 당좌 계좌 생성
-    @PostMapping("/{memberId}")
-    public ResultResponse<AccountCreateResponse> createCheckingAccount(@PathVariable Long memberId, @Valid @RequestBody AccountCreateRequest createRequest) {
-        AccountCreateResponse response = bankFrontService.createAccount(memberId, createRequest);
+    @PostMapping("/checking-accounts")
+    public ResultResponse<AccountCreateResponse> createCheckingAccount(@Authed Member member, @Valid @RequestBody AccountCreateRequest createRequest) {
+        AccountCreateResponse response = bankFrontService.createAccount(member.getId(), createRequest);
         return new ResultResponse<>(response);
     }
 
-
     // 적금 계좌 생성
-    @PostMapping("/{memberId}/{savingProductId}")
-    public ResultResponse<AccountCreateResponse> createSavingAccount(@PathVariable Long memberId,@PathVariable Long savingProductId,
+    @PostMapping("/saving-products/{savingProductId}/accounts")
+    public ResultResponse<AccountCreateResponse> createSavingAccount(@Authed Member member,@PathVariable Long savingProductId,
                                                                      @Valid @RequestBody SavingAccountCreateRequest createRequest) {
-        AccountCreateResponse response = bankFrontService.createSavingAccount(memberId, savingProductId, createRequest);
+        AccountCreateResponse response = bankFrontService.createSavingAccount(member.getId(), savingProductId, createRequest);
         return new ResultResponse<>(response);
     }
 
@@ -97,4 +96,27 @@ public class BankApi {
         return new ResultResponse<>(response);
     }
 
+    // 적금 상품 목록
+    @GetMapping("/saving-products")
+    public ResultResponse<List<SavingProductResponse>> getSavingProducts() {
+        List<SavingProductResponse> response = bankFrontService.getSavingProducts();
+
+        return new ResultResponse<>(response);
+    }
+
+    // 적금 상품 조회
+    @GetMapping("/saving-products-detail/{savingProductId}")
+    public ResultResponse<SavingProductResponse> getSavingProducts(@PathVariable long savingProductId) {
+        SavingProductResponse response = bankFrontService.getSavingProduct(savingProductId);
+
+        return new ResultResponse<>(response);
+    }
+
+    // 특정 적금 상품에 대한 이자 계산기
+    @PostMapping("/interest/calculate/{savingProductId}")
+    public ResultResponse<InterestCalcResponse> getSavingProducts(@PathVariable long savingProductId, @RequestBody InterestCalcRequest interestCalcRequest) {
+        InterestCalcResponse response = bankFrontService.interestCalculate(savingProductId, interestCalcRequest);
+
+        return new ResultResponse<>(response);
+    }
 }

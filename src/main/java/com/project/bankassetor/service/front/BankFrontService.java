@@ -1,15 +1,17 @@
 package com.project.bankassetor.service.front;
 
 import com.project.bankassetor.primary.model.entity.Account;
-import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
+import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.request.AccountCreateRequest;
 import com.project.bankassetor.primary.model.request.AccountRequest;
+import com.project.bankassetor.primary.model.request.InterestCalcRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.perist.AccountService;
 import com.project.bankassetor.service.perist.CheckingTransactionHistoryService;
+import com.project.bankassetor.service.perist.SavingProductService;
 import com.project.bankassetor.service.perist.SavingTransactionHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class BankFrontService {
     private final AccountService accountService;
     private final CheckingTransactionHistoryService checkingTransactionHistoryService;
     private final SavingTransactionHistoryService savingTransactionHistoryService;
+    private final SavingProductService savingProductService;
 
     // 입금
     public AccountResponse deposit(AccountRequest accountRequest) {
@@ -48,14 +51,10 @@ public class BankFrontService {
     // 계좌 이체
     public AccountTransferResponse transfer(Long fromAccountId, AccountRequest accountRequest) {
 
-        final BankAccount transferAccount = accountService.transfer(fromAccountId, accountRequest);
+        final Account transferAccount = accountService.transfer(fromAccountId, accountRequest);
 
         // 응답 DTO 반환
-        return new AccountTransferResponse(
-                transferAccount.getMemberId(),
-                transferAccount.getCheckingAccountId(),
-                accountRequest.getAmount()
-        );
+        return AccountTransferResponse.of(transferAccount, accountRequest.getAmount());
 
     }
 
@@ -106,5 +105,22 @@ public class BankFrontService {
         final List<SavingTransactionHistory> saveHistories = savingTransactionHistoryService.findSaveTransactionHistoryByAccountId(accountId);
 
         return SavingTransactionHistoryResponse.of(saveHistories);
+    }
+
+    public List<SavingProductResponse> getSavingProducts() {
+        final List<SavingProduct> savingProducts = savingProductService.findAll();
+
+        return SavingProductResponse.of(savingProducts);
+    }
+
+    public SavingProductResponse getSavingProduct(long savingProductId) {
+        final SavingProduct savingProduct = savingProductService.findById(savingProductId);
+
+        return SavingProductResponse.of(savingProduct);
+    }
+
+    public InterestCalcResponse interestCalculate(long savingProductId, InterestCalcRequest interestCalcRequest) {
+        return savingProductService.calculateInterest(savingProductId, interestCalcRequest);
+
     }
 }

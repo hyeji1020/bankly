@@ -16,21 +16,16 @@ import java.math.BigDecimal;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account extends BaseEntity {
 
-    @Column(name = "account_number", nullable = false)
     private String accountNumber;
 
-    @Column(name = "balance", nullable = false)
     private BigDecimal balance;
 
-    @Column(name = "deposit_limit", nullable = false)
     private BigDecimal depositLimit;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_type", nullable = false)
-    private AccountType accountType;
+    private AccountStatus accountStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_status", nullable = false)
-    private AccountStatus accountStatus;
+    private AccountType accountType;
 
 }

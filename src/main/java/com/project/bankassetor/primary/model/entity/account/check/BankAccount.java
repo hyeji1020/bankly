@@ -1,5 +1,6 @@
 package com.project.bankassetor.primary.model.entity.account.check;
 
+import com.project.bankassetor.primary.model.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,20 +10,12 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BankAccount {
+public class BankAccount extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private long id;
-
-    @JoinColumn(name = "checking_account_id", nullable = false)
-    private long checkingAccountId;
-
-    @JoinColumn(name = "member_id", nullable = false)
-    private long memberId;
-
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn
     private Long accountId;
+
+    @JoinColumn
+    private long memberId;
 
 }

@@ -36,9 +36,9 @@ public class Member implements UserDetails, Serializable {
 
     private String password;    // login password
 
-    private String role;
-
     private String status;
+
+    private String role;
 
     private String description;
 
@@ -51,7 +51,6 @@ public class Member implements UserDetails, Serializable {
     @LastModifiedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -38,11 +38,10 @@ public class BankAccountService {
     }
 
     // 계좌 생성시 BankAccount에도 저장
-    public BankAccount save(Long memberId, Long checkingAccountId, Long accountId) {
+    public BankAccount save(Long memberId, Long accountId) {
 
         BankAccount bankAccount = BankAccount.builder()
                 .memberId(memberId)
-                .checkingAccountId(checkingAccountId)
                 .accountId(accountId)
                 .build();
 

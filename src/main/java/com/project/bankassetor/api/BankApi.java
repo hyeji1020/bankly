@@ -4,6 +4,7 @@ import com.project.bankassetor.config.security.Authed;
 import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.request.AccountCreateRequest;
 import com.project.bankassetor.primary.model.request.AccountRequest;
+import com.project.bankassetor.primary.model.request.InterestCalcRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;
@@ -107,6 +108,14 @@ public class BankApi {
     @GetMapping("/saving-products-detail/{savingProductId}")
     public ResultResponse<SavingProductResponse> getSavingProducts(@PathVariable long savingProductId) {
         SavingProductResponse response = bankFrontService.getSavingProduct(savingProductId);
+
+        return new ResultResponse<>(response);
+    }
+
+    // 특정 적금 상품에 대한 이자 계산기
+    @PostMapping("/interest/calculate/{savingProductId}")
+    public ResultResponse<InterestCalcResponse> getSavingProducts(@PathVariable long savingProductId, @RequestBody InterestCalcRequest interestCalcRequest) {
+        InterestCalcResponse response = bankFrontService.interestCalculate(savingProductId, interestCalcRequest);
 
         return new ResultResponse<>(response);
     }

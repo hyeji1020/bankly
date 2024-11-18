@@ -2,17 +2,16 @@ package com.project.bankassetor.controller;
 
 import com.project.bankassetor.config.security.Authed;
 import com.project.bankassetor.primary.model.entity.Member;
-import com.project.bankassetor.primary.model.response.AccountResponse;
-import com.project.bankassetor.primary.model.response.CheckingTransactionHistoryResponse;
-import com.project.bankassetor.primary.model.response.SavingProductResponse;
-import com.project.bankassetor.primary.model.response.SavingTransactionHistoryResponse;
+import com.project.bankassetor.primary.model.request.InterestCalcRequest;
+import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.front.BankFrontService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -76,6 +75,28 @@ public class AccountsPage {
         model.addAttribute("savingProduct", savingProduct);
         model.addAttribute("id", savingProductId);
         return "saving-products-detail";
+    }
+
+    @GetMapping("/interest/calculate/{savingProductId}")
+    public String interestCal(@PathVariable long savingProductId, Model model) {
+
+        SavingProductResponse savingProduct = bankFrontService.getSavingProduct(savingProductId);
+
+        model.addAttribute("savingProduct", savingProduct);
+        model.addAttribute("savingProductId", savingProductId);
+        return "interest-calculate";
+    }
+
+    @PostMapping("/interest/calculate/{savingProductId}")
+    public String calculateProc(@PathVariable long savingProductId,
+                                @ModelAttribute InterestCalcRequest interestCalcRequest, Model model) {
+
+        SavingProductResponse savingProduct = bankFrontService.getSavingProduct(savingProductId);
+        InterestCalcResponse response = bankFrontService.interestCalculate(savingProductId, interestCalcRequest);
+
+        model.addAttribute("savingProduct", savingProduct);
+        model.addAttribute("response", response);
+        return "interest-calculate";
     }
 
 }

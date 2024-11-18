@@ -7,6 +7,7 @@ import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.request.AccountCreateRequest;
 import com.project.bankassetor.primary.model.request.AccountRequest;
+import com.project.bankassetor.primary.model.request.InterestCalcRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.perist.AccountService;
@@ -117,5 +118,10 @@ public class BankFrontService {
         final SavingProduct savingProduct = savingProductService.findById(savingProductId);
 
         return SavingProductResponse.of(savingProduct);
+    }
+
+    public InterestCalcResponse interestCalculate(long savingProductId, InterestCalcRequest interestCalcRequest) {
+        return savingProductService.calculateInterest(savingProductId, interestCalcRequest);
+
     }
 }

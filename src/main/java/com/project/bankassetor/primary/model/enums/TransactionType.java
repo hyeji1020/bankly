@@ -4,14 +4,14 @@ import lombok.Getter;
 
 @Getter
 public enum TransactionType {
-    DEPOSIT("입금"),
-    WITHDRAW("출금"),
-    TRANSFER("계좌이체"),
-    PAYMENT("결제"),
-    INTEREST_CREDIT("이자 지급"),
-    FEE("수수료"),
-    PURCHASE("구매"),
-    CASH_BACK("캐시백");
+    deposit("입금"),
+    withdraw("출금"),
+    transfer("계좌이체"),
+    payment("결제"),
+    interestCredit("이자 지급"),
+    fee("수수료"),
+    purchase("구매"),
+    cashBack("캐시백");
 
     private final String displayName;
 

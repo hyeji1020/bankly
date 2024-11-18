@@ -16,8 +16,8 @@ public interface SavingProductAccountRepository extends JpaRepository<SavingProd
     @Query(value = """
         SELECT spa.*
         FROM saving_product_account spa
-        JOIN saving_account sa ON spa.savingAccountId = sa.id
-        WHERE sa.accountId = :accountId
+        JOIN account a ON spa.savingAccountId = a.id
+        WHERE a.id = :accountId
     """, nativeQuery = true)
     Optional<SavingProductAccount> findByAccountId(@Param("accountId") Long accountId);
 

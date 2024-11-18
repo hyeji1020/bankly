@@ -10,22 +10,15 @@ import java.math.BigDecimal;
 @Getter
 public class SavingAccountCreateRequest {
 
-    @NotNull(message = "적금 기간 선택은 필수 입니다.")
-    Long savingDurationId;
-
     @NotNull(message = "월 납부액 선택은 필수 입니다.")
     BigDecimal monthlyDeposit;
 
     @Min(0)
     BigDecimal initialDeposit;
 
-    BigDecimal depositLimit;
-
     @Builder
-    public SavingAccountCreateRequest(Long savingDurationId, BigDecimal monthlyDeposit, BigDecimal initialDeposit, BigDecimal depositLimit) {
-        this.savingDurationId = savingDurationId;
+    public SavingAccountCreateRequest(BigDecimal monthlyDeposit, BigDecimal initialDeposit) {
         this.monthlyDeposit = monthlyDeposit;
         this.initialDeposit = initialDeposit;
-        this.depositLimit = depositLimit;
     }
 }

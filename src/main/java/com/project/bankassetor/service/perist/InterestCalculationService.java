@@ -8,7 +8,7 @@ import java.math.RoundingMode;
 @Service
 public class InterestCalculationService {
 
-    // 총 원금 계산
+    // 총 원금 계산(개월 수 * 금액)
     public BigDecimal calculateTotalPrincipal(BigDecimal monthlyAmount, int duration) {
         return monthlyAmount.multiply(BigDecimal.valueOf(duration));
     }
@@ -21,13 +21,14 @@ public class InterestCalculationService {
     }
 
     // 이자 소득세 계산 메서드
-    public BigDecimal calculateTaxAmount(BigDecimal totalInterest) {
+    public static BigDecimal calculateTaxAmount(BigDecimal totalInterest) {
         BigDecimal taxRate = new BigDecimal("0.154");
         return totalInterest.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
     }
 
     // 만기 금액 계산
-    public BigDecimal calculateMaturityAmount(BigDecimal totalPrincipal, BigDecimal totalInterest, BigDecimal taxAmount) {
+    public BigDecimal calculateMaturityAmount(BigDecimal totalPrincipal, BigDecimal totalInterest) {
+        BigDecimal taxAmount = calculateTaxAmount(totalInterest);
         return totalPrincipal.add(totalInterest).subtract(taxAmount);
     }
 

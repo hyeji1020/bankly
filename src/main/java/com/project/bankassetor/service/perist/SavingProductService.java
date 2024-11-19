@@ -41,8 +41,8 @@ public class SavingProductService {
 
         BigDecimal totalPrincipal = calculationService.calculateTotalPrincipal(request.getMonthlyAmount(), savingProduct.getSavingDuration().getDurationInMonths());
         BigDecimal totalInterest = calculationService.calculateTotalInterest(totalPrincipal, savingProduct.getInterestRate());
-        BigDecimal taxAmount = calculationService.calculateTaxAmount(totalInterest);
-        BigDecimal maturityAmount = calculationService.calculateMaturityAmount(totalPrincipal, totalInterest, taxAmount);
+        BigDecimal taxAmount = InterestCalculationService.calculateTaxAmount(totalInterest);
+        BigDecimal maturityAmount = calculationService.calculateMaturityAmount(totalPrincipal, totalInterest);
 
         return InterestCalcResponse.of(totalPrincipal, totalInterest, taxAmount, maturityAmount);
     }

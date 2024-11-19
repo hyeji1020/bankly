@@ -25,7 +25,7 @@ public class MemberService {
     public Member findById(Long id){
         return memberRepository.findById(id).orElseThrow(() -> {
             log.error("아이디 {}: 에 해당하는 사용자를 찾을 수 없습니다.", id);
-            throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
+            return new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
         });
     }
 
@@ -61,7 +61,7 @@ public class MemberService {
         
         return memberRepository.findCheckByAccountId(accountId).orElseThrow(() -> {
             log.error("입출금 계좌아이디 {}: 를 보유한 사용자를 찾을 수 없습니다.", accountId);
-            throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
+            return new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
         });
     }
 
@@ -69,7 +69,7 @@ public class MemberService {
 
         return memberRepository.findSaveByAccountId(accountId).orElseThrow(() -> {
             log.error("적금 계좌아이디 {}: 를 보유한 사용자를 찾을 수 없습니다.", accountId);
-            throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
+            return new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
         });
     }
 }

@@ -2,57 +2,98 @@
 <html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout/head :: head(~{::title}, ~{::link})}">
-  <title>회원가입</title>
+    <title>회원가입</title>
+    <link rel="stylesheet" href="/custom/my.css">
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
-  <div class="login-logo">
-    <a href="/assets/index.html"><b>bank</b></a>
-  </div>
-  <!-- /.login-logo -->
-  <div class="card">
-    <div class="card-body login-card-body">
+    <div class="login-logo">
+        <a href="/assets/index.html"><b>bank</b></a>
+    </div>
+    <!-- /.login-logo -->
+    <div class="card">
+        <div class="card-body login-card-body">
 
-      <form action="/joinProc" method="post" name="joinForm">
-        <div class="input-group mb-3">
-          <input type="text" name="name" class="form-control" placeholder="이름을 입력해주세요">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
-            </div>
-          </div>
-        </div>
-        <div class="input-group mb-3">
-          <input type="text" name="email" class="form-control" placeholder="아이디를 입력해주세요">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-envelope"></span>
-            </div>
-          </div>
-        </div>
-        <div class="input-group mb-3">
-          <input type="password" name="password" class="form-control" placeholder="비밀번호를 입력해주세요">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
-            </div>
-          </div>
-        </div>
-          <!-- /.col -->
-          <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">완료</button>
-          </div>
-      </form>
+            <form action="/joinProc" method="post" th:object="${joinRequest}" onsubmit="return validatePassword()">
+                <div class="input-group mb-3">
+                    <input type="text" th:field="*{name}" class="form-control" placeholder="이름을 입력해주세요">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <!--  유효성 검증  -->
+                <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color: red;"></div>
 
-  </div>
-</div>
+                <div class="input-group mb-3">
+                    <input type="text" th:field="*{email}" class="form-control" placeholder="아이디를 입력해주세요">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-envelope"></span>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#fields.hasErrors('email')}" class="error-message">
+                    <small th:errors="*{email}"></small>
+                </div>
 
-<!-- jQuery -->
-<script src="/assets/plugins/jquery/jquery.min.js"></script>
-<!-- Bootstrap 4 -->
-<script src="/assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- AdminLTE App -->
-<script src="/assets/dist/js/adminlte.min.js"></script>
+                <div class="input-group mb-3">
+                    <input type="password" id="password" th:field="*{password}" class="form-control"
+                           placeholder="비밀번호를 입력해주세요">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${#fields.hasErrors('password')}" class="error-message">
+                    <small th:errors="*{password}"></small>
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="password" name="confirmPassword" id="confirmPassword" class="form-control"
+                           placeholder="비밀번호 확인">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <p id="error-message" style="color: red; display: none;">비밀번호가 일치하지 않습니다.</p>
+
+                <div class="col-4">
+                    <button type="submit" class="btn btn-primary btn-block">회원가입</button>
+                </div>
+
+            </form>
+
+
+            <script>
+                function validatePassword() {
+                    const password = document.getElementById("password").value;
+                    const confirmPassword = document.getElementById("confirmPassword").value;
+                    const errorMessage = document.getElementById("error-message");
+
+                    if (password !== confirmPassword) {
+                        errorMessage.style.display = "block";
+                        return false; // 폼 제출 중단
+                    } else {
+                        errorMessage.style.display = "none";
+                        return true; // 폼 제출 진행
+                    }
+                }
+            </script>
+
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="/assets/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="/assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="/assets/dist/js/adminlte.min.js"></script>
 </div>
 </body>
 </html>

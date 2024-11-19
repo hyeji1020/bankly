@@ -83,3 +83,10 @@ p {
 .main-footer a:hover {
     text-decoration: underline;
 }
+
+.error-message {
+    color: red;
+    font-size: 0.875em; /* 작은 글씨 크기 */
+    margin-top: -5px;   /* 입력 필드와 간격 조정 */
+    margin-left: 5px;   /* 왼쪽 여백을 조금 추가하여 정렬 */
+}

@@ -6,8 +6,8 @@ public class SavingDurationFixture {
 
     public static SavingDuration get() {
         return SavingDuration.builder()
-                .description("3개월")
-                .durationInMonths(3)
+                .description("12개월")
+                .durationInMonths(12)
                 .build();
     }
 }

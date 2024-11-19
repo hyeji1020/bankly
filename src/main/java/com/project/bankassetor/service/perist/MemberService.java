@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Slf4j
@@ -21,6 +22,7 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final TelegramNotificationService telegramNotificationService;
 
     public Member findById(Long id){
         return memberRepository.findById(id).orElseThrow(() -> {
@@ -55,6 +57,15 @@ public class MemberService {
         data.setStatus("active");
 
         memberRepository.save(data);
+
+        String message = String.format(
+                "%s님이 회원가입 하였습니다.\n가입 이메일: %s\n가입 시간: %s",
+                data.getName(),
+                data.getEmail(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        );
+
+        telegramNotificationService.sendTelegramMessage(message);
     }
 
     public Member findCheckByAccountId(long accountId) {

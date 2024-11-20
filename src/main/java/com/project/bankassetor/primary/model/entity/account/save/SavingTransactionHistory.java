@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class SavingTransactionHistory extends BaseEntity {
 
     @JoinColumn
-    private Long savingProductAccountId;
+    private Long savingAccountId;
 
     @JoinColumn
     private Long accountId;
@@ -33,10 +33,11 @@ public class SavingTransactionHistory extends BaseEntity {
 
     private BigDecimal balance;    // 거래 후 잔액
 
-    private LocalDateTime transactionTime;  // 거래 시간
-
     private BigDecimal transactionAmount;  // 거래 금액
 
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType; // 거래 유형
+
+    private LocalDateTime transactionTime;  // 거래 시간
+
 }

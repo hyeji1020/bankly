@@ -8,13 +8,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Builder
-@Table(name = "saving_product_account")
+@Table(name = "saving_account")
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SavingProductAccount extends BaseEntity {
+public class SavingAccount extends BaseEntity {
 
     @JoinColumn
     private Long accountId;

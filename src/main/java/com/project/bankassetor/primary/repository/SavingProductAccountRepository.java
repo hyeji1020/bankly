@@ -1,6 +1,6 @@
 package com.project.bankassetor.primary.repository;
 
-import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
+import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,16 +11,16 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface SavingProductAccountRepository extends JpaRepository<SavingProductAccount, Long> {
+public interface SavingProductAccountRepository extends JpaRepository<SavingAccount, Long> {
 
     @Query(value = """
-        SELECT spa.*
-        FROM saving_product_account spa
-        JOIN account a ON spa.accountId = a.id
+        SELECT sa.*
+        FROM saving_account sa
+        JOIN account a ON sa.accountId = a.id
         WHERE a.id = :accountId
     """, nativeQuery = true)
-    Optional<SavingProductAccount> findByAccountId(@Param("accountId") Long accountId);
+    Optional<SavingAccount> findByAccountId(@Param("accountId") Long accountId);
 
-    @Query(value = "SELECT * FROM saving_product_account WHERE endDate <= :now", nativeQuery = true)
-    List<SavingProductAccount> findAllByEndDateBefore(LocalDate now);
+    @Query(value = "SELECT sa.* FROM saving_account sa WHERE sa.endDate = :now", nativeQuery = true)
+    List<SavingAccount> findAllByEndDateBefore(LocalDate now);
 }

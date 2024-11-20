@@ -1,16 +1,16 @@
 package com.project.bankassetor.fixture;
 
-import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
+import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class SavingProductAccountFixture {
+public class SavingAccountFixture {
 
-    public static SavingProductAccount get(Long accountId, Long savingProductId,
-                                           Long memberId,
-                                           Long savingDurationId) {
-        return SavingProductAccount.builder()
+    public static SavingAccount get(Long accountId, Long savingProductId,
+                                    Long memberId,
+                                    Long savingDurationId) {
+        return SavingAccount.builder()
                 .accountId(accountId)
                 .savingProductId(savingProductId)
                 .memberId(memberId)
@@ -21,8 +21,8 @@ public class SavingProductAccountFixture {
                 .build();
     }
 
-    public static SavingProductAccount get() {
-        return SavingProductAccount.builder()
+    public static SavingAccount get() {
+        return SavingAccount.builder()
                 .accountId(1L)
                 .savingProductId(1L)
                 .memberId(1L)

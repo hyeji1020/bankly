@@ -4,8 +4,8 @@ import com.project.bankassetor.exception.AccountNotFoundException;
 import com.project.bankassetor.exception.BankException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.primary.model.entity.Account;
+import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
-import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
 import com.project.bankassetor.primary.repository.AccountRepository;
 import com.project.bankassetor.primary.repository.SavingProductAccountRepository;
@@ -24,16 +24,16 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SavingProductAccountService {
+public class SavingAccountService {
 
     private final SavingProductAccountRepository productAccountRepository;
     private final AccountRepository accountRepository;
     private final InterestCalculationService calculationService;
     private final SavingProductService savingProductService;
 
-    public SavingProductAccount save(Long memberId, SavingProduct savingProduct, BigDecimal monthlyDeposit, Account account){
+    public SavingAccount save(Long memberId, SavingProduct savingProduct, BigDecimal monthlyDeposit, Account account){
 
-        SavingProductAccount savingProductAccount = SavingProductAccount.builder()
+        SavingAccount savingProductAccount = SavingAccount.builder()
                 .savingProductId(savingProduct.getId())
                 .accountId(account.getId())
                 .savingDurationId(savingProduct.getSavingDuration().getId())
@@ -46,7 +46,7 @@ public class SavingProductAccountService {
         return productAccountRepository.save(savingProductAccount);
     }
 
-    public SavingProductAccount findByAccountId(Long accountId) {
+    public SavingAccount findByAccountId(Long accountId) {
 
         return productAccountRepository.findByAccountId(accountId)
                 .orElseThrow(() -> {
@@ -66,11 +66,11 @@ public class SavingProductAccountService {
     public void expireMaturedAccounts() {
 
         // 만기 도래한 계좌 조회
-        List<SavingProductAccount> accounts = productAccountRepository.findAllByEndDateBefore(LocalDate.now());
+        List<SavingAccount> accounts = productAccountRepository.findAllByEndDateBefore(LocalDate.now());
 
         Map<Long, Account> expiredAccountMap = new HashMap<>();
 
-        for (SavingProductAccount savingProductAccount : accounts) {
+        for (SavingAccount savingProductAccount : accounts) {
             Long accountId = savingProductAccount.getAccountId();
 
             Account account = accountRepository.findById(accountId)

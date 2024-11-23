@@ -48,10 +48,12 @@ public class Member implements UserDetails, Serializable {
 
     @CreatedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    @Column(columnDefinition = "DATETIME(0)")
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    @Column(columnDefinition = "DATETIME(0)")
     private LocalDateTime updatedAt;
 
     @Override

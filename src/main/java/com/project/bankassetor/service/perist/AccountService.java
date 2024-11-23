@@ -80,8 +80,8 @@ public class AccountService {
 
             // 거래 내역 저장
             if (account.getAccountType() == AccountType.checking) {
-                CheckingAccount bankAccount = checkingAccountService.findByAccountId(account.getId());
-                checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.deposit.toString());
+                CheckingAccount checkingAccount = checkingAccountService.findByAccountId(account.getId());
+                checkingHistoryService.save(checkingAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.deposit.toString());
             } else if (account.getAccountType() == AccountType.saving) {
                 SavingAccount savingProductAccount = savingAccountService.findByAccountId(account.getId());
                 savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.deposit.toString());

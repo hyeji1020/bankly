@@ -8,7 +8,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Table(name = "saving_transaction_history")
+@Table(name = "saving_tx_history")
 @Entity
 @Getter
 @Builder
@@ -33,11 +33,11 @@ public class SavingTransactionHistory extends BaseEntity {
 
     private BigDecimal balance;    // 거래 후 잔액
 
-    private BigDecimal transactionAmount;  // 거래 금액
+    private BigDecimal txAmount;  // 거래 금액
 
     @Enumerated(EnumType.STRING)
-    private TransactionType transactionType; // 거래 유형
+    private TransactionType txType; // 거래 유형
 
-    private LocalDateTime transactionTime;  // 거래 시간
+    private LocalDateTime txTime;  // 거래 시간
 
 }

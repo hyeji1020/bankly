@@ -30,10 +30,10 @@ public class SavingTransactionHistoryService {
                 .memberId(savingAccount.getMemberId())
                 .accountId(account.getId())
                 .savingDurationId(savingAccount.getSavingDurationId())
-                .transactionTime(LocalDateTime.now())
-                .transactionAmount(amount)
+                .txTime(LocalDateTime.now())
+                .txAmount(amount)
                 .balance(account.getBalance())
-                .transactionType(TransactionType.valueOf(transactionType))
+                .txType(TransactionType.valueOf(transactionType))
                 .build();
 
         log.info("거래내역 정보:{}", toJson(toHistory));

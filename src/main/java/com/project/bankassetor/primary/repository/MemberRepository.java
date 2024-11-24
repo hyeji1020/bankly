@@ -15,9 +15,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsMemberByEmail(String email);
 
-    @Query(value = "SELECT m.* FROM member m JOIN bank_account ba ON m.id = ba.memberId WHERE ba.accountId = :accountId ", nativeQuery = true)
+    @Query(value = "SELECT m.* FROM member m JOIN checking_account ca ON m.id = ca.memberId WHERE ca.accountId = :accountId ", nativeQuery = true)
     Optional<Member> findCheckByAccountId(@Param("accountId") long accountId);
 
-    @Query(value = "SELECT m.* FROM member m JOIN saving_product_account pa ON m.id = pa.memberId WHERE pa.accountId = :accountId ", nativeQuery = true)
+    @Query(value = "SELECT m.* FROM member m JOIN saving_account sa ON m.id = sa.memberId WHERE sa.accountId = :accountId ", nativeQuery = true)
     Optional<Member> findSaveByAccountId(@Param("accountId") long accountId);
 }

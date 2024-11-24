@@ -67,6 +67,13 @@ public class AccessLogFilter implements Filter {
             return;
         }
 
+        // HTTP 요청의 URI를 확인하여 특정 경로로 시작하는 요청을 필터링
+        final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        if(httpServletRequest.getRequestURI().startsWith("/assets") || httpServletRequest.getRequestURI().startsWith("/custom") || httpServletRequest.getRequestURI().startsWith("/images")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         // 3. HttpServletRequest와 HttpServletResponse를 감싸는 Wrapper로 변환하여 로그 데이터를 수집한다.
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper((HttpServletRequest) request);
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper((HttpServletResponse) response);
@@ -120,7 +127,7 @@ public class AccessLogFilter implements Filter {
 
     /**
      * 요청 데이터를 설정하는 메서드.
-     *
+     * <p>
      * ContentCachingRequestWrapper를 사용하여 요청 본문 또는 쿼리 스트링을 읽고,
      * AccessLog 객체의 `request` 필드에 JSON 형식으로 저장합니다.
      *
@@ -159,9 +166,21 @@ public class AccessLogFilter implements Filter {
             // 바이트 배열을 문자열로 변환
             String responseBody = new String(content, StandardCharsets.UTF_8);
 
-            // 응답 본문 설정
-            accessLog.setResponse(responseBody);
+            // 응답 본문 설정, 5000 자까지만 들어가도록 자르기.
+            accessLog.setResponse(truncateString(responseBody, 5000));
         }
+    }
+
+    /**
+     * 주어진 문자열을 지정된 최대 길이로 잘라 반환하는 메서드입니다.
+     *
+     * @param input     자를 대상이 되는 입력 문자열 (null 가능)
+     * @param maxLength 반환할 문자열의 최대 길이
+     * @return 입력 문자열이 maxLength를 초과할 경우 잘린 문자열, 최대 길이 이내일 경우 원래 문자열,
+     */
+    public String truncateString(String input, int maxLength) {
+        if (input == null) return null;
+        return input.length() <= maxLength ? input : input.substring(0, maxLength);
     }
 
     /**

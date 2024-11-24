@@ -39,12 +39,19 @@ public class SavingProductService {
     public InterestCalcResponse calculateInterest(long savingProductId, InterestCalcRequest request) {
         SavingProduct savingProduct = findById(savingProductId);
 
-        BigDecimal totalPrincipal = calculationService.calculateTotalPrincipal(request.getMonthlyAmount(), savingProduct.getSavingDuration().getDurationInMonths());
+        BigDecimal totalPrincipal = calculationService.calculateTotalPrincipal(request.getMonthlyAmount(), savingProduct.getDurationInMonths());
         BigDecimal totalInterest = calculationService.calculateTotalInterest(totalPrincipal, savingProduct.getInterestRate());
-        BigDecimal taxAmount = calculationService.calculateTaxAmount(totalInterest);
-        BigDecimal maturityAmount = calculationService.calculateMaturityAmount(totalPrincipal, totalInterest, taxAmount);
+        BigDecimal taxAmount = InterestCalculationService.calculateTaxAmount(totalInterest);
+        BigDecimal maturityAmount = calculationService.calculateMaturityAmount(totalPrincipal, totalInterest);
 
         return InterestCalcResponse.of(totalPrincipal, totalInterest, taxAmount, maturityAmount);
     }
 
+    public void saveAll(List<SavingProduct> savingProducts) {
+        savingProductRepository.saveAll(savingProducts);
+    }
+
+    public long count() {
+        return savingProductRepository.count();
+    }
 }

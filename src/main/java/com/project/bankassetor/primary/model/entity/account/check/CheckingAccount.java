@@ -5,12 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Builder
-@Table(name = "bank_account")
+@Table(name = "checking_account")
 @Entity
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BankAccount extends BaseEntity {
+public class CheckingAccount extends BaseEntity {
 
     @JoinColumn
     private Long accountId;

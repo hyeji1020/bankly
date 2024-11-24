@@ -6,9 +6,9 @@ import com.project.bankassetor.exception.BankException;
 import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.primary.model.entity.Account;
 import com.project.bankassetor.primary.model.entity.Member;
-import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
+import com.project.bankassetor.primary.model.entity.account.check.CheckingAccount;
+import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
-import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
 import com.project.bankassetor.primary.model.enums.AccountType;
 import com.project.bankassetor.primary.model.enums.TransactionType;
@@ -33,12 +33,12 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
 
-    private final BankAccountService bankAccountService;
+    private final CheckingAccountService checkingAccountService;
     private final MemberService memberService;
 
     private final CheckingTransactionHistoryService checkingHistoryService;
     private final SavingProductService savingProductService;
-    private final SavingProductAccountService savingProductAccountService;
+    private final SavingAccountService savingAccountService;
     private final SavingTransactionHistoryService savingHistoryService;
 
     // 계좌 조회
@@ -80,10 +80,10 @@ public class AccountService {
 
             // 거래 내역 저장
             if (account.getAccountType() == AccountType.checking) {
-                BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
-                checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.deposit.toString());
+                CheckingAccount checkingAccount = checkingAccountService.findByAccountId(account.getId());
+                checkingHistoryService.save(checkingAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.deposit.toString());
             } else if (account.getAccountType() == AccountType.saving) {
-                SavingProductAccount savingProductAccount = savingProductAccountService.findByAccountId(account.getId());
+                SavingAccount savingProductAccount = savingAccountService.findByAccountId(account.getId());
                 savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.deposit.toString());
             }
         }
@@ -112,10 +112,10 @@ public class AccountService {
 
             // 거래 내역 저장
             if (account.getAccountType() == AccountType.checking) {
-                BankAccount bankAccount = bankAccountService.findByAccountId(account.getId());
+                CheckingAccount bankAccount = checkingAccountService.findByAccountId(account.getId());
                 checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.withdraw.toString());
             } else if (account.getAccountType() == AccountType.saving) {
-                SavingProductAccount savingProductAccount = savingProductAccountService.findByAccountId(account.getId());
+                SavingAccount savingProductAccount = savingAccountService.findByAccountId(account.getId());
                 savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.withdraw.toString());
             }
 
@@ -184,9 +184,9 @@ public class AccountService {
 
         Account savedAccount = accountRepository.save(account);
 
-        BankAccount bankaccount = bankAccountService.save(memberId, savedAccount.getId());
+        CheckingAccount checkingAccount = checkingAccountService.save(memberId, savedAccount.getId());
 
-        log.info("입출금 계좌 생성 성공 : {}", toJson(bankaccount));
+        log.info("입출금 계좌 생성 성공 : {}", toJson(checkingAccount));
 
         return savedAccount;
     }
@@ -213,7 +213,7 @@ public class AccountService {
 
         Account savedAccount = accountRepository.save(account);
 
-        SavingProductAccount savingProductAccount = savingProductAccountService.save(memberId, savingProduct, createRequest.getMonthlyDeposit(), savedAccount);
+        SavingAccount savingProductAccount = savingAccountService.save(memberId, savingProduct, createRequest.getMonthlyDeposit(), savedAccount);
 
         log.info("적금 계좌 생성 성공 : {}", toJson(savingProductAccount));
 
@@ -251,4 +251,11 @@ public class AccountService {
                 : memberService.findSaveByAccountId(toAccount.getId());
     }
 
+    public void saveAll(List<Account> accounts) {
+        accountRepository.saveAll(accounts);
+    }
+
+    public long count() {
+        return accountRepository.count();
+    }
 }

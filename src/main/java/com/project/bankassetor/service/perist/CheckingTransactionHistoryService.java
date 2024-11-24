@@ -1,7 +1,8 @@
 package com.project.bankassetor.service.perist;
 
-import com.project.bankassetor.primary.model.entity.account.check.BankAccount;
+import com.project.bankassetor.primary.model.entity.account.check.CheckingAccount;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
+import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.enums.TransactionType;
 import com.project.bankassetor.primary.repository.CheckingTransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,20 +21,18 @@ import static com.project.bankassetor.utils.Utils.toJson;
 public class CheckingTransactionHistoryService {
 
     private final CheckingTransactionHistoryRepository historyRepository;
-    private final BankAccountService bankAccountService;
-    private final CheckingTransactionHistoryRepository checkingTransactionHistoryRepository;
 
     // 거래 내역 저장
-    public CheckingTransactionHistory save(BankAccount bankAccount, BigDecimal amount, BigDecimal balance, String transactionType) {
+    public CheckingTransactionHistory save(CheckingAccount checkingAccount, BigDecimal amount, BigDecimal balance, String transactionType) {
 
         CheckingTransactionHistory toHistory = CheckingTransactionHistory.builder()
-                .bankAccountId(bankAccount.getId())
-                .memberId(bankAccount.getMemberId())
-                .accountId(bankAccount.getAccountId())
-                .transactionTime(LocalDateTime.now())
-                .transactionAmount(amount)
+                .checkingAccountId(checkingAccount.getId())
+                .memberId(checkingAccount.getMemberId())
+                .accountId(checkingAccount.getAccountId())
+                .txTime(LocalDateTime.now())
+                .txAmount(amount)
                 .balance(balance)
-                .transactionType(TransactionType.valueOf(transactionType))
+                .txType(TransactionType.valueOf(transactionType))
                 .build();
 
         log.info("거래내역 정보:{}", toJson(toHistory));
@@ -44,12 +43,10 @@ public class CheckingTransactionHistoryService {
     // 거래 내역 확인
     public List<CheckingTransactionHistory> findBalanceHistory(Long accountId) {
 
-        List<CheckingTransactionHistory> findHistory = historyRepository.findHistoriesByAccountId(accountId);
-
-        return findHistory;
+        return historyRepository.findHistoriesByAccountId(accountId);
     }
 
     public List<CheckingTransactionHistory> findCheckTransactionHistoryByAccountId(long accountId) {
-        return checkingTransactionHistoryRepository.findByAccountId(accountId);
+        return historyRepository.findByAccountId(accountId);
     }
 }

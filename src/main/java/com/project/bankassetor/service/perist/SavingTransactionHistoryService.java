@@ -1,7 +1,7 @@
 package com.project.bankassetor.service.perist;
 
 import com.project.bankassetor.primary.model.entity.Account;
-import com.project.bankassetor.primary.model.entity.account.save.SavingProductAccount;
+import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.enums.TransactionType;
 import com.project.bankassetor.primary.repository.SavingTransactionHistoryRepository;
@@ -21,20 +21,18 @@ import static com.project.bankassetor.utils.Utils.toJson;
 public class SavingTransactionHistoryService {
 
     private final SavingTransactionHistoryRepository historyRepository;
-    private final SavingProductAccountService savingProductAccountService;
 
-    public SavingTransactionHistory save(SavingProductAccount savingProductAccount, BigDecimal amount, Account account, String transactionType) {
+    public SavingTransactionHistory save(SavingAccount savingAccount, BigDecimal amount, Account account, String transactionType) {
 
         SavingTransactionHistory toHistory = SavingTransactionHistory.builder()
-                .savingProductAccountId(savingProductAccount.getId())
-                .savingProductId(savingProductAccount.getSavingProductId())
-                .memberId(savingProductAccount.getMemberId())
+                .savingAccountId(savingAccount.getId())
+                .savingProductId(savingAccount.getSavingProductId())
+                .memberId(savingAccount.getMemberId())
                 .accountId(account.getId())
-                .savingDurationId(savingProductAccount.getSavingDurationId())
-                .transactionTime(LocalDateTime.now())
-                .transactionAmount(amount)
+                .txTime(LocalDateTime.now())
+                .txAmount(amount)
                 .balance(account.getBalance())
-                .transactionType(TransactionType.valueOf(transactionType))
+                .txType(TransactionType.valueOf(transactionType))
                 .build();
 
         log.info("거래내역 정보:{}", toJson(toHistory));

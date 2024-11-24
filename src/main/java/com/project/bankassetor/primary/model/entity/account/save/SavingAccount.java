@@ -8,13 +8,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Builder
-@Table(name = "saving_product_account")
+@Table(name = "saving_account")
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SavingProductAccount extends BaseEntity {
+public class SavingAccount extends BaseEntity {
 
     @JoinColumn
     private Long accountId;
@@ -25,10 +25,11 @@ public class SavingProductAccount extends BaseEntity {
     @JoinColumn
     private Long savingProductId;
 
-    @JoinColumn
-    private Long savingDurationId;
-
     private BigDecimal monthlyDeposit;
+
+    private int currentDepositCount; // 현재 입금된 회차
+
+    private int totalDepositCount;   // 총 입금해야 할 회차
 
     private LocalDate startDate;
 

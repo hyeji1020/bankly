@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -21,11 +23,12 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final TelegramNotificationService telegramNotificationService;
 
     public Member findById(Long id){
         return memberRepository.findById(id).orElseThrow(() -> {
             log.error("아이디 {}: 에 해당하는 사용자를 찾을 수 없습니다.", id);
-            throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
+            return new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
         });
     }
 
@@ -55,13 +58,22 @@ public class MemberService {
         data.setStatus("active");
 
         memberRepository.save(data);
+
+        String message = String.format(
+                "%s님이 회원가입 하였습니다.\n가입 이메일: %s\n가입 시간: %s",
+                data.getName(),
+                data.getEmail(),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        );
+
+        telegramNotificationService.sendTelegramMessage(message);
     }
 
     public Member findCheckByAccountId(long accountId) {
         
         return memberRepository.findCheckByAccountId(accountId).orElseThrow(() -> {
             log.error("입출금 계좌아이디 {}: 를 보유한 사용자를 찾을 수 없습니다.", accountId);
-            throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
+            return new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
         });
     }
 
@@ -69,7 +81,15 @@ public class MemberService {
 
         return memberRepository.findSaveByAccountId(accountId).orElseThrow(() -> {
             log.error("적금 계좌아이디 {}: 를 보유한 사용자를 찾을 수 없습니다.", accountId);
-            throw new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
+            return new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
         });
+    }
+
+    public void saveAll(List<Member> members) {
+        memberRepository.saveAll(members);
+    }
+
+    public long count() {
+        return memberRepository.count();
     }
 }

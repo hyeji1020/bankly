@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @Getter
 public class SavingTransactionHistoryResponse {
 
+    private long accountId;
     private String transactionTime;  // 거래 시간
     private String transactionAmount;  // 거래 금액
     private String balanceAfter;  // 거래 후 잔액
@@ -35,10 +36,11 @@ public class SavingTransactionHistoryResponse {
     public static List<SavingTransactionHistoryResponse> of(List<SavingTransactionHistory> transactionHistories) {
         return transactionHistories.stream()
                 .map(savingTransactionHistory -> SavingTransactionHistoryResponse.builder()
-                        .transactionTime(formatter(savingTransactionHistory.getTransactionTime()))
-                        .transactionAmount(formatAmount(savingTransactionHistory.getTransactionAmount()))
+                        .accountId(savingTransactionHistory.getAccountId())
+                        .transactionTime(formatter(savingTransactionHistory.getTxTime()))
+                        .transactionAmount(formatAmount(savingTransactionHistory.getTxAmount()))
                         .balanceAfter(formatAmount(savingTransactionHistory.getBalance()))
-                        .type(savingTransactionHistory.getTransactionType().getDisplayName())
+                        .type(savingTransactionHistory.getTxType().getDisplayName())
                         .build())
                 .collect(Collectors.toList());
     }

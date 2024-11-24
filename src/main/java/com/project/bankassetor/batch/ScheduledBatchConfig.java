@@ -1,6 +1,6 @@
 package com.project.bankassetor.batch;
 
-import com.project.bankassetor.service.perist.SavingProductAccountService;
+import com.project.bankassetor.service.perist.SavingAccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -11,9 +11,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 @EnableScheduling
 public class ScheduledBatchConfig {
 
-    private final SavingProductAccountService productAccountService;
+    private final SavingAccountService productAccountService;
 
-    public ScheduledBatchConfig(SavingProductAccountService productAccountService) {
+    public ScheduledBatchConfig(SavingAccountService productAccountService) {
         this.productAccountService = productAccountService;
     }
 

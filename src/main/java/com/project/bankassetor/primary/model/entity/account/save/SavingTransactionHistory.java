@@ -1,7 +1,6 @@
 package com.project.bankassetor.primary.model.entity.account.save;
 
 import com.project.bankassetor.primary.model.entity.BaseEntity;
-import com.project.bankassetor.primary.model.enums.DepositStatus;
 import com.project.bankassetor.primary.model.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,9 +36,6 @@ public class SavingTransactionHistory extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private TransactionType txType; // 거래 유형
-
-    @Enumerated(EnumType.STRING)
-    private DepositStatus status; // 입금 상태 (정상, 미납 등)
 
     private LocalDateTime txTime;  // 거래 시간
 

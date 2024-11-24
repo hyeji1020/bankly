@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -40,5 +42,13 @@ public class CheckingAccountService {
                 .build();
 
         return checkingAccountRepository.save(checkingAccount);
+    }
+
+    public void saveAll(List<CheckingAccount> chAccounts) {
+        checkingAccountRepository.saveAll(chAccounts);
+    }
+
+    public long count() {
+        return checkingAccountRepository.count();
     }
 }

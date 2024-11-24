@@ -251,4 +251,11 @@ public class AccountService {
                 : memberService.findSaveByAccountId(toAccount.getId());
     }
 
+    public void saveAll(List<Account> accounts) {
+        accountRepository.saveAll(accounts);
+    }
+
+    public long count() {
+        return accountRepository.count();
+    }
 }

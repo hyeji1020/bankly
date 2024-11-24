@@ -29,7 +29,6 @@ public class SavingTransactionHistoryService {
                 .savingProductId(savingAccount.getSavingProductId())
                 .memberId(savingAccount.getMemberId())
                 .accountId(account.getId())
-                .savingDurationId(savingAccount.getSavingDurationId())
                 .txTime(LocalDateTime.now())
                 .txAmount(amount)
                 .balance(account.getBalance())

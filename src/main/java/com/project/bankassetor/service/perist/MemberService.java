@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -82,5 +83,13 @@ public class MemberService {
             log.error("적금 계좌아이디 {}: 를 보유한 사용자를 찾을 수 없습니다.", accountId);
             return new UserNotFoundException(ErrorCode.USER_NOT_FOUND);
         });
+    }
+
+    public void saveAll(List<Member> members) {
+        memberRepository.saveAll(members);
+    }
+
+    public long count() {
+        return memberRepository.count();
     }
 }

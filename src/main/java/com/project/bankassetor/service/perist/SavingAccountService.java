@@ -8,7 +8,7 @@ import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
 import com.project.bankassetor.primary.repository.AccountRepository;
-import com.project.bankassetor.primary.repository.SavingProductAccountRepository;
+import com.project.bankassetor.primary.repository.SavingAccountRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SavingAccountService {
 
-    private final SavingProductAccountRepository productAccountRepository;
+    private final SavingAccountRepository savingAccountRepository;
     private final AccountRepository accountRepository;
     private final InterestCalculationService calculationService;
     private final SavingProductService savingProductService;
@@ -36,19 +36,18 @@ public class SavingAccountService {
         SavingAccount savingProductAccount = SavingAccount.builder()
                 .savingProductId(savingProduct.getId())
                 .accountId(account.getId())
-                .savingDurationId(savingProduct.getSavingDuration().getId())
                 .memberId(memberId)
                 .monthlyDeposit(monthlyDeposit)
                 .startDate(LocalDate.now())
-                .endDate(LocalDate.now().plusMonths(savingProduct.getSavingDuration().getDurationInMonths()))
+                .endDate(LocalDate.now().plusMonths(savingProduct.getDurationInMonths()))
                 .build();
 
-        return productAccountRepository.save(savingProductAccount);
+        return savingAccountRepository.save(savingProductAccount);
     }
 
     public SavingAccount findByAccountId(Long accountId) {
 
-        return productAccountRepository.findByAccountId(accountId)
+        return savingAccountRepository.findByAccountId(accountId)
                 .orElseThrow(() -> {
                     log.warn("{}: 아이디에 해당하는 적금 계좌를 찾을 수 없습니다.", accountId);
                     return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
@@ -66,7 +65,7 @@ public class SavingAccountService {
     public void expireMaturedAccounts() {
 
         // 만기 도래한 계좌 조회
-        List<SavingAccount> accounts = productAccountRepository.findAllByEndDateBefore(LocalDate.now());
+        List<SavingAccount> accounts = savingAccountRepository.findAllByEndDateBefore(LocalDate.now());
 
         Map<Long, Account> expiredAccountMap = new HashMap<>();
 
@@ -109,4 +108,11 @@ public class SavingAccountService {
 
     }
 
+    public void saveAll(List<SavingAccount> savingAccounts) {
+        savingAccountRepository.saveAll(savingAccounts);
+    }
+
+    public long count() {
+        return savingAccountRepository.count();
+    }
 }

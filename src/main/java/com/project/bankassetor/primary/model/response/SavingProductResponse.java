@@ -39,7 +39,7 @@ public class SavingProductResponse {
                         .name(savingProduct.getName())
                         .savingLimit(formatLimit(savingProduct.getSavingLimit()))
                         .interestRate(formatRate(savingProduct.getInterestRate()))
-                        .durationInMonths(savingProduct.getSavingDuration().getDurationInMonths())
+                        .durationInMonths(savingProduct.getDurationInMonths())
                         .description(savingProduct.getDescription())
                         .build())
                 .collect(Collectors.toList());
@@ -51,7 +51,7 @@ public class SavingProductResponse {
                         .name(savingProduct.getName())
                         .savingLimit(formatLimit(savingProduct.getSavingLimit()))
                         .interestRate(formatRate(savingProduct.getInterestRate()))
-                        .durationInMonths(savingProduct.getSavingDuration().getDurationInMonths())
+                        .durationInMonths(savingProduct.getDurationInMonths())
                         .description(savingProduct.getDescription())
                         .build();
     }

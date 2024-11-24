@@ -14,10 +14,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SavingProduct extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "savingDurationId", nullable = false)
-    private SavingDuration savingDuration;
-
     private String name;
 
     private BigDecimal savingLimit;
@@ -25,5 +21,7 @@ public class SavingProduct extends BaseEntity {
     private BigDecimal interestRate;
 
     private String description;
+
+    private int durationInMonths;
 
 }

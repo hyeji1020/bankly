@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface SavingProductAccountRepository extends JpaRepository<SavingAccount, Long> {
+public interface SavingAccountRepository extends JpaRepository<SavingAccount, Long> {
 
     @Query(value = """
         SELECT sa.*

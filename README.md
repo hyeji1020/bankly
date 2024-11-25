@@ -44,7 +44,7 @@
 
 
 ## 4. ERD
-https://www.erdcloud.com/d/NZ8yudZcqc7kb6fsR
+![image](https://github.com/user-attachments/assets/b1e316fa-1734-4467-8f03-7875cf1c41d4)
 
 ## 5. 디렉터리 구조
 추후에 추가 예정입니다.

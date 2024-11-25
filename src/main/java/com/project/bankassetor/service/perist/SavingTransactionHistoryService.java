@@ -43,4 +43,26 @@ public class SavingTransactionHistoryService {
     public List<SavingTransactionHistory> findSaveTransactionHistoryByAccountId(long accountId) {
         return historyRepository.findByAccountId(accountId);
     }
+
+    public void save(SavingTransactionHistory history) {
+        historyRepository.save(history);
+    }
+
+    public void savePenalty(long accountId, SavingAccount savingAccount, BigDecimal finalPayment) {
+        // 거래 내역 생성 및 저장
+        SavingTransactionHistory history = SavingTransactionHistory.builder()
+                .accountId(accountId)
+                .savingAccountId(savingAccount.getId())
+                .memberId(savingAccount.getMemberId())
+                .savingProductId(savingAccount.getSavingProductId())
+                .balance(finalPayment)
+                .txType(TransactionType.termination)
+                .txAmount(finalPayment)
+                .txTime(LocalDateTime.now())
+                .build();
+
+        log.info("거래내역 정보:{}", toJson(history));
+
+        historyRepository.save(history);
+    }
 }

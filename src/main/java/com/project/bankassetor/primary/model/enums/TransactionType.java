@@ -11,7 +11,8 @@ public enum TransactionType {
     interestCredit("이자 지급"),
     fee("수수료"),
     purchase("구매"),
-    cashBack("캐시백");
+    cashBack("캐시백"),
+    termination("중도해지");
 
     private final String displayName;
 

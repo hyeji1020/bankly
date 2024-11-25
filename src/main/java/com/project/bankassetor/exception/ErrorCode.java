@@ -13,9 +13,11 @@ public enum ErrorCode {
     BAD_REQUEST("BANK_ERR_003", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
     SAVING_ACCOUNT_NOT_FOUND("BANK_ERR_004", "해당 적금 상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND ),
     DEPOSIT_LIMIT_EXCEEDED("BANK_ERR_005", "입금 한도를 초과했습니다.", HttpStatus.BAD_REQUEST),
+    USER_NOT_FOUND("BANK_ERR_006", "해당 사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ACCOUNT_ALREADY_TERMINATE("BANK_ERR_007", "해당 계좌가 이미 해지되었습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_ACCOUNT_OWNER("BANK_ERR_008", "해당 계좌의 소유자가 아닙니다.", HttpStatus.BAD_REQUEST),
 
     GENERAL_ERROR("BANK_ERR_999", "서버 내부 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    USER_NOT_FOUND("BANK_ERR_005", "해당 사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     ACCESS_LOG_ERROR("ACCESS_LOG_ERR_001", "엑세스 로그 처리 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ACCESS_LOG_BATCH_SAVE_ERROR("ACCESS_LOG_ERR_002", "엑세스 로그 배치 저장 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),

@@ -24,4 +24,6 @@ public class SavingProduct extends BaseEntity {
 
     private int durationInMonths;
 
+    private BigDecimal penaltyRate; // 중도 해지 패널티율
+
 }

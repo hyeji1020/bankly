@@ -7,6 +7,7 @@ import com.project.bankassetor.primary.model.entity.Account;
 import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
+import com.project.bankassetor.primary.model.response.TerminateResponse;
 import com.project.bankassetor.primary.repository.AccountRepository;
 import com.project.bankassetor.primary.repository.SavingAccountRepository;
 import jakarta.transaction.Transactional;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ public class SavingAccountService {
     private final AccountRepository accountRepository;
     private final InterestCalculationService calculationService;
     private final SavingProductService savingProductService;
+    private final SavingTransactionHistoryService historyService;
 
     public SavingAccount save(Long memberId, SavingProduct savingProduct, BigDecimal monthlyDeposit, Account account){
 
@@ -114,5 +117,61 @@ public class SavingAccountService {
 
     public long count() {
         return savingAccountRepository.count();
+    }
+
+    @Transactional
+    public TerminateResponse terminateSavingAccount(long accountId, long memberId) {
+
+        SavingAccount savingAccount = findByAccountId(accountId);
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> {
+                    log.error("적금 상품 중도 해지 중 : {}에 해당하는 계좌를 찾을 수 없습니다.", accountId);
+                    return new BankException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
+
+        if (account.getAccountStatus() == AccountStatus.close) {
+            throw new BankException(ErrorCode.ACCOUNT_ALREADY_TERMINATE);
+        }
+
+        if (!savingAccount.getMemberId().equals(memberId)) {
+            log.error("적금 상품 중도 해지 중 : 계좌 소유자가 아닙니다. 요청자: {}, 계좌 소유자: {}", memberId, savingAccount.getMemberId());
+            throw new BankException(ErrorCode.INVALID_ACCOUNT_OWNER);
+        }
+
+        SavingProduct savingProduct = savingProductService.findById(savingAccount.getSavingProductId());
+
+        // 총 납입금액 계산
+        BigDecimal totalDeposits =
+                savingAccount.getMonthlyDeposit()
+                        .multiply(BigDecimal.valueOf(savingAccount.getCurrentDepositCount()));
+
+        // 이자 계산 (약정 이율 사용)
+        BigDecimal interest = totalDeposits
+                .multiply(savingProduct.getInterestRate().divide(BigDecimal.valueOf(100)))
+                .multiply(BigDecimal.valueOf(savingAccount.getCurrentDepositCount()).divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP));
+
+        // 패널티 금액 계산
+        BigDecimal penaltyAmount = totalDeposits.multiply(savingProduct.getPenaltyRate().divide(BigDecimal.valueOf(100)));
+
+        // 최종 지급 금액 계산
+        BigDecimal finalPayment = totalDeposits.add(interest).subtract(penaltyAmount);
+
+        log.info("적금 상품 중도 해지 계산: 총 납입금액: {}, 이자:{}, 패널티 금액: {}, 최종 지급 금액: {}",
+                totalDeposits, interest, penaltyAmount, finalPayment);
+
+        account.setAccountStatus(AccountStatus.close);
+        account.setBalance(finalPayment);
+        accountRepository.save(account);
+        log.info("계좌번호: {} 의 계좌 상태가 'close'로 변경되었습니다.", account.getAccountNumber());
+
+        historyService.savePenalty(accountId, savingAccount, finalPayment);
+
+        return new TerminateResponse(
+                finalPayment,
+                penaltyAmount,
+                interest,
+                AccountStatus.close
+        );
     }
 }

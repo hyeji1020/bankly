@@ -106,7 +106,7 @@ public class BankApi {
 
     // 적금 상품 조회
     @GetMapping("/saving-products-detail/{savingProductId}")
-    public ResultResponse<SavingProductResponse> getSavingProducts(@PathVariable long savingProductId) {
+    public ResultResponse<SavingProductResponse> getSavingProduct(@PathVariable long savingProductId) {
         SavingProductResponse response = bankFrontService.getSavingProduct(savingProductId);
 
         return new ResultResponse<>(response);
@@ -116,6 +116,14 @@ public class BankApi {
     @PostMapping("/interest/calculate/{savingProductId}")
     public ResultResponse<InterestCalcResponse> getSavingProducts(@PathVariable long savingProductId, @RequestBody InterestCalcRequest interestCalcRequest) {
         InterestCalcResponse response = bankFrontService.interestCalculate(savingProductId, interestCalcRequest);
+
+        return new ResultResponse<>(response);
+    }
+
+    // 적금 중도 해지 시 패널티
+    @PostMapping("/my-saving-accounts/{accountId}/terminate")
+    public ResultResponse<TerminateResponse> terminateSavingAccount(@PathVariable long accountId, @Authed Member member) {
+        TerminateResponse response = bankFrontService.terminateSavingAccount(accountId, member.getId());
 
         return new ResultResponse<>(response);
     }

@@ -24,7 +24,7 @@ public class AccountCreateResponse {
 
     public static AccountCreateResponse of(Account account){
         return AccountCreateResponse.builder()
-                .accountType(account.getAccountType().toString())
+                .accountType(account.getType().toString())
                 .accountNumber(account.getAccountNumber())
                 .balance(formatBalance(account.getBalance()))
                 .build();

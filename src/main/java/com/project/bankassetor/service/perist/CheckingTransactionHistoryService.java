@@ -29,10 +29,10 @@ public class CheckingTransactionHistoryService {
                 .checkingAccountId(checkingAccount.getId())
                 .memberId(checkingAccount.getMemberId())
                 .accountId(checkingAccount.getAccountId())
-                .txTime(LocalDateTime.now())
-                .txAmount(amount)
+                .time(LocalDateTime.now())
+                .amount(amount)
                 .balance(balance)
-                .txType(TransactionType.valueOf(transactionType))
+                .type(TransactionType.valueOf(transactionType))
                 .build();
 
         log.info("거래내역 정보:{}", toJson(toHistory));

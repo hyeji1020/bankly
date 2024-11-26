@@ -63,7 +63,7 @@ public class AccountService {
         // 요청 계좌 번호 확인
         Account account = findByAccountNumber(accountNumber);
 
-        if (account.getAccountStatus() == AccountStatus.active) {
+        if (account.getStatus() == AccountStatus.active) {
 
             // 입금 한도 확인
             BigDecimal depositAmount = accountRequest.getAmount();
@@ -79,10 +79,10 @@ public class AccountService {
             log.info("입금 금액:{}, 입금 후 계좌정보:{}", accountRequest.getAmount(), toJson(account));
 
             // 거래 내역 저장
-            if (account.getAccountType() == AccountType.checking) {
+            if (account.getType() == AccountType.checking) {
                 CheckingAccount checkingAccount = checkingAccountService.findByAccountId(account.getId());
                 checkingHistoryService.save(checkingAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.deposit.toString());
-            } else if (account.getAccountType() == AccountType.saving) {
+            } else if (account.getType() == AccountType.saving) {
                 SavingAccount savingProductAccount = savingAccountService.findByAccountId(account.getId());
                 savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.deposit.toString());
             }
@@ -97,7 +97,7 @@ public class AccountService {
         // 요청 계좌 번호 확인
         Account account = findByAccountNumber(accountRequest.getAccountNumber());
 
-        if (account.getAccountStatus() == AccountStatus.active) {
+        if (account.getStatus() == AccountStatus.active) {
             // 출금 가능한 잔액 조회
             BigDecimal withdrawalAmount = accountRequest.getAmount();
             if (account.getBalance().compareTo(withdrawalAmount) < 0) {
@@ -111,10 +111,10 @@ public class AccountService {
             log.info("출금 후 계좌정보:{}", toJson(account));
 
             // 거래 내역 저장
-            if (account.getAccountType() == AccountType.checking) {
+            if (account.getType() == AccountType.checking) {
                 CheckingAccount bankAccount = checkingAccountService.findByAccountId(account.getId());
                 checkingHistoryService.save(bankAccount, accountRequest.getAmount(), account.getBalance(), TransactionType.withdraw.toString());
-            } else if (account.getAccountType() == AccountType.saving) {
+            } else if (account.getType() == AccountType.saving) {
                 SavingAccount savingProductAccount = savingAccountService.findByAccountId(account.getId());
                 savingHistoryService.save(savingProductAccount, accountRequest.getAmount(), account, TransactionType.withdraw.toString());
             }
@@ -177,8 +177,8 @@ public class AccountService {
         Account account = Account.builder()
                 .accountNumber(newAccountNumber)
                 .balance(createRequest.getInitialDeposit())
-                .accountType(AccountType.checking)
-                .accountStatus(AccountStatus.active)
+                .type(AccountType.checking)
+                .status(AccountStatus.active)
                 .depositLimit(createRequest.getDepositLimit())
                 .build();
 
@@ -206,8 +206,8 @@ public class AccountService {
         Account account = Account.builder()
                 .accountNumber(newAccountNumber)
                 .balance(createRequest.getInitialDeposit())
-                .accountType(AccountType.saving)
-                .accountStatus(AccountStatus.active)
+                .type(AccountType.saving)
+                .status(AccountStatus.active)
                 .depositLimit(savingProduct.getSavingLimit())
                 .build();
 
@@ -246,7 +246,7 @@ public class AccountService {
 
     // 입금 계좌 유형에 따라 수신자 정보 가져오는 메서드
     private Member findMemberByAccountType(Account toAccount) {
-        return toAccount.getAccountType() == AccountType.checking
+        return toAccount.getType() == AccountType.checking
                 ? memberService.findCheckByAccountId(toAccount.getId())
                 : memberService.findSaveByAccountId(toAccount.getId());
     }

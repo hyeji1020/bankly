@@ -29,10 +29,10 @@ public class SavingTransactionHistoryService {
                 .savingProductId(savingAccount.getSavingProductId())
                 .memberId(savingAccount.getMemberId())
                 .accountId(account.getId())
-                .txTime(LocalDateTime.now())
-                .txAmount(amount)
+                .time(LocalDateTime.now())
+                .amount(amount)
                 .balance(account.getBalance())
-                .txType(TransactionType.valueOf(transactionType))
+                .type(TransactionType.valueOf(transactionType))
                 .build();
 
         log.info("거래내역 정보:{}", toJson(toHistory));
@@ -56,9 +56,9 @@ public class SavingTransactionHistoryService {
                 .memberId(savingAccount.getMemberId())
                 .savingProductId(savingAccount.getSavingProductId())
                 .balance(finalPayment)
-                .txType(TransactionType.termination)
-                .txAmount(finalPayment)
-                .txTime(LocalDateTime.now())
+                .type(TransactionType.termination)
+                .amount(finalPayment)
+                .time(LocalDateTime.now())
                 .build();
 
         log.info("거래내역 정보:{}", toJson(history));

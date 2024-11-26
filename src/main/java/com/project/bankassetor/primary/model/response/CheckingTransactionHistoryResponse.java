@@ -29,10 +29,10 @@ public class CheckingTransactionHistoryResponse {
     public static List<CheckingTransactionHistoryResponse> of(List<CheckingTransactionHistory> transactionHistories) {
         return transactionHistories.stream()
                 .map(checkingTransactionHistory -> CheckingTransactionHistoryResponse.builder()
-                        .transactionTime(checkingTransactionHistory.getTxTime())
-                        .transactionAmount(formatAmount(checkingTransactionHistory.getTxAmount()))
+                        .transactionTime(checkingTransactionHistory.getTime())
+                        .transactionAmount(formatAmount(checkingTransactionHistory.getAmount()))
                         .balanceAfter(formatAmount(checkingTransactionHistory.getBalance()))
-                        .type(checkingTransactionHistory.getTxType().getDisplayName())
+                        .type(checkingTransactionHistory.getType().getDisplayName())
                         .build())
                 .collect(Collectors.toList());
     }

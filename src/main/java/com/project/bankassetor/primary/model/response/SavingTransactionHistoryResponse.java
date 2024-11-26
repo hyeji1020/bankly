@@ -37,10 +37,10 @@ public class SavingTransactionHistoryResponse {
         return transactionHistories.stream()
                 .map(savingTransactionHistory -> SavingTransactionHistoryResponse.builder()
                         .accountId(savingTransactionHistory.getAccountId())
-                        .transactionTime(formatter(savingTransactionHistory.getTxTime()))
-                        .transactionAmount(formatAmount(savingTransactionHistory.getTxAmount()))
+                        .transactionTime(formatter(savingTransactionHistory.getTime()))
+                        .transactionAmount(formatAmount(savingTransactionHistory.getAmount()))
                         .balanceAfter(formatAmount(savingTransactionHistory.getBalance()))
-                        .type(savingTransactionHistory.getTxType().getDisplayName())
+                        .type(savingTransactionHistory.getType().getDisplayName())
                         .build())
                 .collect(Collectors.toList());
     }

@@ -25,15 +25,13 @@ public class CheckingTransactionHistory extends BaseEntity {
     @JoinColumn
     private Long memberId;
 
-    private BigDecimal txAmount;  // 거래 금액
+    private BigDecimal amount;  // 거래 금액
 
     private BigDecimal balance;    // 거래 후 잔액
 
     @Enumerated(EnumType.STRING)
-    private TransactionType txType; // 거래 유형
+    private TransactionType type; // 거래 유형
     
-    private LocalDateTime txTime;  // 거래 시간
-
-    // private String transactionPlace; // 사용처
+    private LocalDateTime time;  // 거래 시간
 
 }

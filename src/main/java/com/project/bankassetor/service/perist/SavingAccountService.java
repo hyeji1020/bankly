@@ -81,10 +81,10 @@ public class SavingAccountService {
                         return new BankException(ErrorCode.ACCOUNT_NOT_FOUND);
                     });
 
-            if(account.getAccountStatus() == AccountStatus.active){
+            if(account.getStatus() == AccountStatus.active){
                 // 각 계좌의 상태를 만기(expired)로 업데이트
-                account.setAccountStatus(AccountStatus.expired);
-                log.info("계좌번호: {} 만기 처리 완료. 현재 상태: {}", account.getAccountNumber(), account.getAccountStatus());
+                account.setStatus(AccountStatus.expired);
+                log.info("계좌번호: {} 만기 처리 완료. 현재 상태: {}", account.getAccountNumber(), account.getStatus());
 
                 // 원금
                 BigDecimal totalPrincipal = account.getBalance();
@@ -130,7 +130,7 @@ public class SavingAccountService {
                     return new BankException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
 
-        if (account.getAccountStatus() == AccountStatus.close) {
+        if (account.getStatus() == AccountStatus.close) {
             throw new BankException(ErrorCode.ACCOUNT_ALREADY_TERMINATE);
         }
 
@@ -160,7 +160,7 @@ public class SavingAccountService {
         log.info("적금 상품 중도 해지 계산: 총 납입금액: {}, 이자:{}, 패널티 금액: {}, 최종 지급 금액: {}",
                 totalDeposits, interest, penaltyAmount, finalPayment);
 
-        account.setAccountStatus(AccountStatus.close);
+        account.setStatus(AccountStatus.close);
         account.setBalance(finalPayment);
         accountRepository.save(account);
         log.info("계좌번호: {} 의 계좌 상태가 'close'로 변경되었습니다.", account.getAccountNumber());

@@ -43,12 +43,12 @@ public class AccountServiceTest {
     @Autowired
     private SavingAccountRepository savingAccountRepository;
 
-    @BeforeEach
-    public void setUp() {
-        savingProductRepository.deleteAllInBatch();
-        savingAccountRepository.deleteAllInBatch();
-        accountRepository.deleteAllInBatch();
-    }
+//    @BeforeEach
+//    public void setUp() {
+//        savingProductRepository.deleteAllInBatch();
+//        savingAccountRepository.deleteAllInBatch();
+//        accountRepository.deleteAllInBatch();
+//    }
 
     @Test
     @DisplayName("입출금 계좌용 Account 및 CheckingAccount를 생성하고 저장한다")
@@ -136,7 +136,8 @@ public class AccountServiceTest {
             SavingAccount savingAccount = savingAccounts.get((i - 101) % savingAccounts.size());
 
             String accountNumber = "1000000000" + i;
-            BigDecimal balance = BigDecimal.valueOf(ThreadLocalRandom.current().nextInt(1000, 100000));
+            BigDecimal balance = BigDecimal.valueOf(savingAccount.getCurrentDepositCount())
+                    .multiply(savingAccount.getMonthlyDeposit());
 
             BigDecimal depositLimit = BigDecimal.ZERO;
 

@@ -123,7 +123,9 @@ public class BankFrontService {
 
     }
 
-    public TerminateResponse terminateSavingAccount(long accountId, long memberId) {
-        return savingAccountService.terminateSavingAccount(accountId, memberId);
+    public SavingTransactionHistoryResponse terminateSavingAccount(long accountId, long memberId) {
+        final SavingTransactionHistory saveHistory = savingAccountService.terminateSavingAccount(accountId, memberId);
+
+        return SavingTransactionHistoryResponse.of(saveHistory);
     }
 }

@@ -120,10 +120,10 @@ public class BankApi {
         return new ResultResponse<>(response);
     }
 
-    // 적금 중도 해지 시 패널티
+    // 적금 중도 해지 시 패널티 적용하여 지급
     @PostMapping("/my-saving-accounts/{accountId}/terminate")
-    public ResultResponse<TerminateResponse> terminateSavingAccount(@PathVariable long accountId, @Authed Member member) {
-        TerminateResponse response = bankFrontService.terminateSavingAccount(accountId, member.getId());
+    public ResultResponse<SavingTransactionHistoryResponse> terminateSavingAccount(@PathVariable long accountId, @Authed Member member) {
+        SavingTransactionHistoryResponse response = bankFrontService.terminateSavingAccount(accountId, member.getId());
 
         return new ResultResponse<>(response);
     }

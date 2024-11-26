@@ -48,7 +48,7 @@ public class SavingTransactionHistoryService {
         historyRepository.save(history);
     }
 
-    public void savePenalty(long accountId, SavingAccount savingAccount, BigDecimal finalPayment) {
+    public SavingTransactionHistory savePenalty(long accountId, SavingAccount savingAccount, BigDecimal finalPayment) {
         // 거래 내역 생성 및 저장
         SavingTransactionHistory history = SavingTransactionHistory.builder()
                 .accountId(accountId)
@@ -63,6 +63,6 @@ public class SavingTransactionHistoryService {
 
         log.info("거래내역 정보:{}", toJson(history));
 
-        historyRepository.save(history);
+        return historyRepository.save(history);
     }
 }

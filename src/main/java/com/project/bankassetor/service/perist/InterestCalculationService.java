@@ -5,82 +5,93 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @Slf4j
 public class InterestCalculationService {
 
     // 총 원금 계산(개월 수 * 금액)
-    public BigDecimal totalPrincipal(BigDecimal monthlyAmount, int duration) {
-        return monthlyAmount.multiply(BigDecimal.valueOf(duration));
+    public BigDecimal totalPrincipal(BigDecimal monthlyDeposit, int depositCount) {
+        return monthlyDeposit.multiply(BigDecimal.valueOf(depositCount));
     }
 
-    // 총 이자 계산
-    public BigDecimal totalInterest(BigDecimal totalPrincipal, BigDecimal interestRate, int depositCount) {
-        // 퍼센트(%)로 주어진 이자율을 소수로 변환하여 계산 (예: 4.50% -> 0.045)
-         return totalPrincipal.multiply(interestRate.divide(BigDecimal.valueOf(100))
-                .multiply(BigDecimal.valueOf(depositCount).divide(BigDecimal.valueOf(12), RoundingMode.HALF_UP)));
+    // 만기 세전 이자 계산
+    public BigDecimal beforeTaxInterest(BigDecimal monthlyDeposit, BigDecimal interestRate, int depositCount) {
 
+        // 1. 연이율을 소수로 변환
+        BigDecimal annualRateDecimal = interestRate.divide(BigDecimal.valueOf(100), 5, RoundingMode.HALF_UP);
+
+        // 2. 개월 수 계산: (개월 수 + 1) × 개월 수 ÷ 2
+        BigDecimal monthsFactor = BigDecimal.valueOf(depositCount)
+                .add(BigDecimal.ONE) // (개월 수 + 1)
+                .multiply(BigDecimal.valueOf(depositCount)) // × 개월 수
+                .divide(BigDecimal.valueOf(2), 5, RoundingMode.HALF_UP); // ÷ 2
+
+        // 3. 세전 이자 계산
+        BigDecimal beforeTaxInterest = monthlyDeposit
+                .multiply(annualRateDecimal) // 월 납입금 × 연이율
+                .multiply(monthsFactor) // × 개월 수 계산 결과
+                .divide(BigDecimal.valueOf(12), 5, RoundingMode.HALF_UP); // ÷ 12
+        log.info("개월 수 계산 (평균 납입 기간): {} 일, 세전 이자: {}", monthsFactor, beforeTaxInterest);
+
+        return beforeTaxInterest;
     }
 
-    // 이자 소득세 계산 메서드
-    public static BigDecimal taxAmount(BigDecimal totalInterest) {
+    // 중도해지 세전 이자 계산
+    public BigDecimal termInterest(LocalDate startDate, BigDecimal principal, BigDecimal termInterestRate) {
+
+        long daysElapsed = ChronoUnit.DAYS.between(startDate, LocalDate.now());
+        BigDecimal termInterest = principal
+                .multiply(termInterestRate.divide(BigDecimal.valueOf(100).setScale(5, RoundingMode.HALF_UP)))
+                .multiply(BigDecimal.valueOf(daysElapsed).divide(BigDecimal.valueOf(365), 5, RoundingMode.HALF_UP)) // 경과 기간 비율
+                .setScale(2, RoundingMode.HALF_UP);
+        log.info("적금 시작일로부터 경과 일수: {} 일, 중도해지 이자 : {} 원", daysElapsed, termInterest);
+
+        return termInterest;
+    }
+
+    // 이자 소득세 세후 이자 계산
+    public static BigDecimal afterTaxInterest(BigDecimal beforeInterest) {
         BigDecimal taxRate = new BigDecimal("0.154");
-        return totalInterest.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal afterTaxInterest = beforeInterest
+                .multiply(BigDecimal.ONE.subtract(taxRate)).setScale(2, RoundingMode.HALF_UP);
+        log.info("중도해지 이자(세후) : {} 원", afterTaxInterest);
+        return afterTaxInterest;
     }
 
     // 만기 금액 계산
-    public BigDecimal maturityAmount(BigDecimal totalPrincipal, BigDecimal totalInterest) {
-        BigDecimal taxAmount = taxAmount(totalInterest);
-        return totalPrincipal.add(totalInterest).subtract(taxAmount);
+    public BigDecimal totalAmount(BigDecimal principal, BigDecimal afterTaxInterest) {
+        BigDecimal totalAmount = principal.add(afterTaxInterest)
+                .setScale(0, RoundingMode.HALF_UP);
+        log.info("만기 금액 계산 결과: {}", principal);
+
+        return totalAmount;
     }
 
     // 패널티 계산
-    public BigDecimal terminateAmount(BigDecimal monthlyDeposit, int depositCount, BigDecimal interestRate, BigDecimal penaltyRate) {
+    public BigDecimal terminateAmount(BigDecimal monthlyDeposit, int depositCount, BigDecimal termInterestRate, LocalDate startDate) {
 
-        // 원금
-        BigDecimal totalPrincipal = monthlyDeposit.multiply(BigDecimal.valueOf(depositCount));
+        BigDecimal principal = totalPrincipal(monthlyDeposit, depositCount);
 
-        // 이자
-        BigDecimal interestRateDecimal = interestRate.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
-        BigDecimal totalInterest = totalPrincipal.multiply(interestRateDecimal)
-                .multiply(BigDecimal.valueOf(depositCount).divide(BigDecimal.valueOf(12), 4, RoundingMode.HALF_UP));
+        BigDecimal termInterest = termInterest(startDate, principal, termInterestRate);
 
-        // 패널티(원금 * 패널티%)
-        BigDecimal penaltyAmount = totalPrincipal.multiply(penaltyRate.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP))
-                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal afterTaxInterest = afterTaxInterest(termInterest);
 
-        // (원금+이자) - 패널티
-        BigDecimal terminateAmount = totalPrincipal.add(totalInterest).subtract(penaltyAmount);
-
-        log.info("원금: {}, 이자: {}, 패널티: {}, 지급액: {}", totalPrincipal, totalInterest, penaltyAmount, terminateAmount);
-
-        return terminateAmount;
-
+        return totalAmount(principal, afterTaxInterest);
     }
 
     // 적금 만기 금액 계산
     public BigDecimal maturityAmount(BigDecimal monthlyDeposit, int depositCount, BigDecimal interestRate) {
 
-        // 원금
-        BigDecimal totalPrincipal = monthlyDeposit.multiply(BigDecimal.valueOf(depositCount));
+        BigDecimal principal = totalPrincipal(monthlyDeposit, depositCount);
 
-        // 이자
-        BigDecimal interestRateDecimal = interestRate.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
-        BigDecimal totalInterest = totalPrincipal.multiply(interestRateDecimal)
-                .multiply(BigDecimal.valueOf(depositCount).divide(BigDecimal.valueOf(12), 4, RoundingMode.HALF_UP));
+        BigDecimal beforeTaxInterest = beforeTaxInterest(monthlyDeposit, interestRate, depositCount);
 
-        // 이자 소득세 (이자 * 15.4%)
-        BigDecimal taxRate = new BigDecimal("0.154");
-        BigDecimal taxAmount =  totalInterest.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal afterTaxInterest = afterTaxInterest(beforeTaxInterest);
 
-        // (원금+이자) - 이자 소득세
-        BigDecimal maturityAmount = totalPrincipal.add(totalInterest).subtract(taxAmount);
-
-        log.info("원금: {}, 이자: {}, 이자 소득세: {} 만기 금액: {}",
-                totalPrincipal, totalInterest, taxAmount, maturityAmount);
-
-        return maturityAmount;
+        return totalAmount(principal, afterTaxInterest);
     }
 
 }

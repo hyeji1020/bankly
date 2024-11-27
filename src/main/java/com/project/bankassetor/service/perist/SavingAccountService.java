@@ -8,7 +8,6 @@ import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
-import com.project.bankassetor.primary.model.response.TerminateResponse;
 import com.project.bankassetor.primary.repository.AccountRepository;
 import com.project.bankassetor.primary.repository.SavingAccountRepository;
 import jakarta.transaction.Transactional;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -145,9 +143,9 @@ public class SavingAccountService {
         BigDecimal monthlyDeposit = savingAccount.getMonthlyDeposit();
         int depositCount = savingAccount.getCurrentDepositCount();
         BigDecimal interestRate = savingProduct.getInterestRate();
-        BigDecimal penaltyRate = savingProduct.getPenaltyRate();
+        LocalDate startDate = savingAccount.getStartDate();
 
-        BigDecimal terminateAmount = calculationService.terminateAmount(monthlyDeposit, depositCount, interestRate, penaltyRate);
+        BigDecimal terminateAmount = calculationService.terminateAmount(monthlyDeposit, depositCount, interestRate, startDate);
 
         account.setStatus(AccountStatus.close);
         account.setBalance(terminateAmount);

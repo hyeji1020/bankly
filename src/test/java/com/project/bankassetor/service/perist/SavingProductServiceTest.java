@@ -40,7 +40,7 @@ public class SavingProductServiceTest {
                     .savingLimit(savingLimit)
                     .durationInMonths(4 + i * 2) // 4개월부터 2개월씩 증가(6~24개월)
                     .interestRate(BigDecimal.valueOf(3.0 + i * 0.2)) // 3.0%부터 0.2%씩 증가
-                    .penaltyRate(BigDecimal.valueOf(0.1 + i * 0.1))
+                    .termInterestRate(BigDecimal.valueOf(i * 0.01))
                     .description("상품 설명" + i)
                     .build());
         }

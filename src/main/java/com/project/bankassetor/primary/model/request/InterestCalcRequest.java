@@ -12,11 +12,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class InterestCalcRequest {
 
-    private BigDecimal monthlyAmount;
+    private BigDecimal monthlyDeposit;
 
     @Builder
     public InterestCalcRequest(BigDecimal monthlyAmount) {
-        this.monthlyAmount = monthlyAmount;
+        this.monthlyDeposit = monthlyAmount;
     }
 
 }

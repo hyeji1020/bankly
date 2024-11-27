@@ -8,6 +8,9 @@ import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
+import com.project.bankassetor.primary.model.response.InterestCalcResponse;
+import com.project.bankassetor.primary.model.response.SavingTransactionHistoryResponse;
+import com.project.bankassetor.primary.model.response.TerminateResponse;
 import com.project.bankassetor.primary.repository.AccountRepository;
 import com.project.bankassetor.primary.repository.SavingAccountRepository;
 import jakarta.transaction.Transactional;
@@ -21,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.project.bankassetor.service.perist.InterestCalculationService.afterTaxInterest;
 
 @Slf4j
 @Service
@@ -142,7 +147,7 @@ public class SavingAccountService {
 
         BigDecimal monthlyDeposit = savingAccount.getMonthlyDeposit();
         int depositCount = savingAccount.getCurrentDepositCount();
-        BigDecimal interestRate = savingProduct.getInterestRate();
+        BigDecimal interestRate = savingProduct.getTermInterestRate();
         LocalDate startDate = savingAccount.getStartDate();
 
         BigDecimal terminateAmount = calculationService.terminateAmount(monthlyDeposit, depositCount, interestRate, startDate);

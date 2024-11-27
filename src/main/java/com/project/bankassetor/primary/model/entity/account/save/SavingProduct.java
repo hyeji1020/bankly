@@ -18,12 +18,12 @@ public class SavingProduct extends BaseEntity {
 
     private BigDecimal savingLimit;
 
-    private BigDecimal interestRate;
+    private BigDecimal interestRate;    // 연 이자율
+
+    private BigDecimal termInterestRate;  // 중도 해지 이율
 
     private String description;
 
     private int durationInMonths;
-
-    private BigDecimal penaltyRate; // 중도 해지 패널티율
 
 }

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.project.bankassetor.service.perist.InterestCalculationService.afterTaxInterest;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,12 +41,12 @@ public class SavingProductService {
     public InterestCalcResponse calculateInterest(long savingProductId, InterestCalcRequest request) {
         SavingProduct savingProduct = findById(savingProductId);
 
-        BigDecimal totalPrincipal = calculationService.calculateTotalPrincipal(request.getMonthlyAmount(), savingProduct.getDurationInMonths());
-        BigDecimal totalInterest = calculationService.calculateTotalInterest(totalPrincipal, savingProduct.getInterestRate());
-        BigDecimal taxAmount = InterestCalculationService.calculateTaxAmount(totalInterest);
-        BigDecimal maturityAmount = calculationService.calculateMaturityAmount(totalPrincipal, totalInterest);
+        BigDecimal totalPrincipal = calculationService.totalPrincipal(request.getMonthlyDeposit(), savingProduct.getDurationInMonths());
+        BigDecimal beforeTaxInterest = calculationService.beforeTaxInterest(request.getMonthlyDeposit(), savingProduct.getInterestRate(), savingProduct.getDurationInMonths());
+        BigDecimal afterTaxInterest = afterTaxInterest(beforeTaxInterest);
+        BigDecimal maturityAmount = calculationService.maturityAmount(request.getMonthlyDeposit(), savingProduct.getDurationInMonths(), savingProduct.getInterestRate());
 
-        return InterestCalcResponse.of(totalPrincipal, totalInterest, taxAmount, maturityAmount);
+        return InterestCalcResponse.of(totalPrincipal, beforeTaxInterest, afterTaxInterest, maturityAmount);
     }
 
     public void saveAll(List<SavingProduct> savingProducts) {

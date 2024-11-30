@@ -23,9 +23,9 @@ public class Account extends BaseEntity {
     private BigDecimal depositLimit;
 
     @Enumerated(EnumType.STRING)
-    private AccountStatus accountStatus;
+    private AccountStatus status;
 
     @Enumerated(EnumType.STRING)
-    private AccountType accountType;
+    private AccountType type;
 
 }

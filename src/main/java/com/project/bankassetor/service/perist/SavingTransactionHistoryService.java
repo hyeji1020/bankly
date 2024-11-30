@@ -29,10 +29,10 @@ public class SavingTransactionHistoryService {
                 .savingProductId(savingAccount.getSavingProductId())
                 .memberId(savingAccount.getMemberId())
                 .accountId(account.getId())
-                .txTime(LocalDateTime.now())
-                .txAmount(amount)
+                .time(LocalDateTime.now())
+                .amount(amount)
                 .balance(account.getBalance())
-                .txType(TransactionType.valueOf(transactionType))
+                .type(TransactionType.valueOf(transactionType))
                 .build();
 
         log.info("거래내역 정보:{}", toJson(toHistory));
@@ -42,5 +42,27 @@ public class SavingTransactionHistoryService {
 
     public List<SavingTransactionHistory> findSaveTransactionHistoryByAccountId(long accountId) {
         return historyRepository.findByAccountId(accountId);
+    }
+
+    public void save(SavingTransactionHistory history) {
+        historyRepository.save(history);
+    }
+
+    public SavingTransactionHistory savePenalty(long accountId, SavingAccount savingAccount, BigDecimal finalPayment) {
+        // 거래 내역 생성 및 저장
+        SavingTransactionHistory history = SavingTransactionHistory.builder()
+                .accountId(accountId)
+                .savingAccountId(savingAccount.getId())
+                .memberId(savingAccount.getMemberId())
+                .savingProductId(savingAccount.getSavingProductId())
+                .balance(finalPayment)
+                .type(TransactionType.termination)
+                .amount(finalPayment)
+                .time(LocalDateTime.now())
+                .build();
+
+        log.info("거래내역 정보:{}", toJson(history));
+
+        return historyRepository.save(history);
     }
 }

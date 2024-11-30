@@ -2,7 +2,6 @@ package com.project.bankassetor.service.perist;
 
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.repository.SavingProductRepository;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +24,7 @@ public class SavingProductServiceTest {
 
     @BeforeEach
     public void setUp() {
-        savingProductRepository.deleteAll();
+        savingProductRepository.deleteAllInBatch();
     }
 
     @Test
@@ -33,11 +32,15 @@ public class SavingProductServiceTest {
     public void saveSavingProduct() {
         List<SavingProduct> savingProducts = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
+
+            BigDecimal savingLimit = BigDecimal.valueOf((i % 5 + 1) * 100000);
+
             savingProducts.add(SavingProduct.builder()
                     .name("적금 상품 " + i)
-                    .savingLimit(BigDecimal.valueOf(100000 + i * 10000)) // 기본 100,000 + i * 10,000
-                    .durationInMonths(6 + i * 2) // 6개월부터 2개월씩 증가
+                    .savingLimit(savingLimit)
+                    .durationInMonths(4 + i * 2) // 4개월부터 2개월씩 증가(6~24개월)
                     .interestRate(BigDecimal.valueOf(3.0 + i * 0.2)) // 3.0%부터 0.2%씩 증가
+                    .termInterestRate(BigDecimal.valueOf(i * 0.01))
                     .description("상품 설명" + i)
                     .build());
         }

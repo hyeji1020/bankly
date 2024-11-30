@@ -6,6 +6,7 @@ import com.project.bankassetor.exception.ErrorCode;
 import com.project.bankassetor.primary.model.entity.Account;
 import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
+import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
 import com.project.bankassetor.primary.repository.AccountRepository;
 import com.project.bankassetor.primary.repository.SavingAccountRepository;
@@ -30,6 +31,7 @@ public class SavingAccountService {
     private final AccountRepository accountRepository;
     private final InterestCalculationService calculationService;
     private final SavingProductService savingProductService;
+    private final SavingTransactionHistoryService historyService;
 
     public SavingAccount save(Long memberId, SavingProduct savingProduct, BigDecimal monthlyDeposit, Account account){
 
@@ -69,8 +71,8 @@ public class SavingAccountService {
 
         Map<Long, Account> expiredAccountMap = new HashMap<>();
 
-        for (SavingAccount savingProductAccount : accounts) {
-            Long accountId = savingProductAccount.getAccountId();
+        for (SavingAccount savingAccount : accounts) {
+            Long accountId = savingAccount.getAccountId();
 
             Account account = accountRepository.findById(accountId)
                     .orElseThrow(() -> {
@@ -78,25 +80,25 @@ public class SavingAccountService {
                         return new BankException(ErrorCode.ACCOUNT_NOT_FOUND);
                     });
 
-            if(account.getAccountStatus() == AccountStatus.active){
-                // 각 계좌의 상태를 만기(expired)로 업데이트
-                account.setAccountStatus(AccountStatus.expired);
-                log.info("계좌번호: {} 만기 처리 완료. 현재 상태: {}", account.getAccountNumber(), account.getAccountStatus());
+            if(account.getStatus() == AccountStatus.active){
 
-                // 원금
-                BigDecimal totalPrincipal = account.getBalance();
+                // 월 납입액, 납입회차
+                BigDecimal monthlyDeposit = savingAccount.getMonthlyDeposit();
+                int depositCount = savingAccount.getCurrentDepositCount();
 
                 // 각 적금 상품의 이자
-                SavingProduct savingProduct = savingProductService.findById(savingProductAccount.getSavingProductId());
+                SavingProduct savingProduct = savingProductService.findById(savingAccount.getSavingProductId());
                 BigDecimal interestRate = savingProduct.getInterestRate();
-                BigDecimal totalInterest = calculationService.calculateTotalInterest(totalPrincipal, interestRate);
 
                 // 만기 금액 계산
-                BigDecimal maturityAmount = calculationService.calculateMaturityAmount(totalPrincipal, totalInterest);
-                log.info("계좌번호: {}, 원금: {}, 이자: {}, 만기 금액: {}",
-                        account.getAccountNumber(), totalPrincipal, totalInterest, maturityAmount);
+                BigDecimal maturityAmount = calculationService.maturityAmount(monthlyDeposit, depositCount, interestRate);
 
                 account.setBalance(maturityAmount);
+                log.info("계좌번호: {} 지급액: {}", account.getAccountNumber(), maturityAmount);
+
+                // 각 계좌의 상태를 만기(expired)로 업데이트
+                account.setStatus(AccountStatus.expired);
+                log.info("계좌번호: {} 만기 처리 완료. 현재 상태: {}", account.getAccountNumber(), account.getStatus());
 
                 // 업데이트된 계좌 정보를 Map에 저장하여 중복 방지
                 expiredAccountMap.put(accountId, account);
@@ -114,5 +116,43 @@ public class SavingAccountService {
 
     public long count() {
         return savingAccountRepository.count();
+    }
+
+    @Transactional
+    public SavingTransactionHistory terminateSavingAccount(long accountId, long memberId) {
+
+        SavingAccount savingAccount = findByAccountId(accountId);
+
+        if (!savingAccount.getMemberId().equals(memberId)) {
+            log.error("적금 상품 중도 해지 중 : 계좌 소유자가 아닙니다. 요청자: {}, 계좌 소유자: {}", memberId, savingAccount.getMemberId());
+            throw new BankException(ErrorCode.INVALID_ACCOUNT_OWNER);
+        }
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> {
+                    log.error("적금 상품 중도 해지 중 : {}에 해당하는 계좌를 찾을 수 없습니다.", accountId);
+                    return new BankException(ErrorCode.ACCOUNT_NOT_FOUND);
+                });
+
+        if (account.getStatus() == AccountStatus.close) {
+            throw new BankException(ErrorCode.ACCOUNT_ALREADY_TERMINATE);
+        }
+
+        SavingProduct savingProduct = savingProductService.findById(savingAccount.getSavingProductId());
+
+        BigDecimal monthlyDeposit = savingAccount.getMonthlyDeposit();
+        int depositCount = savingAccount.getCurrentDepositCount();
+        BigDecimal interestRate = savingProduct.getInterestRate();
+        LocalDate startDate = savingAccount.getStartDate();
+
+        BigDecimal terminateAmount = calculationService.terminateAmount(monthlyDeposit, depositCount, interestRate, startDate);
+
+        account.setStatus(AccountStatus.close);
+        account.setBalance(terminateAmount);
+        accountRepository.save(account);
+        log.info("계좌번호: {}, 계좌 상태 {}, 지급액 {} 원", account.getAccountNumber(), account.getStatus(), terminateAmount);
+
+        return historyService.savePenalty(accountId, savingAccount, terminateAmount);
+
     }
 }

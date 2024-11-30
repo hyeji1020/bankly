@@ -28,15 +28,13 @@ public class SavingTransactionHistory extends BaseEntity {
     @JoinColumn
     private Long savingProductId;
 
+    private BigDecimal amount;  // 거래 금액
+
     private BigDecimal balance;    // 거래 후 잔액
 
-    private BigDecimal txAmount;  // 거래 금액
-
-    private int depositRound; // 몇 번째 입금인지
-
     @Enumerated(EnumType.STRING)
-    private TransactionType txType; // 거래 유형
+    private TransactionType type; // 거래 유형
 
-    private LocalDateTime txTime;  // 거래 시간
+    private LocalDateTime time;  // 거래 시간
 
 }

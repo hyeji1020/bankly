@@ -1,6 +1,7 @@
 package com.project.bankassetor.service.front;
 
 import com.project.bankassetor.primary.model.entity.Account;
+import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
@@ -9,10 +10,7 @@ import com.project.bankassetor.primary.model.request.AccountRequest;
 import com.project.bankassetor.primary.model.request.InterestCalcRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.primary.model.response.*;
-import com.project.bankassetor.service.perist.AccountService;
-import com.project.bankassetor.service.perist.CheckingTransactionHistoryService;
-import com.project.bankassetor.service.perist.SavingProductService;
-import com.project.bankassetor.service.perist.SavingTransactionHistoryService;
+import com.project.bankassetor.service.perist.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +25,7 @@ public class BankFrontService {
     private final CheckingTransactionHistoryService checkingTransactionHistoryService;
     private final SavingTransactionHistoryService savingTransactionHistoryService;
     private final SavingProductService savingProductService;
+    private final SavingAccountService savingAccountService;
 
     // 입금
     public AccountResponse deposit(AccountRequest accountRequest) {
@@ -122,5 +121,11 @@ public class BankFrontService {
     public InterestCalcResponse interestCalculate(long savingProductId, InterestCalcRequest interestCalcRequest) {
         return savingProductService.calculateInterest(savingProductId, interestCalcRequest);
 
+    }
+
+    public SavingTransactionHistoryResponse terminateSavingAccount(long accountId, long memberId) {
+        final SavingTransactionHistory saveHistory = savingAccountService.terminateSavingAccount(accountId, memberId);
+
+        return SavingTransactionHistoryResponse.of(saveHistory);
     }
 }

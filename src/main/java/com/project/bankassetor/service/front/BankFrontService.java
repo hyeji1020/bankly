@@ -128,4 +128,44 @@ public class BankFrontService {
 
         return SavingTransactionHistoryResponse.of(saveHistory);
     }
+
+    // 나의 계좌 목록(데이터 테이블)
+    public DataTableView getMyAllAccounts(Member member, StringMultiValueMapAdapter param) {
+
+        int draw = param.intVal("draw");
+        int start = param.intVal("start");
+        int length = param.intVal("length");
+        String accountType = param.stringVal("accountType", null);
+        String keyword = param.stringVal("keyword", null);
+
+        int pageNumber = (start / length);
+        final PageRequest pageable = PageRequest.of(pageNumber, length);
+
+        final Page<Account> accountPage = accountService.findAllByMemberId(accountType, keyword, member.getId(), pageable);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("accounts", accountPage);
+
+        return new DataTableView(draw, accountPage.getTotalElements(), accountPage.getTotalElements(), data);
+    }
+
+    // 적금 상품 목록(데이터 테이블)
+    public DataTableView getAllSavingProducts(Member member, StringMultiValueMapAdapter param) {
+
+        int draw = param.intVal("draw");
+        int start = param.intVal("start");
+        int length = param.intVal("length");
+        String keyword = param.stringVal("keyword", null);
+
+        int pageNumber = (start / length);
+        final PageRequest pageable = PageRequest.of(pageNumber, length);
+
+        final Page<SavingProduct> savingProductPage = savingProductService.getAllSavingProducts(keyword, pageable);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("savingProducts", savingProductPage);
+
+        return new DataTableView(draw, savingProductPage.getTotalElements(), savingProductPage.getTotalElements(), data);
+
+    }
 }

@@ -19,6 +19,8 @@ import com.project.bankassetor.primary.repository.AccountRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -159,9 +161,17 @@ public class AccountService {
 
     // 계좌 번호 생성 로직
     private String generateAccountNumber() {
-
         return accountRepository.findFirstByOrderByIdDesc()
-                .map(account -> (Integer.parseInt(account.getAccountNumber())) + 1 + "")
+                .map(account -> {
+                    // 기존 계좌번호를 숫자로 간주하고 +1
+                    String accountNumber = account.getAccountNumber();
+                    try {
+                        long nextNumber = Long.parseLong(accountNumber) + 1;
+                        return String.valueOf(nextNumber);
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("계좌번호가 숫자가 아닙니다: " + accountNumber, e);
+                    }
+                })
                 .orElse("1000000000");
     }
 
@@ -201,6 +211,12 @@ public class AccountService {
 
         // 계좌 번호 생성
         String newAccountNumber = generateAccountNumber();
+
+        // 납입 한도 체크
+        if (createRequest.getMonthlyDeposit().compareTo(savingProduct.getSavingLimit()) > 0) {
+            log.error("{}: 입력한 월 납입액이 {}: 월 한도보다 큽니다.", createRequest.getMonthlyDeposit(), savingProduct.getSavingLimit());
+            throw new BankException(ErrorCode.OVER_SAVING_LIMIT);
+        }
 
         // 저장
         Account account = Account.builder()
@@ -257,5 +273,9 @@ public class AccountService {
 
     public long count() {
         return accountRepository.count();
+    }
+
+    public Page<Account> findAllByMemberId(String accountType, String keyword, long memberId, Pageable pageable) {
+        return accountRepository.findAllByMemberId(accountType, keyword, memberId, pageable);
     }
 }

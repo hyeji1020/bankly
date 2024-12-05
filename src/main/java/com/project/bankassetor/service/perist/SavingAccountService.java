@@ -9,8 +9,6 @@ import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
 import com.project.bankassetor.primary.model.response.InterestCalcResponse;
-import com.project.bankassetor.primary.model.response.SavingTransactionHistoryResponse;
-import com.project.bankassetor.primary.model.response.TerminateResponse;
 import com.project.bankassetor.primary.repository.AccountRepository;
 import com.project.bankassetor.primary.repository.SavingAccountRepository;
 import jakarta.transaction.Transactional;
@@ -159,5 +157,20 @@ public class SavingAccountService {
 
         return historyService.savePenalty(accountId, savingAccount, terminateAmount);
 
+    }
+
+    // 사용자 예상 만기 이자
+    public InterestCalcResponse expectInterest(long accountId) {
+        SavingAccount savingAccount = findByAccountId(accountId);
+        SavingProduct savingProduct = savingProductService.findById(savingAccount.getSavingProductId());
+
+        BigDecimal principal = calculationService.totalPrincipal(savingAccount.getMonthlyDeposit(), savingAccount.getCurrentDepositCount());
+        BigDecimal beforeTaxInterest = calculationService.termInterest(savingAccount.getStartDate(), principal, savingProduct.getTermInterestRate());
+        BigDecimal afterTaxInterest = afterTaxInterest(beforeTaxInterest);
+        BigDecimal terminateAmount = calculationService.terminateAmount(
+                savingAccount.getMonthlyDeposit(), savingAccount.getCurrentDepositCount(),
+                savingProduct.getTermInterestRate(), savingAccount.getStartDate());
+
+        return InterestCalcResponse.of(principal, beforeTaxInterest, afterTaxInterest, terminateAmount);
     }
 }

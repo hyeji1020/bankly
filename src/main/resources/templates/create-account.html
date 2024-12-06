@@ -34,13 +34,8 @@
                     <form th:action="@{/saving-products/{savingProductId}/accounts(savingProductId=${savingProductId})}"
                           method="post">
                         <div class="mb-3">
-                            <label for="initialDeposit" class="form-label">초기 예치금</label>
-                            <input type="number" class="form-control" id="initialDeposit" name="initialDeposit"
-                                   placeholder="초기 예치금 입력">
-                        </div>
-                        <div class="mb-3">
                             <label for="monthlyDeposit" class="form-label">월 납입액</label>
-                            <input type="number" step=100000 class="form-control" id="monthlyDeposit"
+                            <input type="number" class="form-control" id="monthlyDeposit"
                                    name="monthlyDeposit" placeholder="월 납입금 입력">
                         </div>
                         <button type="submit" class="btn btn-primary w-100">계좌 생성하기</button>

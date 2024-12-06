@@ -53,6 +53,7 @@
                             <form class="form-horizontal">
                                 <div class="row">
 
+                                    <!--  유형 셀렉트 박스 -->
                                     <div class="col-md-5">
                                         <div class="card-body">
                                             <div class="form-group row">
@@ -70,18 +71,19 @@
                                         </div>
                                     </div>
 
-                                    <!--                                    <div class="col-md-5">-->
-                                    <!--                                        <div class="card-body">-->
-                                    <!--                                            <div class="form-group row">-->
-                                    <!--                                                <label for="inputKeyword" class="col-sm-3 col-form-label">키워드</label>-->
-                                    <!--                                                <div class="col-sm-9">-->
-                                    <!--                                                    <div class="form-group">-->
-                                    <!--                                                        <input type="text" name="keyword" id="inputKeyword" class="form-control" placeholder="검색어 입력">-->
-                                    <!--                                                    </div>-->
-                                    <!--                                                </div>-->
-                                    <!--                                            </div>-->
-                                    <!--                                        </div>-->
-                                    <!--                                    </div>-->
+                                    <!--  검색 기능 -->
+                                    <div class="col-md-5">
+                                        <div class="card-body">
+                                            <div class="form-group row">
+                                                <label for="inputKeyword" class="col-sm-3 col-form-label">키워드</label>
+                                                <div class="col-sm-9">
+                                                    <div class="form-group">
+                                                        <input type="text" name="keyword" id="inputKeyword" class="form-control" placeholder="검색어 입력">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                 </div>
                             </form>
@@ -252,8 +254,11 @@
             ],
         });
 
-        $('#inputAccountType').on('change', function () {
-            table.search('', true, false, true).draw();
+        // $('#inputAccountType').on('change', function () {
+        //     table.search('', true, false, true).draw();
+        // });
+        $('#inputAccountType, #inputKeyword').on('change keyup', function () {
+            table.ajax.reload(null, false); // 서버로 조건을 다시 전송하여 테이블을 새로 고침
         });
 
     });

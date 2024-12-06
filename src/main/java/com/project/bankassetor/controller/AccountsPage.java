@@ -163,7 +163,7 @@ public class AccountsPage {
         model.addAttribute("savingTxResponse", savingTxResponse);
         model.addAttribute("member", member);
         model.getAttribute("accountId");
-        return "transaction-history";
+        return "redirect:/my-accounts";
     }
 
     // 계좌 생성하기 뷰

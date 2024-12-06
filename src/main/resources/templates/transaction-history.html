@@ -81,6 +81,13 @@
                     <input type="hidden" id="type" th:value="${type}" />
                     <input type="hidden" id="txType" th:value="${txType}" />
 
+                    <div th:if="${type == 'saving'}">
+                        <button id="terminateButton" class="btn btn-danger"
+                                th:onclick="'location.href=\'/my-saving-accounts/' + ${accountId} + '/terminate\''">
+                            지금 해지하면?
+                        </button>
+                    </div>
+
                     <div id="checking-history" th:if="${type == 'checking'}">
                         <table id="checkingTable" class="table table-bordered table-hover">
                             <thead>
@@ -134,6 +141,10 @@
 
 <script src="/custom/my-script.js"></script>
 <script>
+
+    const accountId = $('#accountId').val();
+    const type = $('#type').val();
+
     // 천단위로 콤마 표기
     function formatNumberWithCommas(number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -144,10 +155,8 @@
         return date.toISOString().slice(0, 19).replace('T', ' ');
     }
 
-    const accountId = $('#accountId').val();
-    const type = $('#type').val();
-
     $(function () {
+
         // Checking Account Table
         let checkingTable = $('#checkingTable').DataTable({
             "pagingType": "full_numbers",

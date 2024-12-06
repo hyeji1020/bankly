@@ -123,6 +123,11 @@ public class BankFrontService {
 
     }
 
+    public InterestCalcResponse expectInterest(long accountId) {
+        return savingAccountService.expectInterest(accountId);
+
+    }
+
     public SavingTransactionHistoryResponse terminateSavingAccount(long accountId, long memberId) {
         final SavingTransactionHistory saveHistory = savingAccountService.terminateSavingAccount(accountId, memberId);
 

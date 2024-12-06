@@ -14,7 +14,9 @@ public class InterestCalculationService {
 
     // 총 원금 계산(개월 수 * 금액)
     public BigDecimal totalPrincipal(BigDecimal monthlyDeposit, int depositCount) {
-        return monthlyDeposit.multiply(BigDecimal.valueOf(depositCount));
+        BigDecimal principal = monthlyDeposit.multiply(BigDecimal.valueOf(depositCount));
+        log.info("총 원금: {}",principal);
+        return principal;
     }
 
     // 만기 세전 이자 계산
@@ -34,7 +36,7 @@ public class InterestCalculationService {
                 .multiply(annualRateDecimal) // 월 납입금 × 연이율
                 .multiply(monthsFactor) // × 개월 수 계산 결과
                 .divide(BigDecimal.valueOf(12), 5, RoundingMode.HALF_UP); // ÷ 12
-        log.info("개월 수 계산 (평균 납입 기간): {} 일, 세전 이자: {}", monthsFactor, beforeTaxInterest);
+        log.info("개월 수 계산 (평균 납입 기간): {} 일, 이자(세전): {}", monthsFactor, beforeTaxInterest);
 
         return beforeTaxInterest;
     }
@@ -57,7 +59,7 @@ public class InterestCalculationService {
         BigDecimal taxRate = new BigDecimal("0.154");
         BigDecimal afterTaxInterest = beforeInterest
                 .multiply(BigDecimal.ONE.subtract(taxRate)).setScale(2, RoundingMode.HALF_UP);
-        log.info("중도해지 이자(세후) : {} 원", afterTaxInterest);
+        log.info("이자(세후) : {} 원", afterTaxInterest);
         return afterTaxInterest;
     }
 

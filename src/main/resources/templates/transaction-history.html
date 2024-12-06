@@ -1,110 +1,276 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="~{layout/head :: head(~{::title}, ~{::link})}">
-    <title>거래 내역</title>
-</head>
+<!--<head th:replace="layout/head :: head(~{::title}, ~{::link})">-->
+<head th:replace="~{layout/head :: head('나의 거래 내역', '')}">
 
 <body class="hold-transition sidebar-mini">
-    <div class="wrapper">
 
-        <!-- Navbar -->
-        <th:block th:replace="~{layout/navbar :: navbar(${member}, '')}"/>
-        <!-- /.navbar -->
+<!-- Site wrapper -->
+<div class="wrapper">
 
-        <!-- Main Sidebar Container -->
-        <th:block th:replace="~{layout/sidebar :: sidebar(${member}, '/', '1')}"/>
+    <!-- Navbar -->
+    <th:block th:replace="~{layout/navbar :: navbar(${member}, '')}"/>
+    <!-- /.navbar -->
 
-        <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
+    <!-- Main Sidebar Container -->
+    <th:block th:replace="~{layout/sidebar :: sidebar(${member}, '/', '2')}"/>
 
-            <!-- Content Header (Page header) -->
-            <div class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-4">
-                        <div class="col-sm-6">
-
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
-            </div>
-            <div class="container">
-                <h1 th:text="${member.name} + '님의 거래 내역 조회'">거래 내역 조회</h1>
-
-                <div th:if="${type == 'checking'}">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>거래일시</th>
-                            <th>거래 금액</th>
-                            <th>잔액</th>
-                            <th>거래 유형</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <!-- response 리스트를 반복하여 출력 -->
-                        <tr th:each="checkHistory : ${myCheckHistory}">
-                            <td th:text="${checkHistory.transactionTime}">거래 시간</td>
-                            <!--      거래 금액      -->
-                            <td
-                                th:style="${checkHistory.type == '입금' ? 'color: blue;' : (checkHistory.type == '출금' ? 'color: red;' : '')}"
-                                th:text="${checkHistory.transactionAmount} + '원'">거래 금액
-                            </td>
-                            <!--      거래 후 잔액      -->
-                            <td th:text="${checkHistory.balanceAfter} + '원'">잔액</td>
-                            <!--      거래 유형      -->
-                            <td th:style="${checkHistory.type == '입금' ? 'color: blue;' : (checkHistory.type == '출금' ? 'color: red;' : '')}"
-                                th:text="${checkHistory.type}">거래 유형
-                            </td>
-                        </tr>
-                        </tbody>
-                        <p th:if="${myCheckHistory == null || #lists.isEmpty(myCheckHistory)}">거래내역이 없습니다.</p>
-                    </table>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>나의 거래 내역</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="/">홈</a></li>
+                            <!--              <li class="breadcrumb-item active">Blank Page</li>-->
+                        </ol>
+                    </div>
                 </div>
+            </div><!-- /.container-fluid -->
+        </section>
 
-                <div th:if="${type == 'saving'}">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>거래일시</th>
-                            <th>거래 금액</th>
-                            <th>잔액</th>
-                            <th>거래 유형</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="saveHistory : ${mySaveHistory}">
-                            <td th:text="${saveHistory.transactionTime}">거래 시간</td>
-                            <!--      거래 금액      -->
-                            <td
-                                th:style="${saveHistory.type == '입금' ? 'color: blue;' : (saveHistory.type == '출금' ? 'color: red;' : '')}"
-                                th:text="${saveHistory.transactionAmount} + '원'">거래 금액
-                            </td>
-                            <!--      거래 후 잔액      -->
-                            <td th:text="${saveHistory.balanceAfter} + '원'">잔액</td>
-                            <!--      거래 유형      -->
-                            <td th:style="${saveHistory.type == '입금' ? 'color: blue;' : (saveHistory.type == '출금' ? 'color: red;' : '')}"
-                                th:text="${saveHistory.type}">거래 유형
-                            </td>
-                        </tr>
-                        </tbody>
-                        <p th:if="${mySaveHistory == null || #lists.isEmpty(mySaveHistory)}">거래내역이 없습니다.</p>
-                    </table>
+        <!-- Main content -->
+        <section class="content">
+
+            <!-- Default box -->
+            <div class="card">
+                <div class="card-header">
+
+                    <div class="card-tools">
+                    </div>
                 </div>
+                <div class="card-body">
+
+                    <!-- Filter 영역 시작 -->
+                    <section class="content">
+                        <div class="container-fluid">
+                            <form class="form-horizontal">
+                                <div class="row">
+
+                                    <div class="col-md-5">
+                                        <div class="card-body">
+                                            <div class="form-group row">
+                                                <label for="inputTxType"
+                                                       class="col-sm-4 col-form-label">거래 유형</label>
+                                                <div class="col-sm-8">
+                                                    <select id="inputTxType" name="txType"
+                                                            class="form-control select2" style="width: 100%;">
+                                                        <option value="all">전체</option>
+                                                        <option value="deposit">입금</option>
+                                                        <option value="withdraw">출금</option>
+                                                        <option value="transfer">계좌 이체</option>
+                                                        <option value="termination">중도 해지</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                    <!-- Filter 영역 끝 -->
+                    <input type="hidden" id="accountId" th:value="${accountId}" />
+                    <input type="hidden" id="type" th:value="${type}" />
+                    <input type="hidden" id="txType" th:value="${txType}" />
+
+                    <div id="checking-history" th:if="${type == 'checking'}">
+                        <table id="checkingTable" class="table table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th>거래일시</th>
+                                <th>거래 금액</th>
+                                <th>잔액</th>
+                                <th>거래 유형</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+
+                    <div id="saving-history" th:if="${type == 'saving'}">
+                        <table id="savingTable" class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>거래일시</th>
+                                <th>거래 금액</th>
+                                <th>잔액</th>
+                                <th>거래 유형</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+
+                    <!-- /.card-footer-->
+                </div>
+                <!-- /.card -->
             </div>
-        </div>
-        <footer class="main-footer">
-            <!-- To the right -->
-            <div class="float-right d-none d-sm-inline">
-                Anything you want
-            </div>
-            <!-- Default to the left -->
-            <strong>Copyright &copy; 2014-2024 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights
-            reserved.
-        </footer>
+        </section>
+        <!-- /.content -->
     </div>
-<th:block th:replace="~{layout/scripts :: scripts('', '')}"/>
+    <footer class="main-footer">
+        <div class="float-right d-none d-sm-block">
+            <b>Version</b> 3.1.0
+        </div>
+        <strong>Copyright &copy; 2014-2023 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
+    </footer>
 
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+        <!-- Control sidebar content goes here -->
+    </aside>
+    <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<th:block th:replace="~{layout/scripts :: scripts_tables('', '')}"/>
+
+<script src="/custom/my-script.js"></script>
+<script>
+    // 천단위로 콤마 표기
+    function formatNumberWithCommas(number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function formatDateTime(datetime) {
+        const date = new Date(datetime);
+        return date.toISOString().slice(0, 19).replace('T', ' ');
+    }
+
+    const accountId = $('#accountId').val();
+    const type = $('#type').val();
+
+    $(function () {
+        // Checking Account Table
+        let checkingTable = $('#checkingTable').DataTable({
+            "pagingType": "full_numbers",
+            "processing": true,
+            "serverSide": true,
+            "ordering": false,
+            "stateSave": true,
+            "searching": false, // 검색 박스 비활성화
+            "lengthChange": false, // 페이지 길이 선택 비활성화
+            "pageLength": 10,
+            "info": true, // 테이블 하단에 정보 표시
+            destroy: true,
+            paging: true,
+            autoWidth: false,
+            "ajax": {
+                "url": `/checking-transaction-history/${accountId}`,
+                "type": "POST",
+                "data": function (d) {
+                    return $.extend({}, d, {
+                        "txType": $("#inputTxType option:selected").val(),
+                    });
+                },
+                "dataSrc": function (res) {
+                    if (res.data.checkingTx.content.length === 0) {
+                        alert('해당 유형의 거래 데이터가 없습니다.');
+                    }
+                    return res.data.checkingTx.content;
+                }
+            },
+            "columns": [
+                {
+                    data: 'time',
+                    render: function(data) {
+                        return formatDateTime(data);
+                    }
+                },
+                {
+                    data: 'amount',
+                    render: function (data, type, row) {
+                        return `${formatNumberWithCommas(data)}원`;
+                    }
+                },
+                {
+                    data: 'balance',
+                    render: function (data) {
+                        return `${formatNumberWithCommas(data)}원`;
+                    }
+                },
+                {
+                    data: 'type',
+                    render: function (data) {
+                        return `<span style="color: ${data === 'deposit' ? 'blue' : 'red'};">${data}</span>`;
+                    }
+                }
+            ]
+        });
+
+        // Saving Account Table
+        let savingTable = $('#savingTable').DataTable({
+            "pagingType": "full_numbers",
+            "processing": true,
+            "serverSide": true,
+            "ordering": false,
+            "stateSave": true,
+            "searching": false,
+            "lengthChange": false,
+            "pageLength": 10,
+            "info": true,
+            "destroy": true,
+            "paging": true,
+            "autoWidth": false,
+            "ajax": {
+                "type": "POST",
+                "url": `/saving-transaction-history/${accountId}`,
+                "data": function (d) {
+                    return $.extend({}, d, {
+                        "txType": $("#inputTxType option:selected").val(),
+                    });
+                },
+                "dataSrc": function (res) {
+                    if (res.data.savingTx.content.length === 0) {
+                        alert('해당 유형의 거래 데이터가 없습니다.');
+                    }
+                    return res.data.savingTx.content;
+                }
+            },
+            "columns": [
+                {
+                    data: 'time',
+                    render: function(data) {
+                        return formatDateTime(data);
+                    }
+                },
+                {
+                    data: 'amount',
+                    render: function (data, type, row) {
+                        return `${formatNumberWithCommas(data)}원`;
+                    }
+                },
+                {
+                    data: 'balance',
+                    render: function (data) {
+                        return `${formatNumberWithCommas(data)}원`;
+                    }
+                },
+                {
+                    data: 'type',
+                    render: function (data) {
+                        return `<span style="color: ${data === 'deposit' ? 'blue' : 'red'};">${data}</span>`;
+                    }
+                }
+            ]
+        });
+        $('#inputTxType').on('change', function () {
+            if (type === 'saving') {
+                // savingTable에 조건 적용
+                savingTable.search('', true, false, true).draw();
+            } else if (type === 'checking') {
+                // checkingTable에 조건 적용
+                checkingTable.search('', true, false, true).draw();
+            }
+        });
+    });
+</script>
 </body>
 </html>

@@ -168,4 +168,42 @@ public class BankFrontService {
         return new DataTableView(draw, savingProductPage.getTotalElements(), savingProductPage.getTotalElements(), data);
 
     }
+
+    // 적금 거래 내역 목록(데이터 테이블)
+    public DataTableView getAllCheckingTx(long accountId, Member member, StringMultiValueMapAdapter param) {
+
+        int draw = param.intVal("draw");
+        int start = param.intVal("start");
+        int length = param.intVal("length");
+        String txType = param.stringVal("txType", null);
+
+        int pageNumber = (start / length);
+        final PageRequest pageable = PageRequest.of(pageNumber, length);
+
+        final Page<CheckingTransactionHistory> checkingTxPage = historyService.findAllByAccountIdAndType(accountId, txType, member.getId(), pageable);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("checkingTx", checkingTxPage);
+
+        return new DataTableView(draw, checkingTxPage.getTotalElements(), checkingTxPage.getTotalElements(), data);
+    }
+
+    // 적금 거래 내역 목록(데이터 테이블)
+    public DataTableView getAllSavingTx(long accountId, Member member, StringMultiValueMapAdapter param) {
+
+        int draw = param.intVal("draw");
+        int start = param.intVal("start");
+        int length = param.intVal("length");
+        String txType = param.stringVal("txType", null);
+
+        int pageNumber = (start / length);
+        final PageRequest pageable = PageRequest.of(pageNumber, length);
+;
+        final Page<SavingTransactionHistory> savingTxPage = savingTransactionHistoryService.findAllByAccountIdAndType(accountId, txType, member.getId(), pageable);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("savingTx", savingTxPage);
+
+        return new DataTableView(draw, savingTxPage.getTotalElements(), savingTxPage.getTotalElements(), data);
+    }
 }

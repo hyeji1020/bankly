@@ -3,10 +3,13 @@ package com.project.bankassetor.service.perist;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingAccount;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
 import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
+import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.enums.TransactionType;
 import com.project.bankassetor.primary.repository.CheckingTransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -41,12 +44,16 @@ public class CheckingTransactionHistoryService {
     }
 
     // 거래 내역 확인
-    public List<CheckingTransactionHistory> findBalanceHistory(Long accountId) {
-
-        return historyRepository.findHistoriesByAccountId(accountId);
-    }
+//    public List<CheckingTransactionHistory> findBalanceHistory(Long accountId) {
+//
+//        return historyRepository.findHistoriesByAccountId(accountId);
+//    }
 
     public List<CheckingTransactionHistory> findCheckTransactionHistoryByAccountId(long accountId) {
         return historyRepository.findByAccountId(accountId);
+    }
+
+    public Page<CheckingTransactionHistory> findAllByAccountIdAndType(long accountId, String txType, long memberId, PageRequest pageable) {
+        return historyRepository.findAllByAccountIdAndType(accountId, txType, memberId, pageable);
     }
 }

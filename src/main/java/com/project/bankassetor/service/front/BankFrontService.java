@@ -5,16 +5,17 @@ import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
-import com.project.bankassetor.primary.model.request.AccountCreateRequest;
-import com.project.bankassetor.primary.model.request.AccountRequest;
-import com.project.bankassetor.primary.model.request.InterestCalcRequest;
-import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
+import com.project.bankassetor.primary.model.request.*;
 import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.perist.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -58,12 +59,12 @@ public class BankFrontService {
     }
 
     // 거래 내역 확인
-    public List<CheckingTransactionHistoryResponse> findBalanceHistory(Long accountId) {
-
-        final List<CheckingTransactionHistory> balanceHistory = historyService.findBalanceHistory(accountId);
-
-        return CheckingTransactionHistoryResponse.of(balanceHistory);
-    }
+//    public List<CheckingTransactionHistoryResponse> findBalanceHistory(Long accountId) {
+//
+//        final List<CheckingTransactionHistory> balanceHistory = historyService.findBalanceHistory(accountId);
+//
+//        return CheckingTransactionHistoryResponse.of(balanceHistory);
+//    }
 
     // 계좌 생성
     public AccountCreateResponse createAccount(Long memberId, AccountCreateRequest createRequest) {

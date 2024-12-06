@@ -43,6 +43,8 @@ public class SavingAccountService {
                 .accountId(account.getId())
                 .memberId(memberId)
                 .monthlyDeposit(monthlyDeposit)
+                .currentDepositCount(0)
+                .totalDepositCount(savingProduct.getDurationInMonths())
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusMonths(savingProduct.getDurationInMonths()))
                 .build();

@@ -221,7 +221,7 @@ public class AccountService {
         // 저장
         Account account = Account.builder()
                 .accountNumber(newAccountNumber)
-                .balance(createRequest.getInitialDeposit())
+                .balance(BigDecimal.ZERO)
                 .type(AccountType.saving)
                 .status(AccountStatus.active)
                 .depositLimit(savingProduct.getSavingLimit())

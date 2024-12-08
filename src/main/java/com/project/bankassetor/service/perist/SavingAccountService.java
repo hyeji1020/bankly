@@ -8,6 +8,7 @@ import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.enums.AccountStatus;
+import com.project.bankassetor.primary.model.response.InterestCalcResponse;
 import com.project.bankassetor.primary.repository.AccountRepository;
 import com.project.bankassetor.primary.repository.SavingAccountRepository;
 import jakarta.transaction.Transactional;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.project.bankassetor.service.perist.InterestCalculationService.afterTaxInterest;
 
 @Slf4j
 @Service
@@ -40,6 +43,8 @@ public class SavingAccountService {
                 .accountId(account.getId())
                 .memberId(memberId)
                 .monthlyDeposit(monthlyDeposit)
+                .currentDepositCount(0)
+                .totalDepositCount(savingProduct.getDurationInMonths())
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusMonths(savingProduct.getDurationInMonths()))
                 .build();
@@ -142,7 +147,7 @@ public class SavingAccountService {
 
         BigDecimal monthlyDeposit = savingAccount.getMonthlyDeposit();
         int depositCount = savingAccount.getCurrentDepositCount();
-        BigDecimal interestRate = savingProduct.getInterestRate();
+        BigDecimal interestRate = savingProduct.getTermInterestRate();
         LocalDate startDate = savingAccount.getStartDate();
 
         BigDecimal terminateAmount = calculationService.terminateAmount(monthlyDeposit, depositCount, interestRate, startDate);
@@ -154,5 +159,20 @@ public class SavingAccountService {
 
         return historyService.savePenalty(accountId, savingAccount, terminateAmount);
 
+    }
+
+    // 사용자 예상 만기 이자
+    public InterestCalcResponse expectInterest(long accountId) {
+        SavingAccount savingAccount = findByAccountId(accountId);
+        SavingProduct savingProduct = savingProductService.findById(savingAccount.getSavingProductId());
+
+        BigDecimal principal = calculationService.totalPrincipal(savingAccount.getMonthlyDeposit(), savingAccount.getCurrentDepositCount());
+        BigDecimal beforeTaxInterest = calculationService.termInterest(savingAccount.getStartDate(), principal, savingProduct.getTermInterestRate());
+        BigDecimal afterTaxInterest = afterTaxInterest(beforeTaxInterest);
+        BigDecimal terminateAmount = calculationService.terminateAmount(
+                savingAccount.getMonthlyDeposit(), savingAccount.getCurrentDepositCount(),
+                savingProduct.getTermInterestRate(), savingAccount.getStartDate());
+
+        return InterestCalcResponse.of(principal, beforeTaxInterest, afterTaxInterest, terminateAmount);
     }
 }

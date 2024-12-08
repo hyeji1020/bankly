@@ -1,6 +1,8 @@
 package com.project.bankassetor.primary.repository;
 
 import com.project.bankassetor.primary.model.entity.Account;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,4 +25,20 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     @Query(value = "SELECT a.* FROM account a JOIN saving_account sa ON a.id = sa.accountId WHERE sa.memberId = :memberId", nativeQuery = true)
     Optional<List<Account>> findSaveByMemberId(@Param("memberId") long memberId);
+
+    @Query(value = """
+        SELECT *
+        FROM account
+        WHERE (id IN (SELECT accountId FROM checking_account WHERE memberId = :memberId) AND (:accountType = 'all' OR type = :accountType)
+            OR id IN (SELECT accountId FROM saving_account WHERE memberId = :memberId) AND (:accountType = 'all' OR type = :accountType))
+        AND (:keyword IS NULL OR accountNumber LIKE CONCAT('%', :keyword, '%'))
+
+    """, countQuery = """
+        SELECT count(*)
+        FROM account
+        WHERE (id IN (SELECT accountId FROM checking_account WHERE memberId = :memberId) AND (:accountType = 'all' OR type = :accountType)
+            OR id IN (SELECT accountId FROM saving_account WHERE memberId = :memberId)  AND (:accountType = 'all' OR type = :accountType))
+          AND (:keyword IS NULL OR accountNumber LIKE CONCAT('%', :keyword, '%'))
+    """, nativeQuery = true)
+    Page<Account> findAllByMemberId(@Param("accountType") String accountType, @Param("keyword") String keyword, long memberId, Pageable pageable);
 }

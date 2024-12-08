@@ -8,6 +8,8 @@ import com.project.bankassetor.primary.model.response.InterestCalcResponse;
 import com.project.bankassetor.primary.repository.SavingProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -55,5 +57,9 @@ public class SavingProductService {
 
     public long count() {
         return savingProductRepository.count();
+    }
+
+    public Page<SavingProduct> getAllSavingProducts(String keyword, PageRequest pageable) {
+        return savingProductRepository.getAllSavingProducts(keyword, pageable);
     }
 }

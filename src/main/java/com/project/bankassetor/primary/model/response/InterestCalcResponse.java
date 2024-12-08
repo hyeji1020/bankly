@@ -15,8 +15,8 @@ public class InterestCalcResponse {
 
     private String totalPrincipal;      // 총 납입 원금
     private String totalInterest;       // 예상 만기 이자 (세전)
-    private String taxAmount;        // 세금 차감액 (이자 소득세)
-    private String maturityAmount; // 예상 만기 금액 (세후)
+    private String taxAmount;        // 세후 이자
+    private String maturityAmount; // 예상 만기 금액
 
     private static String formatAmount(BigDecimal amount) {
         DecimalFormat decimalFormat = new DecimalFormat("#,###");

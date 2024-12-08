@@ -42,13 +42,6 @@ public class BankApi {
         return new ResultResponse<>(response);
     }
 
-    // 거래 내역 확인
-    @GetMapping("/{accountId}/balance-history")
-    public ResultResponse<List<CheckingTransactionHistoryResponse>> findBalanceHistory(@PathVariable Long accountId) {
-        List<CheckingTransactionHistoryResponse> response = bankFrontService.findBalanceHistory(accountId);
-        return new ResultResponse<>(response);
-    }
-    
     // 당좌 계좌 생성
     @PostMapping("/checking-accounts")
     public ResultResponse<AccountCreateResponse> createCheckingAccount(@Authed Member member, @Valid @RequestBody AccountCreateRequest createRequest) {

@@ -7,6 +7,8 @@ import com.project.bankassetor.primary.model.enums.TransactionType;
 import com.project.bankassetor.primary.repository.SavingTransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -64,5 +66,9 @@ public class SavingTransactionHistoryService {
         log.info("거래내역 정보:{}", toJson(history));
 
         return historyRepository.save(history);
+    }
+
+    public Page<SavingTransactionHistory> findAllByAccountIdAndType(long accountId, String txType, long memberId, PageRequest pageable) {
+        return historyRepository.findAllByAccountIdAndType(accountId, txType, memberId, pageable);
     }
 }

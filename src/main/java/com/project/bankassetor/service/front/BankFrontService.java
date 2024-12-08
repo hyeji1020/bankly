@@ -5,16 +5,17 @@ import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
 import com.project.bankassetor.primary.model.entity.account.save.SavingProduct;
 import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
-import com.project.bankassetor.primary.model.request.AccountCreateRequest;
-import com.project.bankassetor.primary.model.request.AccountRequest;
-import com.project.bankassetor.primary.model.request.InterestCalcRequest;
-import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
+import com.project.bankassetor.primary.model.request.*;
 import com.project.bankassetor.primary.model.response.*;
 import com.project.bankassetor.service.perist.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -55,14 +56,6 @@ public class BankFrontService {
         // 응답 DTO 반환
         return AccountTransferResponse.of(transferAccount, accountRequest.getAmount());
 
-    }
-
-    // 거래 내역 확인
-    public List<CheckingTransactionHistoryResponse> findBalanceHistory(Long accountId) {
-
-        final List<CheckingTransactionHistory> balanceHistory = historyService.findBalanceHistory(accountId);
-
-        return CheckingTransactionHistoryResponse.of(balanceHistory);
     }
 
     // 계좌 생성
@@ -123,9 +116,92 @@ public class BankFrontService {
 
     }
 
+    public InterestCalcResponse expectInterest(long accountId) {
+        return savingAccountService.expectInterest(accountId);
+
+    }
+
     public SavingTransactionHistoryResponse terminateSavingAccount(long accountId, long memberId) {
         final SavingTransactionHistory saveHistory = savingAccountService.terminateSavingAccount(accountId, memberId);
 
         return SavingTransactionHistoryResponse.of(saveHistory);
+    }
+
+    // 나의 계좌 목록(데이터 테이블)
+    public DataTableView getMyAllAccounts(Member member, StringMultiValueMapAdapter param) {
+
+        int draw = param.intVal("draw");
+        int start = param.intVal("start");
+        int length = param.intVal("length");
+        String accountType = param.stringVal("accountType", null);
+        String keyword = param.stringVal("keyword", null);
+
+        int pageNumber = (start / length);
+        final PageRequest pageable = PageRequest.of(pageNumber, length);
+
+        final Page<Account> accountPage = accountService.findAllByMemberId(accountType, keyword, member.getId(), pageable);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("accounts", accountPage);
+
+        return new DataTableView(draw, accountPage.getTotalElements(), accountPage.getTotalElements(), data);
+    }
+
+    // 적금 상품 목록(데이터 테이블)
+    public DataTableView getAllSavingProducts(Member member, StringMultiValueMapAdapter param) {
+
+        int draw = param.intVal("draw");
+        int start = param.intVal("start");
+        int length = param.intVal("length");
+        String keyword = param.stringVal("keyword", null);
+
+        int pageNumber = (start / length);
+        final PageRequest pageable = PageRequest.of(pageNumber, length);
+
+        final Page<SavingProduct> savingProductPage = savingProductService.getAllSavingProducts(keyword, pageable);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("savingProducts", savingProductPage);
+
+        return new DataTableView(draw, savingProductPage.getTotalElements(), savingProductPage.getTotalElements(), data);
+
+    }
+
+    // 적금 거래 내역 목록(데이터 테이블)
+    public DataTableView getAllCheckingTx(long accountId, Member member, StringMultiValueMapAdapter param) {
+
+        int draw = param.intVal("draw");
+        int start = param.intVal("start");
+        int length = param.intVal("length");
+        String txType = param.stringVal("txType", null);
+
+        int pageNumber = (start / length);
+        final PageRequest pageable = PageRequest.of(pageNumber, length);
+
+        final Page<CheckingTransactionHistory> checkingTxPage = historyService.findAllByAccountIdAndType(accountId, txType, member.getId(), pageable);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("checkingTx", checkingTxPage);
+
+        return new DataTableView(draw, checkingTxPage.getTotalElements(), checkingTxPage.getTotalElements(), data);
+    }
+
+    // 적금 거래 내역 목록(데이터 테이블)
+    public DataTableView getAllSavingTx(long accountId, Member member, StringMultiValueMapAdapter param) {
+
+        int draw = param.intVal("draw");
+        int start = param.intVal("start");
+        int length = param.intVal("length");
+        String txType = param.stringVal("txType", null);
+
+        int pageNumber = (start / length);
+        final PageRequest pageable = PageRequest.of(pageNumber, length);
+;
+        final Page<SavingTransactionHistory> savingTxPage = savingTransactionHistoryService.findAllByAccountIdAndType(accountId, txType, member.getId(), pageable);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("savingTx", savingTxPage);
+
+        return new DataTableView(draw, savingTxPage.getTotalElements(), savingTxPage.getTotalElements(), data);
     }
 }

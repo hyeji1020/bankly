@@ -1,0 +1,135 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title 뱅크 시뮬레이터 시퀀스 다이어그램
+
+autonumber
+
+== 시스템 사전준비 ==
+participant Admin
+
+Admin -> Admin: 적금 상품(AccountProduct) 10개 생성
+Admin -> Admin: 사용자(Member) 100명 생성
+Admin -> Admin: 입출금 & 적금계좌(Account) 총 200개 생성
+Admin -> Admin: 로그인
+
+note right
+**Admin 기능**
+* 랜덤하게 총 200개 계좌를 생성한다.
+* 100명의 사용자는 랜덤하게 계좌를 소유한다.
+* 로그인 후 사용 가능하다.
+end note
+
+== 운영 상황 ==
+
+control 적금만기체커
+적금만기체커 -> 적금만기체커: 모든계좌를 순회하면서 만기가 되었는지 확인함
+적금만기체커 -> API서버: 만약에 만기가되면 원금+이자를 지급하고 상태를 변경함.
+
+
+opt [적금 상품 목록 조회하기]
+User -> API서버: 적금 상품 목록 조회
+
+API서버 -> API서버: requestId 생성
+    note right
+    **requestId**
+    * 요청별 고유 식별자인 requestId를 생성하여 추적용으로 사용.
+    * 모든 API 요청마다 생성되는 아이디로써 엑세스로그에 표시. (이하 표시 생략)
+    end note
+
+API서버 -> API서버: 엑세스 로그 생성
+    note right
+    **엑세스 로그**
+    * AccessLogFilter에서 요청 내용을 메모리에 기록. (이하 표시 생략)
+    * 요청 ID(requestId), 사용자 정보, 요청 시간 등이 포함됨
+    end note
+
+API서버 -> DB: 적금 상품 목록 조회 (getSavingProducts())
+    note right
+    * DB에 직접 쿼리를 보내 적금 상품 목록을 조회.
+    end note
+
+DB -> API서버: 적금 상품 목록 응답
+    note right
+    * DB에서 조회된 적금 상품 목록을 API 서버로 반환. (이하 표시 생략)
+    end note
+
+API서버 --> Queue: 엑세스 로그 저장 요청
+    note right
+    * AccessLogFilter에서 엑세스 로그 정보를 MQ로 전송.(이하 표시 생략)
+    end note
+
+API서버 -> User: 적금 상품 목록 응답
+    note right
+    *API 서버가 사용자에게 적금 상품 목록 결과를 응답.
+    end note
+end opt
+
+'특정 적금 상품'
+opt [ 적금 상품 상세 조회 및 가입하기]
+User -> API서버: 적금 상품 상세 조회
+API서버 -> DB: 적금 상품 상세 조회 (getSavingProduct(productId))
+
+API서버 -> User: 적금 상품 상세 응답
+    note right
+    **적금 상품**
+    * 상품명, 상품설명, 이자율, 가입기간, 월 납입한도, 중도해지 이자율
+    end note
+
+User -> API서버: 예상만기액 조회 (월 납입액)
+API서버 -> DB: 예상만기액 조회 (calculateInterest(productId, 월 납입액))
+
+API서버 -> User: 지급만기액 응답
+    note right
+    만기 원금, 예상 이자, 총 지급 금액(원금 + 이자))
+    end note
+
+User -> API서버: 적금 가입하기
+API서버 -> DB: 사용자 적금 계좌 생성 (createSavingAccount(member_id, productId, 월납입액))
+end opt
+
+
+opt [입금하기]
+User -> API서버: 계좌 입금하기(계좌번호, 입금액)
+
+API서버 -> API서버: 파라미터 validation 체크(잔액 부족, 계좌 상태 확인)
+    note right
+    **계좌 간 거래**
+    * 모든 거래에서 유효성 검사를 진행한다. (이하 표시 생략)
+    end note
+API서버 -> DB: 유저 잔고 업데이트
+API서버 -> User : 입금 실행 결과
+end opt
+
+opt [출금하기]
+User -> API서버: 계좌 출금(계좌번호, 출금액)
+API서버 -> DB: 유저 잔고 업데이트
+API서버 -> User : 출금 실행 결과
+end opt
+
+opt [계좌이체]
+User -> API서버: 계좌간 이체(출금계좌아이디, 계좌번호, 출금액)
+API서버 -> DB: 유저 잔고 업데이트
+API서버 -> User : 계좌 이체 실행 결과
+end opt
+
+== 계좌생성 이후 ~ 만기 전까지 ==
+opt 중도해지 실행하기 (패널티 내용 확인은 생략)
+    User -> API서버 : 중도해지 요청하기 (계좌아이디)
+    API서버 -> DB : 유저 잔고 업데이트 및 계좌 상태 변경
+    API서버 -> User: 중도해지 실행결과
+end opt
+
+Queue --> 메시지서버: 엑세스 로그 전달
+    note right
+    * 모든 API 요청의 엑세스 로그를 전달한다.
+    end note
+
+메시지서버 -> 메시지서버:
+    note right
+    * 전달 받은 엑세스 로그의 validation 체크를 한다.
+    * 엑세스 로그를 메모리에 적재한다.
+    * 일정시간이 지나면 DB에 bulk insert 하고 flush 한다.
+    end note
+
+@enduml

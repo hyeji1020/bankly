@@ -58,14 +58,6 @@ public class BankFrontService {
 
     }
 
-    // 거래 내역 확인
-//    public List<CheckingTransactionHistoryResponse> findBalanceHistory(Long accountId) {
-//
-//        final List<CheckingTransactionHistory> balanceHistory = historyService.findBalanceHistory(accountId);
-//
-//        return CheckingTransactionHistoryResponse.of(balanceHistory);
-//    }
-
     // 계좌 생성
     public AccountCreateResponse createAccount(Long memberId, AccountCreateRequest createRequest) {
 

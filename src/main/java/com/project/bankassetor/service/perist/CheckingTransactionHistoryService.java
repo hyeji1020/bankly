@@ -43,12 +43,6 @@ public class CheckingTransactionHistoryService {
         return historyRepository.save(toHistory);
     }
 
-    // 거래 내역 확인
-//    public List<CheckingTransactionHistory> findBalanceHistory(Long accountId) {
-//
-//        return historyRepository.findHistoriesByAccountId(accountId);
-//    }
-
     public List<CheckingTransactionHistory> findCheckTransactionHistoryByAccountId(long accountId) {
         return historyRepository.findByAccountId(accountId);
     }

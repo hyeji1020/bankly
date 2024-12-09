@@ -1,12 +1,12 @@
 <div align="center">
     
-# 💰Bankly 
+# 💰Bankly💰
 은행 서비스를 위한 플랫폼
 
 ### 📌 서비스 개요
 숫자와 금액처럼 민감한 데이터를 다루는 은행 서비스를 구현하며,<br>
 **정확성**과 **신뢰성**을 갖춘 플랫폼 개발 역량을 키우고자 이 프로젝트를 진행했습니다.<br>
-**실시간 계좌 거래**와 **적금 만기 시 이자 지급** 시스템을 통해 실제 금융 서비스와 유사한 환경을 제공합니다.
+**실시간 계좌 거래**와 **적금 만기 시 자동 이자 지급** 시스템을 통해 실제 금융 서비스와 유사한 환경을 제공합니다.
 
 ### 🛠️ 기술 스택
 ![Java](https://img.shields.io/badge/Java-21-blue?logo=openjdk&logoColor=white)       
@@ -17,6 +17,8 @@
 ![Redis](https://img.shields.io/badge/Redis-Cache-red?logo=redis&logoColor=white)    
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Message%20Broker-orange?logo=rabbitmq) 
 
+### ⏰ 개발 기간
+2024-10-22 ~ 진행 중 
 
 </div>
 
@@ -32,29 +34,20 @@
 
 ### 1. 서비스 아키텍처 및 시퀀스 다이어그램
 
-<details>
-<summary>서비스 아키텍처</summary>
+**⚡서비스 아키텍처**<br>
+추가 예정
     
-</details>
-<details>
-<summary>시퀀스 다이어그램</summary>
-    
-![bankly-sequenceDiagram](https://github.com/user-attachments/assets/6bb25475-a23d-4592-9e6d-77ee1d8d7875)
+**⚡ 시퀀스 다이어그램**   
+![bankly-sequenceDiagram](https://github.com/user-attachments/assets/f6ffa73e-f339-49c5-b05d-e54929d020d8)
 
-</details>
 
 ### 2. ERD 및 디렉터리 구조
-
-<details>
-<summary>ERD</summary>
-    
+**🌈ERD**   
 ![image](https://github.com/user-attachments/assets/b1e316fa-1734-4467-8f03-7875cf1c41d4)
-</details>
-<details>
-    
-<summary>디렉터리 구조</summary>
 
-</details>
+**🌈 디렉터리 구조**<br>
+추가 예정
+
 
 ### 3. 주요 기능
 - **로그인 및 회원가입**
@@ -67,18 +60,18 @@
     - 계좌별 **거래 내역 조회** 기능 제공
 
 - **엑세스 로그 관리**
-    - **RabbitMQ 기반 메시지 큐**를 활용해 사용자 활동 로그를 전송하고, 별도의 로그 처리 서비스에서 **비동기로 수신 및 저장**
-    - **저장 실패된 로그**는 별도로 관리하여 **consumer.log**파일로 저장
+    - **RabbitMQ 기반 메시지 큐**를 활용해 사용자 활동 로그를 전송하고, 별도의 로그 처리 서비스에서 **비동기로 수신 및 저장** 함으로써, 로그 저장 작업이 애플리케이션의 주요 프로세스에 영향을 주지 않고 원활히 수행되도록 설계
+    - **저장 실패된 로그**는 별도로 관리하여 **consumer.log**파일로 저장하고 **데이터 손실을 방지**
 
 - **텔레그램 알림**
-    - 새로운 회원 가입 및 엑세스 로그 저장 중 장애 또는 예외 발생 시 **Telegram Bot API**를 통해 알림 전송
+    - 회원 가입 시 운영자가 누가 가입했는지 파악하고, 엑세스 로그 저장 중 장애 발생 시 신속한 문제 해결을 위해 **Telegram Bot API**를 통해 알림을 전송
 
 - **적금 만기 자동화**
-    - **Spring Batch**를 사용해 매일 만기 도래 계좌를 확인하고, **만기 금액 입금** 및 계좌 상태를 자동으로 업데이트
+    - **Spring Scheduler**를 사용해 매일 만기 도래 계좌를 확인하고, **만기 금액 입금** 및 **상태를 자동으로 업데이트**
 
 - **Config 데이터 관리**
-    - `yml` 파일의 **`access-log.enabled`** 설정 값에 따라 `AccessLogFilter`의 활성화 여부를 제어
-    - **Redis 캐시**를 연동해 자주 조회되는 Config 데이터를 효율적으로 관리
+    - `yml` 파일의 **`access-log.enabled`** 설정 값에 따라 **`AccessLogFilter`의 활성화 여부를 제어**
+    - **Redis 캐시**를 연동해 **자주 조회되는 Config 데이터**를 효율적으로 관리함으로써, 설정 변경 시 애플리케이션 **재배포 없이** Config 데이터와 캐시만 업데이트하면 되므로 **운영 부담 감소** 효과
 
 - **이자 관리**
     - 적금 상품별로 **이자와 세금을 포함해 최종 금액을 계산**하는 기능 제공
@@ -106,6 +99,8 @@
 | 11 | `GET`  | `/api/bank/saving-transaction-history/{accountId}`     |      ✔        |     적금 거래내역     |
 | 12 | `POST` | `/api/bank/interest/calculate/{savingProductId}`       |       ✔        | 특정 적금 상품 이자 계산기 |
 | 13 | `POST`  | `/api/bank/my-saving-accounts/{accountId}/terminate`   |       ✔        |    적금 중도 해지     |
+| 14 | `GET`  | `/health-check`   |               |    시스템 진단     |
+| 15 | `POST`  | `/health-check`   |               |    시스템 진단     |
 
 
 ### 5. 서비스 및 포트 정보
@@ -139,4 +134,4 @@
 
 
 ### 7. 빌드 및 실행 방법
-추후에 추가 예정입니다.
+추가 예정

@@ -18,7 +18,7 @@
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Message%20Broker-orange?logo=rabbitmq) 
 
 ### ⏰ 개발 기간
-2024-10-22 ~ 진행 중 
+2024-10-01 ~ 진행 중 
 
 </div>
 

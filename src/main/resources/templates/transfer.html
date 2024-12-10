@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout/head :: head('이체하기', '')}">
+
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+    <!-- Navbar -->
+    <th:block th:replace="~{layout/navbar :: navbar(${member}, '')}"/>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <th:block th:replace="~{layout/sidebar :: sidebar(${member}, '/', '1')}"/>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+
+        <input type="hidden" id="accountId" th:value="${accountId}" />
+
+        <div class="container">
+            <div class="card">
+                <form id="transferForm" th:data-account-id="${accountId}">
+                    <div class="card-body">
+                        <input type="text" id="accountNumber" name="accountNumber" class="form-control"
+                               placeholder="보낼 계좌번호를 입력해주세요.">
+                        <input type="number" id="amount" name="amount" class="form-control"
+                               placeholder="보낼 금액을 입력해주세요.">
+                        <div class="button-group text-center" style="margin-top: 10px">
+                            <button type="button" id="transferButton" class="btn btn-primary">이체하기</button>
+                        </div>
+                    </div>
+                    <div class="card-body" id="resultBody">
+                        <!-- 결과가 동적으로 표시될 영역 -->
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+    <footer class="main-footer">
+        <div class="float-right d-none d-sm-block">
+            <b>Version</b> 3.1.0
+        </div>
+        <strong>Copyright &copy; 2014-2023 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
+    </footer>
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+        <!-- Control sidebar content goes here -->
+    </aside>
+    <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<th:block th:replace="~{layout/scripts :: scripts_tables('', '')}"/>
+
+<script>
+    $(document).ready(function () {
+        $('#transferButton').on('click', function () {
+            const accountId = $('#transferForm').data('accountId');
+            const accountNumber = $('#accountNumber').val();
+            const amount = $('#amount').val();
+
+            if (!accountNumber) {
+                alert('보낼 계좌번호를 입력해주세요.');
+                return;
+            }
+
+            if (!amount || amount <= 0) {
+                alert('보낼금액을 바르게 입력해주세요.');
+                return;
+            }
+
+            // Ajax 요청
+            $.ajax({
+                url: `/${accountId}/transferProc`,
+                method: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    accountNumber: accountNumber, // 받는 계좌 번호
+                    amount: amount               // 이체 금액
+                }),
+                success: function (response) {
+                    console.log("response:{}", response);
+                    $('#resultBody').html(`
+                        <p style="color: black;">${response.amount}원 이체했습니다.</p>
+                        <p style="color: black;">받는 계좌: ${response.toAccountNumber}</p>
+                    `);
+                    setTimeout(function () {
+                        window.location.href = '/my-accounts'; // 이동할 URL
+                    }, 3000);
+                },
+                error: function (xhr) {
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText); // 서버에서 반환된 JSON 파싱
+                        alert(`오류 코드: ${errorResponse.code}\n메시지: ${errorResponse.message}`);
+                    } catch (e) {
+                        alert("서버에서 알 수 없는 오류가 발생했습니다.");
+                        console.error(e, xhr.responseText);
+                    }
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

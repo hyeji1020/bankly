@@ -87,6 +87,10 @@
                             지금 해지하면?
                         </button>
                     </div>
+                    <button id="transferButton" class="btn btn-primary"
+                            th:onclick="'location.href=\'/' + ${accountId} + '/transfer\''">
+                        이체하기
+                    </button>
 
                     <div id="checking-history" th:if="${type == 'checking'}">
                         <table id="checkingTable" class="table table-bordered table-hover">
@@ -140,6 +144,7 @@
 <th:block th:replace="~{layout/scripts :: scripts_tables('', '')}"/>
 
 <script src="/custom/my-script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs"></script>
 <script>
 
     const accountId = $('#accountId').val();
@@ -151,8 +156,7 @@
     }
 
     function formatDateTime(datetime) {
-        const date = new Date(datetime);
-        return date.toISOString().slice(0, 19).replace('T', ' ');
+        return moment(datetime).format('YYYY-MM-DD HH:mm:ss');
     }
 
     $(function () {
@@ -279,6 +283,12 @@
                 checkingTable.search('', true, false, true).draw();
             }
         });
+
+        // 1. 이체하기 버튼
+        $("#btnUpdate").click(function (event) {
+            myScript.update("#form", "/my-account-update");
+        });
+
     });
 </script>
 </body>

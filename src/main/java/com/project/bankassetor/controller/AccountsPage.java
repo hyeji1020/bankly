@@ -3,6 +3,7 @@ package com.project.bankassetor.controller;
 import com.project.bankassetor.config.security.Authed;
 import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.enums.AccountType;
+import com.project.bankassetor.primary.model.request.AccountRequest;
 import com.project.bankassetor.primary.model.request.InterestCalcRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.primary.model.request.StringMultiValueMapAdapter;
@@ -182,10 +183,28 @@ public class AccountsPage {
 
         AccountCreateResponse response = bankFrontService.createSavingAccount(member.getId(), savingProductId, request);
 
-        model.getAttribute("savingProductId");
         model.addAttribute("member", member);
         model.addAttribute("response", response);
         return "redirect:/my-accounts";
+    }
+
+    // 계좌 이체 페이지
+    @GetMapping("/{accountId}/transfer")
+    public String transferPage(@PathVariable long accountId, @Authed Member member, Model model) {
+
+        model.addAttribute("member", member);
+        model.addAttribute("accountId", accountId);
+
+        return "transfer";
+    }
+
+    // 계좌 이체하기
+    @PutMapping("/{accountId}/transferProc")
+    @ResponseBody
+    public AccountTransferResponse transferProc(@PathVariable long accountId,
+                               @Valid @RequestBody AccountRequest request) {
+
+        return bankFrontService.transfer(accountId, request);
     }
 
 }

@@ -224,10 +224,18 @@
                 {
                     data: 'status',
                     render: function (data, type, row, meta) {
+                        const statusDescriptions = {
+                            active: '활성화',
+                            close: '종료',
+                            expired: '만기',
+                            inactive : '비활성화'
+                        };
+
+                        const statusDescription = statusDescriptions[data] || '알 수 없음';
                         if (row['type'] === 'checking') {
-                            return '<a href="/checking-transaction-history/' + row['id'] + '">' + data + '</a>';
+                            return '<a href="/checking-transaction-history/' + row['id'] + '">' + statusDescription + '</a>';
                         } else if (row['type'] === 'saving') {
-                            return '<a href="/saving-transaction-history/' + row['id'] + '">' + data + '</a>';
+                            return '<a href="/saving-transaction-history/' + row['id'] + '">' + statusDescription + '</a>';
                         }
                     }
                 },

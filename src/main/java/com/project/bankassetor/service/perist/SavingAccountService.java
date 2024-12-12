@@ -74,7 +74,8 @@ public class SavingAccountService {
         // 만기 도래한 계좌 조회
         List<SavingAccount> accounts = savingAccountRepository.findAllByEndDateBefore(LocalDate.now());
 
-        Map<Long, Account> expiredAccountMap = new HashMap<>();
+        // 배치 업데이트를 위한 리스트
+        List<Account> expiredAccounts = new ArrayList<>();
 
         for (SavingAccount savingAccount : accounts) {
             Long accountId = savingAccount.getAccountId();
@@ -85,13 +86,10 @@ public class SavingAccountService {
                         return new BankException(ErrorCode.ACCOUNT_NOT_FOUND);
                     });
 
-            if(account.getStatus() == AccountStatus.active){
-
-                // 월 납입액, 납입회차
+            if (account.getStatus() == AccountStatus.active) {
                 BigDecimal monthlyDeposit = savingAccount.getMonthlyDeposit();
                 int depositCount = savingAccount.getCurrentDepositCount();
 
-                // 각 적금 상품의 이자
                 SavingProduct savingProduct = savingProductService.findById(savingAccount.getSavingProductId());
                 BigDecimal interestRate = savingProduct.getInterestRate();
 
@@ -99,19 +97,25 @@ public class SavingAccountService {
                 BigDecimal maturityAmount = calculationService.maturityAmount(monthlyDeposit, depositCount, interestRate);
 
                 account.setBalance(maturityAmount);
-                log.info("만기 도래 계좌 금액 업데이트 중 :계좌번호: {} 지급액: {}", account.getAccountNumber(), maturityAmount);
+                log.info("만기 도래 계좌 금액 업데이트 중 : 계좌번호: {} 지급액: {}", account.getAccountNumber(), maturityAmount);
 
-                // 각 계좌의 상태를 만기(expired)로 업데이트
                 account.setStatus(AccountStatus.expired);
                 log.info("만기 도래 계좌 상태 업데이트 중: 계좌번호: {} 만기 처리 완료. 현재 상태: {}", account.getAccountNumber(), account.getStatus());
 
-                // 업데이트된 계좌 정보를 Map에 저장하여 중복 방지
-                expiredAccountMap.put(accountId, account);
+                expiredAccounts.add(account);
+
+                // 배치 크기 도달 시 저장
+                if (expiredAccounts.size() % 50 == 0) {
+                    accountRepository.saveAll(expiredAccounts);
+                    expiredAccounts.clear();
+                }
             }
+
+            if (!expiredAccounts.isEmpty()) {
+                accountRepository.saveAll(expiredAccounts);
+            }
+
         }
-        // Map의 모든 값을 리스트로 변환 후 한 번에 저장
-        log.info("만기 적금 리스트 저장 중");
-        accountRepository.saveAll(new ArrayList<>(expiredAccountMap.values()));
 
     }
 

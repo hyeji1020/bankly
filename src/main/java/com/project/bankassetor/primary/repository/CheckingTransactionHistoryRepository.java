@@ -20,11 +20,13 @@ public interface CheckingTransactionHistoryRepository extends JpaRepository<Chec
         SELECT *
         FROM checking_tx_history
         WHERE accountId = :accountId  AND memberId = :memberId AND (:txType = 'all' OR type = :txType)
+        ORDER BY time DESC;
 
     """, countQuery = """
         SELECT count(*)
         FROM checking_tx_history
         WHERE accountId = :accountId  AND memberId = :memberId AND (:txType = 'all' OR type = :txType)
+        ORDER BY time DESC;
     """, nativeQuery = true)
     Page<CheckingTransactionHistory> findAllByAccountIdAndType(@Param("accountId") long accountId, @Param("txType") String txType, @Param("memberId") long memberId, PageRequest pageable);
 }

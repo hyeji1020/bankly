@@ -44,7 +44,7 @@ public class MemberService {
 
         Optional<Member> isUser = memberRepository.findMemberByEmail(joinRequest.getEmail());
         if (isUser.isPresent()) {
-            log.warn("{} :이미 가입되어 있는 이메일입니다.", joinRequest.getEmail());
+            log.warn("회원가입 중: {} :이미 가입되어 있는 이메일입니다.", joinRequest.getEmail());
             throw new BankException(ErrorCode.USER_EMAIL_DUPLICATE);
         }
 

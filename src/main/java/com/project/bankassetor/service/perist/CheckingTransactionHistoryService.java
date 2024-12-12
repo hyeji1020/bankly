@@ -38,7 +38,7 @@ public class CheckingTransactionHistoryService {
                 .type(TransactionType.valueOf(transactionType))
                 .build();
 
-        log.info("거래내역 정보:{}", toJson(toHistory));
+        log.info("입출금 거래내역 정보:{}", toJson(toHistory));
 
         return historyRepository.save(toHistory);
     }

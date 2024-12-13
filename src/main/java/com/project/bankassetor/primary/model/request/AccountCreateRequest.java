@@ -1,5 +1,6 @@
 package com.project.bankassetor.primary.model.request;
 
+import jakarta.validation.constraints.Min;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,9 +12,11 @@ import java.math.BigDecimal;
 public class AccountCreateRequest {
 
     // 초기 입금액
+    @Min(0)
     BigDecimal initialDeposit;
 
-    // 초기 입금액
+    // 월 입금액
+    @Min(0)
     BigDecimal monthlyDeposit;
 
     // 입금 한도

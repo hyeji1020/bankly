@@ -1,8 +1,10 @@
 package com.project.bankassetor.controller;
 
 import com.project.bankassetor.config.security.Authed;
+import com.project.bankassetor.exception.BankException;
 import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.enums.AccountType;
+import com.project.bankassetor.primary.model.request.AccountRequest;
 import com.project.bankassetor.primary.model.request.InterestCalcRequest;
 import com.project.bankassetor.primary.model.request.SavingAccountCreateRequest;
 import com.project.bankassetor.primary.model.request.StringMultiValueMapAdapter;
@@ -14,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.MultiValueMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -172,20 +175,71 @@ public class AccountsPage {
         model.addAttribute("member", member);
         model.addAttribute("savingProductId", savingProductId);
         model.getAttribute("savingProduct");
+        model.addAttribute("createRequest", new SavingAccountCreateRequest());
         return "create-account";
     }
 
     // 계좌 생성하기
     @PostMapping("/saving-products/{savingProductId}/accounts")
     public String createSavingAccount(@PathVariable long savingProductId, @Authed Member member, Model model,
-                                      @Valid @ModelAttribute SavingAccountCreateRequest request) {
+                                      @Valid @ModelAttribute SavingAccountCreateRequest createRequest,
+                                      BindingResult bindingResult) {
 
-        AccountCreateResponse response = bankFrontService.createSavingAccount(member.getId(), savingProductId, request);
 
-        model.getAttribute("savingProductId");
         model.addAttribute("member", member);
-        model.addAttribute("response", response);
+        model.addAttribute("savingProductId", savingProductId);
+
+        if(bindingResult.hasErrors()){
+            model.addAttribute("createRequest", createRequest);
+            return "create-account";
+        }
+
+        try {
+            bankFrontService.createSavingAccount(member.getId(), savingProductId, createRequest);
+        } catch (BankException ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("createRequest", createRequest);
+            return "create-account";
+        }
+
         return "redirect:/my-accounts";
+    }
+
+    // 계좌 이체 페이지
+    @GetMapping("/{accountId}/transfer")
+    public String transferPage(@PathVariable long accountId, @Authed Member member, Model model) {
+
+        model.addAttribute("member", member);
+        model.addAttribute("accountId", accountId);
+        model.addAttribute("accountRequest", new AccountRequest());
+
+        return "transfer";
+    }
+
+    // 계좌 이체하기
+    @PostMapping("/{accountId}/transfer")
+    public String transferProc(@PathVariable long accountId, @Authed Member member, Model model,
+                               @Valid @ModelAttribute AccountRequest accountRequest,
+                               BindingResult bindingResult) {
+
+        model.addAttribute("member", member);
+        model.addAttribute("accountId", accountId);
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("accountRequest", accountRequest);
+            return "transfer";
+        }
+        AccountTransferResponse response;
+        try {
+            response = bankFrontService.transfer(accountId, accountRequest);
+        } catch (BankException ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("accountRequest", accountRequest);
+            return "transfer";
+        }
+
+        model.addAttribute("response", response);
+        return "transfer";
     }
 
 }

@@ -36,7 +36,7 @@ public class BankApi {
     }
 
     // 계좌 이체
-    @PutMapping("/{fromAccountId}/transfer")
+    @PostMapping("/{fromAccountId}/transfer")
     public ResultResponse<AccountTransferResponse> transfer(@PathVariable Long fromAccountId, @Valid @RequestBody AccountRequest accountRequest) {
         AccountTransferResponse response = bankFrontService.transfer(fromAccountId, accountRequest);
         return new ResultResponse<>(response);

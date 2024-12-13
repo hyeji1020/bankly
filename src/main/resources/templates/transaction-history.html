@@ -77,15 +77,23 @@
                         </div>
                     </section>
                     <!-- Filter 영역 끝 -->
-                    <input type="hidden" id="accountId" th:value="${accountId}" />
-                    <input type="hidden" id="type" th:value="${type}" />
-                    <input type="hidden" id="txType" th:value="${txType}" />
+                    <input type="hidden" id="accountId" th:value="${accountId}"/>
+                    <input type="hidden" id="type" th:value="${type}"/>
+                    <input type="hidden" id="txType" th:value="${txType}"/>
 
-                    <div th:if="${type == 'saving'}">
-                        <button id="terminateButton" class="btn btn-danger"
-                                th:onclick="'location.href=\'/my-saving-accounts/' + ${accountId} + '/terminate\''">
-                            지금 해지하면?
-                        </button>
+                    <div class="d-flex justify-content-center">
+                        <div th:if="${type == 'saving'}" class="mx-2">
+                            <button id="terminateButton" class="btn btn-danger"
+                                    th:onclick="'location.href=\'/my-saving-accounts/' + ${accountId} + '/terminate\''">
+                                지금 해지하면?
+                            </button>
+                        </div>
+                        <div class="mx-2">
+                            <button id="transferButton" class="btn btn-primary"
+                                    th:onclick="'location.href=\'/' + ${accountId} + '/transfer\''">
+                                이체하기
+                            </button>
+                        </div>
                     </div>
 
                     <div id="checking-history" th:if="${type == 'checking'}">
@@ -113,6 +121,7 @@
                             </thead>
                         </table>
                     </div>
+                    <div id="message" style="color: red; display: none;"></div>
 
                     <!-- /.card-footer-->
                 </div>
@@ -140,6 +149,7 @@
 <th:block th:replace="~{layout/scripts :: scripts_tables('', '')}"/>
 
 <script src="/custom/my-script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs"></script>
 <script>
 
     const accountId = $('#accountId').val();
@@ -151,8 +161,7 @@
     }
 
     function formatDateTime(datetime) {
-        const date = new Date(datetime);
-        return date.toISOString().slice(0, 19).replace('T', ' ');
+        return moment(datetime).format('YYYY-MM-DD HH:mm:ss');
     }
 
     $(function () {
@@ -181,8 +190,18 @@
                 },
                 "dataSrc": function (res) {
                     if (res.data.checkingTx.content.length === 0) {
-                        alert('해당 유형의 거래 데이터가 없습니다.');
+                        // 메시지를 표시할 DOM 요소를 가져오기
+                        const messageElement = document.getElementById('message');
+
+                        // 메시지를 업데이트하고 표시
+                        messageElement.textContent = '해당 계좌의 거래 내역이 없습니다.';
+                        messageElement.style.display = 'block'; // 요소를 보이게 함
+                    } else {
+                        // 데이터가 있을 경우 메시지를 숨기기
+                        const messageElement = document.getElementById('message');
+                        messageElement.style.display = 'none';
                     }
+
                     return res.data.checkingTx.content;
                 }
             },
@@ -208,7 +227,9 @@
                 {
                     data: 'type',
                     render: function (data) {
-                        return `<span style="color: ${data === 'deposit' ? 'blue' : 'red'};">${data}</span>`;
+                        const displayText = data === 'deposit' ? '입금' : data === 'withdraw' ? '출금' : '알 수 없음';
+                        const color = data === 'deposit' ? 'blue' : data === 'withdraw' ? 'red' : 'black';
+                        return `<span style="color: ${color};">${displayText}</span>`;
                     }
                 }
             ]
@@ -238,8 +259,18 @@
                 },
                 "dataSrc": function (res) {
                     if (res.data.savingTx.content.length === 0) {
-                        alert('해당 유형의 거래 데이터가 없습니다.');
+                        // 메시지를 표시할 DOM 요소를 가져오기
+                        const messageElement = document.getElementById('message');
+
+                        // 메시지를 업데이트하고 표시
+                        messageElement.textContent = '해당 계좌의 거래 내역이 없습니다.';
+                        messageElement.style.display = 'block'; // 요소를 보이게 함
+                    } else {
+                        // 데이터가 있을 경우 메시지를 숨기기
+                        const messageElement = document.getElementById('message');
+                        messageElement.style.display = 'none';
                     }
+
                     return res.data.savingTx.content;
                 }
             },
@@ -265,7 +296,9 @@
                 {
                     data: 'type',
                     render: function (data) {
-                        return `<span style="color: ${data === 'deposit' ? 'blue' : 'red'};">${data}</span>`;
+                        const displayText = data === 'deposit' ? '입금' : data === 'withdraw' ? '출금' : '알 수 없음';
+                        const color = data === 'deposit' ? 'blue' : data === 'withdraw' ? 'red' : 'black';
+                        return `<span style="color: ${color};">${displayText}</span>`;
                     }
                 }
             ]
@@ -279,6 +312,12 @@
                 checkingTable.search('', true, false, true).draw();
             }
         });
+
+        // 1. 이체하기 버튼
+        $("#btnUpdate").click(function (event) {
+            myScript.update("#form", "/my-account-update");
+        });
+
     });
 </script>
 </body>

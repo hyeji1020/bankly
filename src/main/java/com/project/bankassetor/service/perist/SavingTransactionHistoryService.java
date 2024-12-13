@@ -37,7 +37,7 @@ public class SavingTransactionHistoryService {
                 .type(TransactionType.valueOf(transactionType))
                 .build();
 
-        log.info("거래내역 정보:{}", toJson(toHistory));
+        log.info("적금 계좌 거래내역 정보:{}", toJson(toHistory));
 
         return historyRepository.save(toHistory);
     }
@@ -63,7 +63,7 @@ public class SavingTransactionHistoryService {
                 .time(LocalDateTime.now())
                 .build();
 
-        log.info("거래내역 정보:{}", toJson(history));
+        log.info("적금 계좌 거래내역 정보:{}", toJson(history));
 
         return historyRepository.save(history);
     }

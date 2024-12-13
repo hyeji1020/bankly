@@ -17,6 +17,7 @@ public enum ErrorCode {
     ACCOUNT_ALREADY_TERMINATE("BANK_ERR_007", "해당 계좌가 이미 해지되었습니다.", HttpStatus.BAD_REQUEST),
     INVALID_ACCOUNT_OWNER("BANK_ERR_008", "해당 계좌의 소유자가 아닙니다.", HttpStatus.BAD_REQUEST),
     OVER_SAVING_LIMIT("BANK_ERR_009", "적금 한도보다 큽니다.", HttpStatus.BAD_REQUEST),
+    INVALID_TRANSFER_ACCOUNT("BANK_ERR_010", "유효하지 않은 이체 요청 입니다.(동일 계좌 포함)", HttpStatus.BAD_REQUEST),
 
     GENERAL_ERROR("BANK_ERR_999", "서버 내부 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 

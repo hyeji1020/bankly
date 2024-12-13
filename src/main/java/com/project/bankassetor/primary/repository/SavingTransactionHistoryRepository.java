@@ -20,11 +20,13 @@ public interface SavingTransactionHistoryRepository extends JpaRepository<Saving
         SELECT *
         FROM saving_tx_history
         WHERE accountId = :accountId AND memberId = :memberId AND (:txType = 'all' OR type = :txType)
+        ORDER BY time DESC;
 
     """, countQuery = """
         SELECT count(*)
         FROM saving_tx_history
         WHERE accountId = :accountId AND memberId = :memberId AND (:txType = 'all' OR type = :txType)
+        ORDER BY time DESC;
     """, nativeQuery = true)
     Page<SavingTransactionHistory> findAllByAccountIdAndType(@Param("accountId") long accountId, @Param("txType") String txType, @Param("memberId") long memberId, PageRequest pageable);
 }

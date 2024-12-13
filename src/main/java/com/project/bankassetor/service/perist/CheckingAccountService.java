@@ -22,7 +22,7 @@ public class CheckingAccountService {
 
         return checkingAccountRepository.findByAccountId(accountId)
                 .orElseThrow(() -> {
-                    log.warn("{}: 에 해당하는 아이디를 찾을 수 없습니다.", accountId);
+                    log.warn("입출금 계좌 조회 중 : {}: 에 해당하는 아이디를 찾을 수 없습니다.", accountId);
                     return new AccountNotFoundException(ErrorCode.ACCOUNT_NOT_FOUND);
                 });
     }

@@ -58,7 +58,10 @@ API서버 --> Queue: 엑세스 로그 저장 요청
     note right
     * AccessLogFilter에서 엑세스 로그 정보를 MQ로 전송.(이하 표시 생략)
     end note
-
+Queue --> API서버: 엑세스 로그 저장 요청 응답
+    note right
+    * MQ 에서 결과를 서버에 전송한다.  (이하 표시 생략)
+    end note
 API서버 -> User: 적금 상품 목록 응답
     note right
     *API 서버가 사용자에게 적금 상품 목록 결과를 응답.

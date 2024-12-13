@@ -1,9 +1,6 @@
 package com.project.bankassetor.service.perist;
 
-import com.project.bankassetor.exception.AccountNotFoundException;
-import com.project.bankassetor.exception.BalanceNotEnoughException;
-import com.project.bankassetor.exception.BankException;
-import com.project.bankassetor.exception.ErrorCode;
+import com.project.bankassetor.exception.*;
 import com.project.bankassetor.primary.model.entity.Account;
 import com.project.bankassetor.primary.model.entity.Member;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingAccount;
@@ -103,7 +100,7 @@ public class AccountService {
             // 출금 가능한 잔액 조회
             BigDecimal withdrawalAmount = accountRequest.getAmount();
             if (account.getBalance().compareTo(withdrawalAmount) < 0) {
-                log.warn("계좌번호: {}에 잔액이 부족합니다. 현재 잔액: {}", accountRequest.getAccountNumber(), account.getBalance());
+                log.error("계좌번호: {}에 잔액이 부족합니다. 현재 잔액: {}", accountRequest.getAccountNumber(), account.getBalance());
                 throw new BalanceNotEnoughException(ErrorCode.BALANCE_NOT_ENOUGH);
             }
 
@@ -145,6 +142,10 @@ public class AccountService {
         // 송금 계좌
         Account toAccount = findByAccountNumber(accountRequest.getAccountNumber());
 
+        if(toAccount == fromAccount){
+            throw new BankException(ErrorCode.INVALID_TRANSFER_ACCOUNT);
+        }
+
         // 출금
         AccountRequest withdrawRequest = new AccountRequest(fromAccount.getAccountNumber(), accountRequest.getAmount());
         withdraw(withdrawRequest);
@@ -153,7 +154,7 @@ public class AccountService {
         deposit(accountRequest);
 
         Member member = findMemberByAccountType(toAccount);
-        log.info("{}님에게 {}원 입금합니다. 받는계좌:{}",
+        log.info("계좌이체 중 ~ {}님에게 {}원 입금합니다. 받는계좌:{}",
                 member.getName(), accountRequest.getAmount(), toAccount.getAccountNumber());
 
         return toAccount;
@@ -201,6 +202,7 @@ public class AccountService {
         return savedAccount;
     }
 
+    @Transactional(rollbackOn = BankException.class)
     // 적금 계좌 생성
     public Account createSavingAccount(Long memberId, Long savingProductId, SavingAccountCreateRequest createRequest) {
         // 사용자 유효성 확인
@@ -278,4 +280,5 @@ public class AccountService {
     public Page<Account> findAllByMemberId(String accountType, String keyword, long memberId, Pageable pageable) {
         return accountRepository.findAllByMemberId(accountType, keyword, memberId, pageable);
     }
+
 }

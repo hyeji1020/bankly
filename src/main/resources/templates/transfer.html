@@ -28,28 +28,59 @@
             </div><!-- /.container-fluid -->
         </div>
 
-        <input type="hidden" id="accountId" th:value="${accountId}" />
+        <input type="hidden" id="accountId" th:value="${accountId}"/>
 
         <div class="container">
             <div class="card">
-                <form id="transferForm" th:data-account-id="${accountId}">
+                <form id="transferForm" th:object="${accountRequest}" method="post" th:data-account-id="${accountId}"
+                      th:action="@{/{accountId}/transfer(accountId=${accountId})}">
+
                     <div class="card-body">
-                        <input type="text" id="accountNumber" name="accountNumber" class="form-control"
+                        <label for="accountNumber" class="form-label">계좌번호</label>
+                        <input type="text" th:field="*{accountNumber}" id="accountNumber" name="accountNumber"
+                               class="form-control"
                                placeholder="보낼 계좌번호를 입력해주세요.">
-                        <input type="number" id="amount" name="amount" class="form-control"
+                        <div th:if="${#fields.hasErrors('accountNumber')}" class="error-message">
+                            <small th:errors="*{accountNumber}"></small>
+                        </div>
+
+                        <label for="amount" class="form-label">보내실 금액</label>
+                        <input type="number" th:field="*{amount}" id="amount" name="amount" class="form-control"
                                placeholder="보낼 금액을 입력해주세요.">
-                        <div class="button-group text-center" style="margin-top: 10px">
-                            <button type="button" id="transferButton" class="btn btn-primary">이체하기</button>
+                        <div th:if="${#fields.hasErrors('amount')}" class="error-message">
+                            <small th:errors="*{amount}"></small>
+                        </div>
+                        <div class="d-flex justify-content-center" style="margin-top: 1em;">
+                            <button type="submit" id="transferButton" class="btn btn-primary">이체하기</button>
                         </div>
                     </div>
-                    <div class="card-body" id="resultBody">
-                        <!-- 결과가 동적으로 표시될 영역 -->
-                        <div id="error-message" style="color: red; display: none;"></div>
-                    </div>
+
                 </form>
+
+                <div class="container text-center" id="response" th:if="${response}" style="margin-top: 1em;">
+                    <div class="card shadow-sm p-4">
+                        <h4 style="color: black" class="fw-bold">이체가 완료되었습니다!</h4>
+                        <p style="color: black" class="fs-5 my-3">
+                            <span th:text="${response.amount}"></span>원 이체했습니다.
+                        </p>
+                        <p style="color: black" class="fs-5 my-3">
+                            받는 계좌: <span th:text="${response.toAccountNumber}"></span>
+                        </p>
+                        <hr class="my-4">
+                        <p class="text-secondary">
+                            5초 후에 계좌 목록 페이지로 이동합니다...
+                        </p>
+                        <button onclick="window.location.href='/my-accounts'" class="btn btn-primary mt-3">
+                            즉시 이동
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid text-center" id="errorMessage" style="margin-top:0.5em" th:if="${error}">
+                    <p style="color: red" th:text="${error}"></p>
+                </div>
             </div>
         </div>
-
     </div>
     <footer class="main-footer">
         <div class="float-right d-none d-sm-block">
@@ -69,62 +100,30 @@
 <th:block th:replace="~{layout/scripts :: scripts_tables('', '')}"/>
 
 <script>
-    $(document).ready(function () {
-        $('#transferButton').on('click', function () {
-            const accountId = $('#transferForm').data('accountId');
-            const accountNumber = $('#accountNumber').val();
-            const amount = $('#amount').val();
 
-            if (!accountNumber) {
-                alert('보낼 계좌번호를 입력해주세요.');
-                return;
-            }
+    document.getElementById('transferForm').onsubmit = function () {
+        const amount = document.getElementById('amount').value;
+        const errorMessageElement = document.getElementById('errorMessage'); // 에러 메시지를 표시할 요소
+        if (!amount || parseFloat(amount) <= 0) {
+            errorMessageElement.textContent = "금액은 0보다 커야 합니다.";
+            errorMessageElement.style.color = "red"; // 메시지 스타일 설정
+            return false; // 폼 제출 중단
+        }
+        errorMessageElement.textContent = ""; // 에러 메시지 초기화
+        return true; // 폼 제출 허용
+    }
 
-            if (!amount || amount <= 0) {
-                alert('보낼금액을 바르게 입력해주세요.');
-                return;
-            }
-
-            // Ajax 요청
-            $.ajax({
-                url: `/${accountId}/transferProc`,
-                method: 'PUT',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    accountNumber: accountNumber, // 받는 계좌 번호
-                    amount: amount               // 이체 금액
-                }),
-                success: function (response) {
-                    console.log("response:{}", response);
-                    $('#resultBody').html(`
-                        <p style="color: black;">${response.amount}원 이체했습니다.</p>
-                        <p style="color: black;">받는 계좌: ${response.toAccountNumber}</p>
-                    `);
-                    setTimeout(function () {
-                        window.location.href = '/my-accounts'; // 이동할 URL
-                    }, 3000);
-                },
-                error: function (xhr) {
-                    try {
-                        const errorResponse = JSON.parse(xhr.responseText); // 서버에서 반환된 JSON 파싱
-                        // 에러 메시지를 표시할 DOM 요소 가져오기
-                        const errorMessageElement = document.getElementById('error-message');
-
-                        // 에러 메시지 업데이트 및 표시
-                        errorMessageElement.textContent = `${errorResponse.message}`;
-                        errorMessageElement.style.display = 'block'; // 요소를 보이게 설정
-                    } catch (e) {
-                        // 파싱에 실패하거나 예외가 발생한 경우
-                        const errorMessageElement = document.getElementById('error-message');
-                        errorMessageElement.textContent = "서버에서 알 수 없는 오류가 발생했습니다.";
-                        errorMessageElement.style.display = 'block';
-                        console.error(e, xhr.responseText);
-                    }
-                }
-
-            });
-        });
+    // DOMContentLoaded 이벤트로 DOM이 완전히 로드된 후 실행
+    document.addEventListener("DOMContentLoaded", function () {
+        const responseElement = document.getElementById('response');
+        if (responseElement) {
+            // 이체 완료 메시지를 일정 시간 후에 페이지 이동
+            setTimeout(function () {
+                window.location.href = "/my-accounts"; // 이동할 URL
+            }, 5000); // 5초 후 이동
+        }
     });
-    </script>
+
+</script>
 </body>
 </html>

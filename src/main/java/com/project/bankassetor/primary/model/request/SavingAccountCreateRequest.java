@@ -4,10 +4,14 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
+@Setter
 @Getter
+@NoArgsConstructor
 public class SavingAccountCreateRequest {
 
     @NotNull(message = "월 납입액은 필수 입력 항목입니다.")

@@ -18,11 +18,7 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Account {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+public class Account extends BaseEntity{
 
     private String accountNumber;
 
@@ -35,15 +31,5 @@ public class Account {
 
     @Enumerated(EnumType.STRING)
     private AccountType type;
-
-    @CreatedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    @Column(columnDefinition = "DATETIME(0)")
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
-    @Column(columnDefinition = "DATETIME(0)")
-    private LocalDateTime updatedAt;
 
 }

@@ -28,18 +28,30 @@
             </div><!-- /.container-fluid -->
         </div>
 
-        <div class="d-flex justify-content-center align-items-center vh-100">
-            <div class="card shadow">
-                <div class="card-body">
-                    <form th:action="@{/saving-products/{savingProductId}/accounts(savingProductId=${savingProductId})}"
-                          method="post">
+        <div class="container">
+            <div class="card">
+                <form id="createForm" th:object="${createRequest}"
+                      th:action="@{/saving-products/{savingProductId}/accounts(savingProductId=${savingProductId})}"
+                      method="post">
+                    <div class="card-body">
                         <div class="mb-3">
                             <label for="monthlyDeposit" class="form-label">월 납입액</label>
-                            <input type="number" class="form-control" id="monthlyDeposit"
-                                   name="monthlyDeposit" placeholder="월 납입금 입력">
+                            <input type="number" th:field="*{monthlyDeposit}"
+                                   class="form-control" id="monthlyDeposit" placeholder="월 납입액 입력">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">계좌 생성하기</button>
-                    </form>
+                        <!-- 유효성 검증 오류 메시지 -->
+                        <div th:if="${#fields.hasErrors('monthlyDeposit')}" class="error-message">
+                            <small th:errors="*{monthlyDeposit}"></small>
+                        </div>
+
+                        <div class="d-flex justify-content-center" style="margin-top: 1em;">
+                            <button type="submit" id="createButton" class="btn btn-primary">생성하기</button>
+                        </div>
+                    </div>
+                </form>
+                <!-- 서버 오류 메시지 -->
+                <div class="grid text-center" id="errorMessage" style="margin-top:0.5em" th:if="${error}">
+                    <p style="color: red" th:text="${error}"></p>
                 </div>
             </div>
         </div>
@@ -56,6 +68,19 @@
     </footer>
 </div>
 <th:block th:replace="~{layout/scripts :: scripts('', '')}"/>
-
+</div>
+<script>
+    document.getElementById('createForm').onsubmit = function () {
+        const deposit = document.getElementById('monthlyDeposit').value;
+        const errorMessageElement = document.getElementById('errorMessage'); // 에러 메시지를 표시할 요소
+        if (!deposit || parseFloat(deposit) <= 0) {
+            errorMessageElement.textContent = "월 납입액은 0보다 커야 합니다.";
+            errorMessageElement.style.color = "red"; // 메시지 스타일 설정
+            return false; // 폼 제출 중단
+        }
+        errorMessageElement.textContent = ""; // 에러 메시지 초기화
+        return true; // 폼 제출 허용
+    }
+</script>
 </body>
 </html>

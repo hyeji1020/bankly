@@ -77,20 +77,24 @@
                         </div>
                     </section>
                     <!-- Filter 영역 끝 -->
-                    <input type="hidden" id="accountId" th:value="${accountId}" />
-                    <input type="hidden" id="type" th:value="${type}" />
-                    <input type="hidden" id="txType" th:value="${txType}" />
+                    <input type="hidden" id="accountId" th:value="${accountId}"/>
+                    <input type="hidden" id="type" th:value="${type}"/>
+                    <input type="hidden" id="txType" th:value="${txType}"/>
 
-                    <div th:if="${type == 'saving'}">
-                        <button id="terminateButton" class="btn btn-danger"
-                                th:onclick="'location.href=\'/my-saving-accounts/' + ${accountId} + '/terminate\''">
-                            지금 해지하면?
-                        </button>
+                    <div class="d-flex justify-content-center">
+                        <div th:if="${type == 'saving'}" class="mx-2">
+                            <button id="terminateButton" class="btn btn-danger"
+                                    th:onclick="'location.href=\'/my-saving-accounts/' + ${accountId} + '/terminate\''">
+                                지금 해지하면?
+                            </button>
+                        </div>
+                        <div class="mx-2">
+                            <button id="transferButton" class="btn btn-primary"
+                                    th:onclick="'location.href=\'/' + ${accountId} + '/transfer\''">
+                                이체하기
+                            </button>
+                        </div>
                     </div>
-                    <button id="transferButton" class="btn btn-primary"
-                            th:onclick="'location.href=\'/' + ${accountId} + '/transfer\''">
-                        이체하기
-                    </button>
 
                     <div id="checking-history" th:if="${type == 'checking'}">
                         <table id="checkingTable" class="table table-bordered table-hover">

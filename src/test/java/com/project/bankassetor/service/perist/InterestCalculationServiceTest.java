@@ -72,27 +72,27 @@ class InterestCalculationServiceTest {
     @DisplayName("중도해지 시 세전 이자를 계산한다.")
     void calculateTermInterest() {
 
-        LocalDate startDate = LocalDate.of(2024, 7, 28);
+        LocalDate startDate = LocalDate.now().minusMonths(5);
         BigDecimal principal  = BigDecimal.valueOf(500000);
         BigDecimal termInterestRate  = new BigDecimal("0.5");
 
         BigDecimal result = interestCalculationService.termInterest(startDate, principal, termInterestRate);
 
-        Assertions.assertEquals(result.setScale(0, RoundingMode.HALF_UP), BigDecimal.valueOf(836));
+        Assertions.assertEquals(result.setScale(0, RoundingMode.HALF_UP), BigDecimal.valueOf(1048));
     }
 
     @Test
     @DisplayName("중도해지시 최종 지급액을 계산한다.")
     void penaltyAmount() {
 
-        LocalDate startDate = LocalDate.of(2024, 7, 28);
+        LocalDate startDate = LocalDate.now().minusMonths(5);
         int depositCount = 5;
         BigDecimal monthlyDeposit = BigDecimal.valueOf(100000);
-        BigDecimal annualRate  = new BigDecimal("0.5");
+        BigDecimal termInterestRate  = new BigDecimal("0.5");
 
-        BigDecimal result = interestCalculationService.terminateAmount(monthlyDeposit, depositCount, annualRate , startDate);
+        BigDecimal result = interestCalculationService.terminateAmount(monthlyDeposit, depositCount, termInterestRate , startDate);
 
-        Assertions.assertEquals(result, BigDecimal.valueOf(500707));
+        Assertions.assertEquals(result, BigDecimal.valueOf(500887));
 
     }
 }

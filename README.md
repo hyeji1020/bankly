@@ -21,10 +21,12 @@
 ![RDS](https://img.shields.io/badge/RDS-Relational%20Database-527FFF?logo=amazonrds)
 ![Route 53](https://img.shields.io/badge/Route%2053-DNS%20Management-232F3E?logo=amazonroute53)
 
-### ⏰ 개발 기간
-2024-10-01 ~ 2024-12-15
- 
-#### 이 프로젝트는 [bankly.store](https://bankly.store)에서 확인할 수 있습니다.
+### ⏰ 개발 기간 및 인원
+2024-10-01 ~ 2024-12-15, 1명
+
+
+
+#### 👀 이 프로젝트는 [bankly.store](https://bankly.store)에서 확인할 수 있습니다. (링크를 새 창에서 열려면 오른쪽 클릭 후 "새 탭에서 열기"를 선택하세요.)
 
 </div>
 

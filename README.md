@@ -23,6 +23,8 @@
 
 ### ⏰ 개발 기간
 2024-10-01 ~ 2024-12-15
+ 
+#### 이 프로젝트는 [bankly.store](https://bankly.store)에서 확인할 수 있습니다.
 
 </div>
 
@@ -141,4 +143,4 @@
 
 
 ### 7. 빌드 및 실행 방법
-- 링크로 접속하기[(bankly.store)](bankly.store)
+- 링크로 접속하기[(bankly.store)](https://bankly.store)

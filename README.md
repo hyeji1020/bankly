@@ -14,11 +14,15 @@
 ![JPA](https://img.shields.io/badge/JPA-ORM-orange)                                  
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-auth-green?logo=springsecurity) 
 ![MySQL](https://img.shields.io/badge/MySQL-8.0.32-blue?logo=mysql&logoColor=white)  
-![Redis](https://img.shields.io/badge/Redis-Cache-red?logo=redis&logoColor=white)    
-![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Message%20Broker-orange?logo=rabbitmq) 
+![Redis](https://img.shields.io/badge/Redis-Cache-red?logo=redis&logoColor=white)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Message%20Broker-orange?logo=rabbitmq)    
+![Docker](https://img.shields.io/badge/Docker-Container%20Platform-2496ED?logo=docker)    
+![AWS](https://img.shields.io/badge/AWS-Cloud-232F3E?logo=amazonaws)
+![RDS](https://img.shields.io/badge/RDS-Relational%20Database-527FFF?logo=amazonrds)
+![Route 53](https://img.shields.io/badge/Route%2053-DNS%20Management-232F3E?logo=amazonroute53)
 
 ### ⏰ 개발 기간
-2024-10-01 ~ 진행 중 
+2024-10-01 ~ 2024-12-15
 
 </div>
 
@@ -35,18 +39,21 @@
 ### 1. 서비스 아키텍처 및 시퀀스 다이어그램
 
 **⚡서비스 아키텍처**<br>
-추가 예정
+![image](https://github.com/user-attachments/assets/b4a8dd8b-e251-4eea-8776-ebea0e758a78)
+
     
 **⚡ 시퀀스 다이어그램**   
 ![bankly-sequenceDiagram](https://github.com/user-attachments/assets/f6ffa73e-f339-49c5-b05d-e54929d020d8)
 
 
-### 2. ERD 및 디렉터리 구조
-**🌈ERD**   
+
+### 2. ERD 및 디렉토리 구조
+**🌈ERD**<br>
 ![image](https://github.com/user-attachments/assets/b1e316fa-1734-4467-8f03-7875cf1c41d4)
 
 **🌈 디렉터리 구조**<br>
 추가 예정
+
 
 
 ### 3. 주요 기능
@@ -134,4 +141,4 @@
 
 
 ### 7. 빌드 및 실행 방법
-추가 예정
+- 링크로 접속하기[(bankly.store)](bankly.store)

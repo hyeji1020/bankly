@@ -92,6 +92,12 @@
 - **뷰 페이지**
     - **Thymeleaf**를 사용해 로그인 페이지 및 계좌 목록 페이지 등 간단한 뷰 페이지를 **서버 사이드 렌더링(SSR)** 방식으로 구현
     - **DataTables**를 활용해 계좌 목록 테이블의 **서버사이드 연동 및 페이지네이션** 구현
+ 
+- **AWS 기반 배포**
+    - **EC2** 인스턴스에 애플리케이션 배포 및 운영
+    - **Caddy**를 웹 서버로 사용하여 HTTPS 인증서를 자동으로 관리하고, 로드밸런싱 없이 **Blue-Green 배포 환경** 구축
+    - **Shell Script**를 작성해 build, jar 파일 전송, 서버 재시작 과정을 **자동화**하여 배포 효율성을 높임
+    - **Docker**를 활용하여 RabbitMQ, Redis, Spring Boot 애플리케이션과 같은 서비스를 컨테이너로 분리 및 관리, 서비스의 **독립성**과 **확장성**을 확보
 
 
 ### 4. API 문서
@@ -147,19 +153,15 @@
 
 ### 7. 주요 기능 화면
 
+| 제목              | 이미지                                                                                      | 제목               | 이미지                                                                                      |
+|-------------------|---------------------------------------------------------------------------------------------|--------------------|---------------------------------------------------------------------------------------------|
+| **회원가입**    | ![회원가입](https://github.com/user-attachments/assets/de8a4c2c-2bf8-4973-8357-2e6d3530a37a) | **로그인**      | ![로그인](https://github.com/user-attachments/assets/b1d1a7fa-8e05-4051-929d-3069a4075b3a)
+1aa2f04f92c7)  |
+| **나의 계좌 목록**     | ![나의계좌목록](https://github.com/user-attachments/assets/b5ec6f25-f977-4cac-8a61-39386dea5a2e) | **거래내역 목록**      | ![거래내역목록](https://github.com/user-attachments/assets/5fcdb0bc-e35a-4b51-8675-2a692129ccc8) |
+| **계좌이체**       | ![계좌이체_잔액부족](https://github.com/user-attachments/assets/7a5db6eb-616b-4044-b49e-ab66e5a55952) | **이체 완료**   | ![이체완료](https://github.com/user-attachments/assets/99d41829-3e0c-4ed9-ba29-db7243b3f9ae)   |
+| **적금 상품 목록**     | ![적금상품목록](https://github.com/user-attachments/assets/9cd5efba-9841-4442-8c95-e32039f659ec) | **적금 상품 상세**     | ![적금상품상세](https://github.com/user-attachments/assets/bb129687-1eea-44ef-b0dd-838b8475f300) |
+| **이자 계산기**        | ![이자계산기](https://github.com/user-attachments/assets/f3c24497-65c0-429a-8bd3-7944b778f338) | **적금상품 가입**      | ![적금상품한도_유효성](https://github.com/user-attachments/assets/dfdfee58-3929-45e5-aa23-0ec56b9b7941) |
 
-| 제목              | 이미지                                                                                      |
-|-------------------|---------------------------------------------------------------------------------------------|
-| **회원가입 페이지**    | ![회원가입](https://github.com/user-attachments/assets/de8a4c2c-2bf8-4973-8357-2e6d3530a37a) |
-| **로그인 페이지**      | ![로그인](https://github.com/user-attachments/assets/75072f6f-a7bb-4ab7-8ccb-1aa2f04f92c7)|
-| **나의 계좌 목록**     | ![나의계좌목록](https://github.com/user-attachments/assets/b5ec6f25-f977-4cac-8a61-39386dea5a2e) |
-| **거래내역 목록**      | ![거래내역목록](https://github.com/user-attachments/assets/5fcdb0bc-e35a-4b51-8675-2a692129ccc8) |
-| **계좌이체** | ![계좌이체_잔액부족](https://github.com/user-attachments/assets/7a5db6eb-616b-4044-b49e-ab66e5a55952) |
-| **이체 완료 페이지**   |![이체완료](https://github.com/user-attachments/assets/99d41829-3e0c-4ed9-ba29-db7243b3f9ae) |
-| **적금 상품 목록**     | ![적금상품목록](https://github.com/user-attachments/assets/9cd5efba-9841-4442-8c95-e32039f659ec)|
-| **적금 상품 상세**     | ![적금상품상세](https://github.com/user-attachments/assets/bb129687-1eea-44ef-b0dd-838b8475f300) |
-| **이자 계산기**        | ![이자계산기](https://github.com/user-attachments/assets/f3c24497-65c0-429a-8bd3-7944b778f338)|
-| **적금상품 가입** | ![적금상품한도_유효성](https://github.com/user-attachments/assets/dfdfee58-3929-45e5-aa23-0ec56b9b7941) |
 
 
 

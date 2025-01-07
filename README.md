@@ -38,7 +38,7 @@
 4. [API 문서](#4-api-문서)  
 5. [서비스 및 포트 정보](#5-서비스-및-포트-정보)  
 6. [로그 관리](#6-로그-관리)  
-7. [빌드 및 실행 방법](#7-빌드-및-실행-방법)  
+7. [주요 기능 화면](#7-주요-기능-화면)  
 
 ### 1. 서비스 아키텍처 및 시퀀스 다이어그램
 
@@ -145,5 +145,23 @@
     - **관리**: 매일 `consumer_YYYYMMDD.log.gz` 형식으로 압축 저장, 최근 90일간 보관
 
 
-### 7. 빌드 및 실행 방법
-- 링크로 접속하기[(bankly.store)](https://bankly.store)
+### 7. 주요 기능 화면
+
+
+| 제목              | 이미지                                                                                      |
+|-------------------|---------------------------------------------------------------------------------------------|
+| **회원가입 페이지**    | ![회원가입](https://github.com/user-attachments/assets/de8a4c2c-2bf8-4973-8357-2e6d3530a37a) |
+| **로그인 페이지**      | ![로그인](https://github.com/user-attachments/assets/75072f6f-a7bb-4ab7-8ccb-1aa2f04f92c7)|
+| **나의 계좌 목록**     | ![나의계좌목록](https://github.com/user-attachments/assets/b5ec6f25-f977-4cac-8a61-39386dea5a2e) |
+| **거래내역 목록**      | ![거래내역목록](https://github.com/user-attachments/assets/5fcdb0bc-e35a-4b51-8675-2a692129ccc8) |
+| **계좌이체** | ![계좌이체_잔액부족](https://github.com/user-attachments/assets/7a5db6eb-616b-4044-b49e-ab66e5a55952) |
+| **이체 완료 페이지**   |![이체완료](https://github.com/user-attachments/assets/99d41829-3e0c-4ed9-ba29-db7243b3f9ae) |
+| **적금 상품 목록**     | ![적금상품목록](https://github.com/user-attachments/assets/9cd5efba-9841-4442-8c95-e32039f659ec)|
+| **적금 상품 상세**     | ![적금상품상세](https://github.com/user-attachments/assets/bb129687-1eea-44ef-b0dd-838b8475f300) |
+| **이자 계산기**        | ![이자계산기](https://github.com/user-attachments/assets/f3c24497-65c0-429a-8bd3-7944b778f338)|
+| **적금상품 가입** | ![적금상품한도_유효성](https://github.com/user-attachments/assets/dfdfee58-3929-45e5-aa23-0ec56b9b7941) |
+
+
+
+
+

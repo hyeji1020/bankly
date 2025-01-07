@@ -131,14 +131,14 @@
     - **URL**: [http://localhost:8888](http://localhost:8888)
     - **포트**: `8888`
     - **기능**: 엑세스 로그를 수신하고 저장하는 전용 서비스
-    - 
+      
 
 ### 6. 로그 관리
 
 - **서버 로그** (`server.log`)
     - **위치**: `./logs/server.log`
     - **설명**: 서버의 일반 작동 로그를 기록합니다.
-    - **관리**: 매일 `server_YYYYMMDD.log.gz` 형식으로 압축 저장되며, 최근 90일간 보관
+    - **관리**: 매일 `server_YYYYMMDD.log.gz` 형식으로 압축 저장되며, 최대 90일간 보관
 
 - **엑세스 로그** (`access.log`)
     - **위치**: `./logs/access.log`
@@ -148,7 +148,7 @@
 - **메시지 처리 로그** (`consumer.log`)
     - **위치**: `./logs/consumer.log`
     - **설명**: RabbitMQ 메시지 처리 중 엑세스 로그 저장에 실패한 메시지와 관련된 상태를 기록합니다.
-    - **관리**: 매일 `consumer_YYYYMMDD.log.gz` 형식으로 압축 저장, 최근 90일간 보관
+    - **관리**: 매일 `consumer_YYYYMMDD.log.gz` 형식으로 압축 저장, 최대 90일간 보관
 
 
 ### 7. 주요 기능 화면

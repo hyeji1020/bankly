@@ -43,7 +43,7 @@
 ### 1. 서비스 아키텍처 및 시퀀스 다이어그램
 
 **⚡서비스 아키텍처**<br>
-![image](https://github.com/user-attachments/assets/b4a8dd8b-e251-4eea-8776-ebea0e758a78)
+![bankly_서비스아키텍처](https://github.com/user-attachments/assets/30153ffd-1462-4e60-aeaf-87a6ac687038)
 
     
 **⚡ 시퀀스 다이어그램**   

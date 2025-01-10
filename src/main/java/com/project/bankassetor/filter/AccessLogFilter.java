@@ -17,9 +17,11 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.UUID;
 
 import static com.project.bankassetor.utils.Utils.toJson;
 
@@ -101,26 +103,24 @@ public class AccessLogFilter implements Filter {
      */
     private AccessLog createAccessLog(ContentCachingRequestWrapper requestWrapper) {
         AccessLog accessLog = new AccessLog();
-        accessLog.setHost(requestWrapper.getRemoteHost());
 
-        // 클라이언트 IP 설정
         String clientIp = AccessLogUtil.getClientIp(requestWrapper);
-        accessLog.setClientIp(clientIp);
-
-        // User-Agent 파싱하여 관련 필드 설정
         String userAgent = requestWrapper.getHeader("User-Agent");
+        String referer = requestWrapper.getHeader("Referer");
+        String requestId = UUID.randomUUID().toString();
+        long now = System.currentTimeMillis();
+
+        accessLog.setHost(requestWrapper.getRemoteHost());
+        // 클라이언트 IP 설정
+        accessLog.setClientIp(clientIp);
+        // User-Agent 파싱하여 관련 필드 설정
         accessLog.setUserAgent(userAgent);
-        AccessLogUtil.getUserAgent(userAgent, accessLog);
-
         // requestId UUID 설정
-        String requestId = AccessLogUtil.generateRequestId();
         accessLog.setRequestId(requestId);
-        requestWrapper.setAttribute("requestId", requestId);
-
         accessLog.setUri(requestWrapper.getRequestURI());
         accessLog.setMethod(requestWrapper.getMethod());
-        accessLog.setRequestAt(LocalDateTime.now());
-        accessLog.setReferer(requestWrapper.getHeader("Referer"));
+        accessLog.setRequestAt(Instant.ofEpochMilli(now).atZone(ZoneId.systemDefault()).toLocalDateTime());
+        accessLog.setReferer(referer);
 
         return accessLog;
     }
@@ -137,7 +137,8 @@ public class AccessLogFilter implements Filter {
     private void setRequestData(ContentCachingRequestWrapper requestWrapper, AccessLog accessLog) {
         // GET 요청의 경우 쿼리 스트링을 JSON 형식으로 저장
         if ("GET".equalsIgnoreCase(requestWrapper.getMethod())) {
-            accessLog.setRequest(toJson(requestWrapper.getParameterMap())); // 쿼리 스트링을 JSON으로 변환
+            accessLog.setRequest(truncateString(toJson(requestWrapper.getParameterMap()), 5000));
+//            accessLog.setRequest(toJson(requestWrapper.getParameterMap())); // 쿼리 스트링을 JSON으로 변환
         }
         // POST 요청의 경우 요청 본문(Body)을 JSON 형식으로 저장
         else if ("POST".equalsIgnoreCase(requestWrapper.getMethod())) {
@@ -145,7 +146,8 @@ public class AccessLogFilter implements Filter {
             byte[] content = requestWrapper.getContentAsByteArray();
             if (content.length > 0) {
                 String requestBody = new String(content, StandardCharsets.UTF_8);
-                accessLog.setRequest(requestBody); // 요청 본문 설정
+                accessLog.setRequest(truncateString(requestBody, 5000));
+//                accessLog.setRequest(requestBody); // 요청 본문 설정
             }
         }
     }
@@ -166,8 +168,8 @@ public class AccessLogFilter implements Filter {
             // 바이트 배열을 문자열로 변환
             String responseBody = new String(content, StandardCharsets.UTF_8);
 
-            // 응답 본문 설정, 5000 자까지만 들어가도록 자르기.
-            accessLog.setResponse(truncateString(responseBody, 5000));
+            // 응답 본문 설정, 3000 자까지만 들어가도록 자르기.
+            accessLog.setResponse(truncateString(responseBody, 3000));
         }
     }
 

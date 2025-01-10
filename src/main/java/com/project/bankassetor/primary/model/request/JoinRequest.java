@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class JoinRequest {
 
-    @Size(min = 2, max = 25, message = "이름을 2자에서 25자 사이로 입력해주세요.")
+    @Size(min = 2, max = 25, message = "이름은 2~25자 사이로 입력해주세요.")
     @NotBlank(message = "이름은 필수 입력입니다.")
     String name;
 

@@ -14,19 +14,28 @@ import java.util.List;
 public interface SavingTransactionHistoryRepository extends JpaRepository<SavingTransactionHistory, Long> {
 
     @Query(value = "SELECT sth.* FROM saving_tx_history sth WHERE sth.accountId = :accountId ORDER BY sth.time DESC", nativeQuery = true)
-    List<SavingTransactionHistory> findByAccountId(@Param("accountId") long accountId);
+    List<SavingTransactionHistory> findByAccountId(@Param("accountId") Long accountId);
 
     @Query(value = """
         SELECT *
         FROM saving_tx_history
-        WHERE accountId = :accountId AND memberId = :memberId AND (:txType = 'all' OR type = :txType)
+        WHERE id is not null
+          AND (:accountId is null or accountId = :accountId)
+          AND (:memberId is null or memberId = :memberId) 
+          AND (:txType is null or (:txType = 'all' OR type = :txType))
         ORDER BY time DESC;
 
     """, countQuery = """
         SELECT count(*)
         FROM saving_tx_history
-        WHERE accountId = :accountId AND memberId = :memberId AND (:txType = 'all' OR type = :txType)
+        WHERE id is not null
+          AND (:accountId is null or accountId = :accountId)
+          AND (:memberId is null or memberId = :memberId)
+          AND (:txType is null or (:txType = 'all' OR type = :txType))
         ORDER BY time DESC;
     """, nativeQuery = true)
-    Page<SavingTransactionHistory> findAllByAccountIdAndType(@Param("accountId") long accountId, @Param("txType") String txType, @Param("memberId") long memberId, PageRequest pageable);
+    Page<SavingTransactionHistory> findAllByAccountIdAndType(@Param("accountId") Long accountId,
+                                                             @Param("txType") String txType,
+                                                             @Param("memberId") Long memberId,
+                                                             PageRequest pageable);
 }

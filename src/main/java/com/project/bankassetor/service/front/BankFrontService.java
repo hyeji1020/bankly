@@ -74,26 +74,26 @@ public class BankFrontService {
     }
 
     // 나의 당좌 계좌 목록 확인
-    public List<AccountResponse> getMyCheckAccounts(long memberId) {
+    public List<AccountResponse> getMyCheckAccounts(Long memberId) {
         final List<Account> accounts = accountService.findCheckByMemberId(memberId);
 
         return AccountResponse.of(accounts);
     }
 
     // 나의 적금 계좌 목록 확인
-    public List<AccountResponse> getMySaveAccounts(long memberId) {
+    public List<AccountResponse> getMySaveAccounts(Long memberId) {
         final List<Account> accounts = accountService.findSaveByMemberId(memberId);
 
         return AccountResponse.of(accounts);
     }
 
-    public List<CheckingTransactionHistoryResponse> getCheckTransactionHistory(long accountId) {
+    public List<CheckingTransactionHistoryResponse> getCheckTransactionHistory(Long accountId) {
         final List<CheckingTransactionHistory> checkHistories = checkingTransactionHistoryService.findCheckTransactionHistoryByAccountId(accountId);
 
         return CheckingTransactionHistoryResponse.of(checkHistories);
     }
 
-    public List<SavingTransactionHistoryResponse> getSaveTransactionHistory(long accountId) {
+    public List<SavingTransactionHistoryResponse> getSaveTransactionHistory(Long accountId) {
         final List<SavingTransactionHistory> saveHistories = savingTransactionHistoryService.findSaveTransactionHistoryByAccountId(accountId);
 
         return SavingTransactionHistoryResponse.of(saveHistories);
@@ -105,23 +105,23 @@ public class BankFrontService {
         return SavingProductResponse.of(savingProducts);
     }
 
-    public SavingProductResponse getSavingProduct(long savingProductId) {
+    public SavingProductResponse getSavingProduct(Long savingProductId) {
         final SavingProduct savingProduct = savingProductService.findById(savingProductId);
 
         return SavingProductResponse.of(savingProduct);
     }
 
-    public InterestCalcResponse interestCalculate(long savingProductId, InterestCalcRequest interestCalcRequest) {
+    public InterestCalcResponse interestCalculate(Long savingProductId, InterestCalcRequest interestCalcRequest) {
         return savingProductService.calculateInterest(savingProductId, interestCalcRequest);
 
     }
 
-    public InterestCalcResponse expectInterest(long accountId) {
+    public InterestCalcResponse expectInterest(Long accountId) {
         return savingAccountService.expectInterest(accountId);
 
     }
 
-    public SavingTransactionHistoryResponse terminateSavingAccount(long accountId, long memberId) {
+    public SavingTransactionHistoryResponse terminateSavingAccount(Long accountId, Long memberId) {
         final SavingTransactionHistory saveHistory = savingAccountService.terminateSavingAccount(accountId, memberId);
 
         return SavingTransactionHistoryResponse.of(saveHistory);
@@ -168,7 +168,7 @@ public class BankFrontService {
     }
 
     // 적금 거래 내역 목록(데이터 테이블)
-    public DataTableView getAllCheckingTx(long accountId, Member member, StringMultiValueMapAdapter param) {
+    public DataTableView getAllCheckingTx(Long accountId, Member member, StringMultiValueMapAdapter param) {
 
         int draw = param.intVal("draw");
         int start = param.intVal("start");
@@ -187,7 +187,7 @@ public class BankFrontService {
     }
 
     // 적금 거래 내역 목록(데이터 테이블)
-    public DataTableView getAllSavingTx(long accountId, Member member, StringMultiValueMapAdapter param) {
+    public DataTableView getAllSavingTx(Long accountId, Member member, StringMultiValueMapAdapter param) {
 
         int draw = param.intVal("draw");
         int start = param.intVal("start");

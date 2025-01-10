@@ -2,8 +2,6 @@ package com.project.bankassetor.service.perist;
 
 import com.project.bankassetor.primary.model.entity.account.check.CheckingAccount;
 import com.project.bankassetor.primary.model.entity.account.check.CheckingTransactionHistory;
-import com.project.bankassetor.primary.model.entity.account.save.SavingAccount;
-import com.project.bankassetor.primary.model.entity.account.save.SavingTransactionHistory;
 import com.project.bankassetor.primary.model.enums.TransactionType;
 import com.project.bankassetor.primary.repository.CheckingTransactionHistoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,11 +41,11 @@ public class CheckingTransactionHistoryService {
         return historyRepository.save(toHistory);
     }
 
-    public List<CheckingTransactionHistory> findCheckTransactionHistoryByAccountId(long accountId) {
+    public List<CheckingTransactionHistory> findCheckTransactionHistoryByAccountId(Long accountId) {
         return historyRepository.findByAccountId(accountId);
     }
 
-    public Page<CheckingTransactionHistory> findAllByAccountIdAndType(long accountId, String txType, long memberId, PageRequest pageable) {
+    public Page<CheckingTransactionHistory> findAllByAccountIdAndType(Long accountId, String txType, Long memberId, PageRequest pageable) {
         return historyRepository.findAllByAccountIdAndType(accountId, txType, memberId, pageable);
     }
 }

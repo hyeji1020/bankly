@@ -49,7 +49,7 @@ public class InterestCalculationService {
                 .multiply(termInterestRate.divide(BigDecimal.valueOf(100).setScale(5, RoundingMode.HALF_UP)))
                 .multiply(BigDecimal.valueOf(daysElapsed).divide(BigDecimal.valueOf(365), 5, RoundingMode.HALF_UP)) // 경과 기간 비율
                 .setScale(2, RoundingMode.HALF_UP);
-        log.info("적금 시작일로부터 경과 일수: {} 일, 중도해지 이자 : {} 원", daysElapsed, termInterest);
+        log.info("적금 시작일로부터 경과 일수: {} 일, 중도해지 이자(세전) : {} 원", daysElapsed, termInterest);
 
         return termInterest;
     }
@@ -67,7 +67,7 @@ public class InterestCalculationService {
     public BigDecimal totalAmount(BigDecimal principal, BigDecimal afterTaxInterest) {
         BigDecimal totalAmount = principal.add(afterTaxInterest)
                 .setScale(0, RoundingMode.HALF_UP);
-        log.info("만기 금액 계산 결과: {}", principal);
+        log.info("총 지급액 계산 결과: {}", principal);
 
         return totalAmount;
     }

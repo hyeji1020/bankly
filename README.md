@@ -65,7 +65,7 @@
 ### 3. 주요 기능
 - **로그인 및 회원가입**
     - **Spring Security**를 활용해 회원 가입 시 비밀번호 암호화 및 권한 부여 로직 구현, 로그인 기능 설계
-    - **Session 관리**를 통해 사용자 인증 상태 유지
+    - **JDBC 기반 Session Store**를 통해 세션 데이터를 데이터베이스에 저장하여 사용자 인증 상태를 유지
 
 - **계좌 관리**
     - 당좌 계좌 및 적금 계좌 **생성 및 조회** 기능 구현
@@ -78,7 +78,9 @@
 
 - **텔레그램 알림**
     - 회원 가입 시 운영자가 누가 가입했는지 파악하고, 엑세스 로그 저장 중 장애 발생 시 신속한 문제 해결을 위해 **Telegram Bot API**를 통해 알림을 전송
-
+    - 📖 **구현 예시**
+     
+      ![image](https://github.com/user-attachments/assets/9b4982bc-0e2f-4358-b0bf-e89088b5c639)![Telegram Notification Example](https://github.com/user-attachments/assets/95d312a4-66db-48c7-bafb-76f8b9299099)   
 - **적금 만기 자동화**
     - **Spring Scheduler**를 사용해 매일 만기 도래 계좌를 확인하고, **만기 금액 입금** 및 **상태를 자동으로 업데이트**
 
@@ -118,8 +120,7 @@
 | 11 | `GET`  | `/api/bank/saving-transaction-history/{accountId}`     |      ✔        |     적금 거래내역     |
 | 12 | `POST` | `/api/bank/interest/calculate/{savingProductId}`       |       ✔        | 특정 적금 상품 이자 계산기 |
 | 13 | `POST`  | `/api/bank/my-saving-accounts/{accountId}/terminate`   |       ✔        |    적금 중도 해지     |
-| 14 | `GET`  | `/health-check`   |               |    시스템 진단     |
-| 15 | `POST`  | `/health-check`   |               |    시스템 진단     |
+| 14 | `GET`  | [`/health-check`](https://bankly.store/health-check)   |               |    시스템 진단     |
 
 
 ### 5. 서비스 및 포트 정보

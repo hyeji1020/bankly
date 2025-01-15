@@ -57,7 +57,161 @@
 ![image](https://github.com/user-attachments/assets/b1e316fa-1734-4467-8f03-7875cf1c41d4)
 
 **🌈 디렉터리 구조**<br>
-추가 예정
+```markdown
+
+java
+└─com
+    └─project
+        └─bankassetor
+            ├─ BankAssetApplication.java
+            ├─ api
+            │   ├─ BankApi.java
+            │   └─ HealthCheckApi.java
+            ├─ batch
+            │   └─ ScheduledBatchConfig.java
+            ├─ config
+            │   ├─ AppConfig.java
+            │   ├─ CachingConfig.java
+            │   ├─ PrimaryDBConfig.java
+            │   ├─ RabbitMQConfig.java
+            │   ├─ SecondaryDBConfig.java
+            │   ├─ WebConfig.java
+            │   ├─ WebSecurityConfig.java
+            │   └─ security
+            │       ├─ Authed.java
+            │       ├─ CustomUserDetailService.java
+            │       ├─ LoginFailHandler.java
+            │       ├─ LoginSuccessHandler.java
+            │       └─ MyLogoutSuccessHandler.java
+            ├─ controller
+            │   ├─ AccountsPage.java
+            │   ├─ JoinPage.java
+            │   ├─ LoginPage.java
+            │   └─ MainAdminPage.java
+            ├─ exception
+            │   ├─ AccessLogException.java
+            │   ├─ AccountNotFoundException.java
+            │   ├─ BalanceNotEnoughException.java
+            │   ├─ BankException.java
+            │   ├─ ErrorCode.java
+            │   ├─ GlobalExceptionHandler.java
+            │   └─ UserNotFoundException.java
+            ├─ filter
+            │   ├─ AccessLogFilter.java
+            │   ├─ AccessLogUtil.java
+            │   └─ response
+            │       └─ LocationResponse.java
+            ├─ listener
+            │   └─ AccessLogListener.java
+            ├─ primary
+            │   ├─ model
+            │   │   ├─ entity
+            │   │   │   ├─ Account.java
+            │   │   │   ├─ BaseEntity.java
+            │   │   │   ├─ Config.java
+            │   │   │   ├─ Member.java
+            │   │   │   └─ account
+            │   │   │       ├─ check
+            │   │   │       │   ├─ CheckingAccount.java
+            │   │   │       │   └─ CheckingTransactionHistory.java
+            │   │   │       └─ save
+            │   │   │           ├─ SavingAccount.java
+            │   │   │           ├─ SavingProduct.java
+            │   │   │           └─ SavingTransactionHistory.java
+            │   │   ├─ enums
+            │   │   │   ├─ AccountStatus.java
+            │   │   │   ├─ AccountType.java
+            │   │   │   └─ TransactionType.java
+            │   │   ├─ request
+            │   │   │   ├─ AccountCreateRequest.java
+            │   │   │   ├─ AccountRequest.java
+            │   │   │   ├─ InterestCalcRequest.java
+            │   │   │   ├─ JoinRequest.java
+            │   │   │   ├─ SavingAccountCreateRequest.java
+            │   │   │   └─ StringMultiValueMapAdapter.java
+            │   │   └─ response
+            │   │       ├─ AccountCreateResponse.java
+            │   │       ├─ AccountResponse.java
+            │   │       ├─ AccountTransferResponse.java
+            │   │       ├─ CheckingTransactionHistoryResponse.java
+            │   │       ├─ DataTableView.java
+            │   │       ├─ InterestCalcResponse.java
+            │   │       ├─ JoinResponse.java
+            │   │       ├─ RestError.java
+            │   │       ├─ ResultResponse.java
+            │   │       ├─ SavingProductResponse.java
+            │   │       ├─ SavingTransactionHistoryResponse.java
+            │   │       └─ TerminateResponse.java
+            │   └─ repository
+            │       ├─ AccountRepository.java
+            │       ├─ CheckingAccountRepository.java
+            │       ├─ CheckingTransactionHistoryRepository.java
+            │       ├─ ConfigRepository.java
+            │       ├─ MemberRepository.java
+            │       ├─ SavingAccountRepository.java
+            │       ├─ SavingProductRepository.java
+            │       └─ SavingTransactionHistoryRepository.java
+            ├─ secondary
+            │   ├─ model
+            │   │   └─ entity
+            │   │       └─ AccessLog.java
+            │   └─ repository
+            │       └─ AccessLogRepository.java
+            ├─ service
+            │   ├─ front
+            │   │   └─ BankFrontService.java
+            │   └─ perist
+            │       ├─ AccessLogService.java
+            │       ├─ AccountService.java
+            │       ├─ CheckingAccountService.java
+            │       ├─ CheckingTransactionHistoryService.java
+            │       ├─ ConfigService.java
+            │       ├─ InterestCalculationService.java
+            │       ├─ MemberService.java
+            │       ├─ SavingAccountService.java
+            │       ├─ SavingProductService.java
+            │       ├─ SavingTransactionHistoryService.java
+            │       └─ TelegramNotificationService.java
+            └─ utils
+                └─ Utils.java
+
+resources
+├─ templates
+│   ├─ create-account.html
+│   ├─ expect-interest.html
+│   ├─ index.html
+│   ├─ interest-calculate.html
+│   ├─ join.html
+│   ├─ login.html
+│   ├─ my-accounts.html
+│   ├─ saving-products-detail.html
+│   ├─ saving-products.html
+│   ├─ transaction-history.html
+│   ├─ transfer.html
+└─  └─ layout
+
+test
+├─ java
+│   └─ com
+│       └─ project
+│           └─ bankassetor
+│               ├─ BankAssetApplicationTests.java
+│               ├─ fixture
+│               │   └─ MemberFixture.java
+│               ├─ listener
+│               │   └─ AccessLogListenerTest.java
+│               ├─ repository
+│               └─ service
+│                   └─ perist
+│                       ├─ AccountServiceTest.java
+│                       ├─ ConfigServiceTest.java
+│                       ├─ InterestCalculationServiceTest.java
+│                       ├─ MemberServiceTest.java
+│                       └─ SavingProductServiceTest.java
+└─ resources
+    └─ application-test.yml
+
+```
 
 
 
@@ -68,7 +222,7 @@
 
 - **계좌 관리**
     - 당좌 계좌 및 적금 계좌 **생성 및 조회** 기능 구현
-    - Spring MVC 패턴을 활용해 계좌 간 **입금, 출금, 계좌이체** 기능 개발
+    - **Spring MVC** 패턴을 활용해 계좌 간 **입금, 출금, 계좌이체** 기능 개발
     - 계좌별 **거래 내역 조회** 기능 제공
 
 - **엑세스 로그 관리**

@@ -30,7 +30,7 @@ public class CachingConfig {
   @Bean
   public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
     return (builder) -> builder
-            .withCacheConfiguration(CONFIG_CACHE, defaultCacheConfig().entryTtl(Duration.ofSeconds(10)))
+            .withCacheConfiguration(CONFIG_CACHE, defaultCacheConfig().entryTtl(Duration.ofMinutes(10)))
             .withCacheConfiguration(LICENSE_CACHE, defaultCacheConfig().entryTtl(Duration.ofSeconds(200)));
   }
 }

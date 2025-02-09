@@ -14,14 +14,16 @@ import com.project.bankassetor.primary.repository.SavingAccountRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.project.bankassetor.service.perist.InterestCalculationService.afterTaxInterest;
 
@@ -69,6 +71,7 @@ public class SavingAccountService {
      * DB에 반영합니다.
      **/
     @Transactional
+    @Retryable(value = {DataAccessException.class, SQLException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public void expireMaturedAccounts() {
 
         // 만기 도래한 계좌 조회

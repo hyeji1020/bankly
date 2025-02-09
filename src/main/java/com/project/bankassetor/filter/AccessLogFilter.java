@@ -71,7 +71,7 @@ public class AccessLogFilter implements Filter {
 
         // HTTP 요청의 URI를 확인하여 특정 경로로 시작하는 요청을 필터링
         final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        if(httpServletRequest.getRequestURI().startsWith("/assets") || httpServletRequest.getRequestURI().startsWith("/custom") || httpServletRequest.getRequestURI().startsWith("/images")) {
+        if(httpServletRequest.getRequestURI().startsWith("/favicon.ico") || httpServletRequest.getRequestURI().startsWith("/assets") || httpServletRequest.getRequestURI().startsWith("/custom") || httpServletRequest.getRequestURI().startsWith("/images")) {
             chain.doFilter(request, response);
             return;
         }

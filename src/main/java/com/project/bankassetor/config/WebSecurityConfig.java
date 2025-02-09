@@ -45,6 +45,7 @@ public class WebSecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login")
                 .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
             )
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configure(http));

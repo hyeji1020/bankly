@@ -20,7 +20,7 @@ public class MyLogoutSuccessHandler implements LogoutSuccessHandler {
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
 
         Member adminMember = (Member) authentication.getPrincipal();
-        // todo: 로그아웃 이력 저장
+
         response.sendRedirect("/login");
     }
 }

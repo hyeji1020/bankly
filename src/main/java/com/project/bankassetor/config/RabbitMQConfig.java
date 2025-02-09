@@ -55,13 +55,13 @@ public class RabbitMQConfig {
 
     // 교환기(Exchange) 선언
     @Bean
-    public TopicExchange accessLogExchange() {
-        return new TopicExchange("accessLogExchange");
+    public DirectExchange accessLogExchange() {
+        return new DirectExchange("accessLogExchange");
     }
 
     // 교환기와 큐를 바인딩
     @Bean
-    public Binding bindingAccessLogQueue(Queue mainQueue, TopicExchange accessLogExchange) {
+    public Binding bindingAccessLogQueue(Queue mainQueue, DirectExchange accessLogExchange) {
         return BindingBuilder.bind(mainQueue).to(accessLogExchange).with("access.log");
     }
 }

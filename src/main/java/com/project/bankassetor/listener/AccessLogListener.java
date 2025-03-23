@@ -79,12 +79,12 @@ public class AccessLogListener implements SmartLifecycle {
                 log.info("배치로 저장 중: AccessLogs 크기={}", accessLogBatch.size());
                 accessLogService.saveBatch(new ArrayList<>(accessLogBatch));
                 accessLogBatch.clear();  // 저장 후 리스트 초기화
+
+                long endTime = System.currentTimeMillis(); // 종료 시간
+                log.info("배치 소요 시간: {} ms", (endTime - startTime));
             } catch (Exception e) {
                 log.error("AccessLog 배치 저장 실패", e);
                 throw new AccessLogException(ErrorCode.ACCESS_LOG_BATCH_SAVE_ERROR);
-            }finally {
-                long endTime = System.currentTimeMillis(); // 종료 시간
-                log.info("배치 저장 완료. 소요 시간: {} ms", (endTime - startTime));
             }
         }
     }

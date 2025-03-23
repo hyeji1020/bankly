@@ -106,6 +106,7 @@ public class AccessLogFilter implements Filter {
 
         String clientIp = AccessLogUtil.getClientIp(requestWrapper);
         String userAgent = requestWrapper.getHeader("User-Agent");
+        AccessLogUtil.getUserAgent(userAgent, accessLog);
         String referer = requestWrapper.getHeader("Referer");
         String requestId = UUID.randomUUID().toString();
         long now = System.currentTimeMillis();

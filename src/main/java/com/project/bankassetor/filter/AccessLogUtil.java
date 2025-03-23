@@ -25,6 +25,7 @@ public class AccessLogUtil {
             .withField(UserAgent.OPERATING_SYSTEM_NAME)
             .withField(UserAgent.OPERATING_SYSTEM_CLASS)
             .withField(UserAgent.DEVICE_CLASS)
+            .withField(UserAgent.DEVICE_NAME) // 기기 이름 추가
             .build();
 
     /**
